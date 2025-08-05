@@ -1,0 +1,21 @@
+{
+    // editor
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit",
+        "source.fixAll.ts": "explicit"
+    },
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+    // eslint
+    "eslint.enable": true,
+    "eslint.format.enable": true,
+    "eslint.codeActionsOnSave.mode": "problems",
+    "eslint.codeActionsOnSave.rules": null,
+
+    // prettier
+    "prettier.enable": true,
+
+    // tailwindcss bugfix
+    "scss.lint.unknownAtRules": "ignore"
+}

@@ -5,6 +5,7 @@
     "esbenp.prettier-vscode",
     "formulahendry.auto-close-tag",
     "formulahendry.auto-rename-tag",
-    "andrewmcodes.tailwindcss-extension-pack"
+    "andrewmcodes.tailwindcss-extension-pack",
+    "seatonjiang.gitmoji-vscode"
   ]
 }

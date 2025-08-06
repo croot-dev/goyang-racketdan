@@ -1,21 +1,56 @@
 {
-    // editor
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "explicit",
-        "source.fixAll.ts": "explicit"
+  // editor
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.ts": "explicit"
+  },
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  // eslint
+  "eslint.enable": true,
+  "eslint.format.enable": true,
+  "eslint.codeActionsOnSave.mode": "problems",
+  "eslint.codeActionsOnSave.rules": null,
+
+  // prettier
+  "prettier.enable": true,
+
+  // tailwindcss bugfix
+  "scss.lint.unknownAtRules": "ignore",
+
+  // gitmoji
+  "gitmoji.onlyUseCustomEmoji": true,
+  "gitmoji.addCustomEmoji": [
+    {
+      "emoji": "🔨",
+      "code": ":hammer:",
+      "description": "build : Add or update CI build system."
     },
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-
-    // eslint
-    "eslint.enable": true,
-    "eslint.format.enable": true,
-    "eslint.codeActionsOnSave.mode": "problems",
-    "eslint.codeActionsOnSave.rules": null,
-
-    // prettier
-    "prettier.enable": true,
-
-    // tailwindcss bugfix
-    "scss.lint.unknownAtRules": "ignore"
+    {
+      "emoji": "📝",
+      "code": ":memo:",
+      "description": "doc : Add or update documentation."
+    },
+    {
+      "emoji": "✨",
+      "code": ":sparkles:",
+      "description": "feat : Add, update, or remove feature."
+    },
+    {
+      "emoji": "🐛",
+      "code": ":bug:",
+      "description": "fix : Fix a bug."
+    },
+    {
+      "emoji": "♻️",
+      "code": ":recycle:",
+      "description": "refac : Refactor code."
+    },
+    {
+      "emoji": "💄",
+      "code": ":lipstick:",
+      "description": "style : Add or update the UI and style files."
+    }
+  ]
 }

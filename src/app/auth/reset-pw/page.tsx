@@ -1,6 +1,6 @@
 'use client'
 
-import { Field, Stack, AbsoluteCenter, Button } from '@chakra-ui/react'
+import { Field, Stack, Button } from '@chakra-ui/react'
 import {
   PasswordInput,
   PasswordStrengthMeter,
@@ -42,22 +42,20 @@ export default function AuthResetPw() {
   })
 
   return (
-    <AbsoluteCenter>
-      <form onSubmit={onSubmit}>
-        <Stack>
-          <Field.Root>
-            <Field.Label>New password</Field.Label>
-            <PasswordInput {...(register('newPassword'), { required: true })} />
-          </Field.Root>
-          <Field.Root invalid={!!errors.confirmPassword}>
-            <Field.Label>Confirm password</Field.Label>
-            <PasswordInput {...register('confirmPassword')} />
-          </Field.Root>
-          <PasswordStrengthMeter value={getPasswordStrength(livePassword)} />
-        </Stack>
+    <form onSubmit={onSubmit}>
+      <Stack>
+        <Field.Root>
+          <Field.Label>New password</Field.Label>
+          <PasswordInput {...(register('newPassword'), { required: true })} />
+        </Field.Root>
+        <Field.Root invalid={!!errors.confirmPassword}>
+          <Field.Label>Confirm password</Field.Label>
+          <PasswordInput {...register('confirmPassword')} />
+        </Field.Root>
+        <PasswordStrengthMeter value={getPasswordStrength(livePassword)} />
+      </Stack>
 
-        <Button type="submit">Submit</Button>
-      </form>
-    </AbsoluteCenter>
+      <Button type="submit">Submit</Button>
+    </form>
   )
 }

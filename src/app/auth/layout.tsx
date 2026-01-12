@@ -5,9 +5,5 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode
 }) {
-  return (
-    <AbsoluteCenter>
-      <main>{children}</main>
-    </AbsoluteCenter>
-  )
+  return <AbsoluteCenter width="full">{children}</AbsoluteCenter>
 }

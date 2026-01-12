@@ -1,103 +1,132 @@
-import Image from "next/image";
+'use client'
+
+import {
+  Box,
+  Container,
+  Heading,
+  Text,
+  Stack,
+  Button,
+  Card,
+  SimpleGrid,
+} from '@chakra-ui/react'
+import Link from 'next/link'
+import { FaBell, FaCalendarAlt, FaUser } from 'react-icons/fa'
+import Header from '@/components/layouts/Header'
 
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <Box>
+      <Header />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+      {/* Hero Section */}
+      <Box bg="teal.500" color="white" py={20}>
+        <Container maxW="container.xl">
+          <Stack gap={6} align="center" textAlign="center">
+            <Heading size="3xl" fontWeight="bold">
+              고양 라켓단
+            </Heading>
+            <Text fontSize="xl" maxW="2xl">
+              테니스 초보자들의 즐거운 모임입니다. 함께 배우고 성장하는 테니스
+              커뮤니티에 참여하세요!
+            </Text>
+          </Stack>
+        </Container>
+      </Box>
+
+      {/* Features Section */}
+      <Container maxW="container.xl" py={16}>
+        <Stack gap={12}>
+          <Box textAlign="center">
+            <Heading size="2xl" mb={4}>
+              주요 기능
+            </Heading>
+            <Text fontSize="lg" color="gray.600">
+              고양 라켓단에서 제공하는 서비스를 확인하세요
+            </Text>
+          </Box>
+
+          <SimpleGrid columns={{ base: 1, md: 3 }} gap={8}>
+            {/* 공지사항 카드 */}
+            <Card.Root>
+              <Card.Body>
+                <Stack gap={4} align="center" textAlign="center">
+                  <Box color="teal.500" fontSize="3xl">
+                    <FaBell />
+                  </Box>
+                  <Heading size="lg">공지사항</Heading>
+                  <Text color="gray.600">
+                    모임의 최신 소식과 중요한 공지사항을 확인하세요
+                  </Text>
+                  <Link href="/notice">
+                    <Button colorScheme="teal" variant="outline" width="full">
+                      공지사항 보기
+                    </Button>
+                  </Link>
+                </Stack>
+              </Card.Body>
+            </Card.Root>
+
+            {/* 코트 예약 카드 */}
+            <Card.Root>
+              <Card.Body>
+                <Stack gap={4} align="center" textAlign="center">
+                  <Box color="teal.500" fontSize="3xl">
+                    <FaCalendarAlt />
+                  </Box>
+                  <Heading size="lg">코트 예약</Heading>
+                  <Text color="gray.600">
+                    편리하게 테니스 코트를 예약하고 관리하세요
+                  </Text>
+                  <Link href="/reservation">
+                    <Button colorScheme="teal" variant="outline" width="full">
+                      예약하기
+                    </Button>
+                  </Link>
+                </Stack>
+              </Card.Body>
+            </Card.Root>
+
+            {/* 프로필 관리 카드 */}
+            <Card.Root>
+              <Card.Body>
+                <Stack gap={4} align="center" textAlign="center">
+                  <Box color="teal.500" fontSize="3xl">
+                    <FaUser />
+                  </Box>
+                  <Heading size="lg">프로필 관리</Heading>
+                  <Text color="gray.600">
+                    개인 정보를 관리하고 활동 내역을 확인하세요
+                  </Text>
+                  <Link href="/profile">
+                    <Button colorScheme="teal" variant="outline" width="full">
+                      프로필 보기
+                    </Button>
+                  </Link>
+                </Stack>
+              </Card.Body>
+            </Card.Root>
+          </SimpleGrid>
+        </Stack>
+      </Container>
+
+      {/* CTA Section */}
+      <Box bg="gray.50" py={16}>
+        <Container maxW="container.md">
+          <Stack gap={6} align="center" textAlign="center">
+            <Heading size="2xl">지금 시작하세요</Heading>
+            <Text fontSize="lg" color="gray.600">
+              고양 라켓단과 함께 테니스 실력을 향상시키고 새로운 친구들을
+              만나보세요
+            </Text>
+            <Link href="/auth/sign-in">
+              <Button size="lg" colorScheme="teal">
+                함께하기
+              </Button>
+            </Link>
+          </Stack>
+        </Container>
+      </Box>
+    </Box>
+  )
 }

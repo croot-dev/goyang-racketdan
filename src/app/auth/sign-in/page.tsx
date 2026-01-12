@@ -1,54 +1,76 @@
 'use client'
 
-import { Field, Fieldset, Input, Stack, Button } from '@chakra-ui/react'
-import { PasswordInput } from '@/components/ui/password-input'
-import { useForm } from 'react-hook-form'
-
-interface FormValues {
-  username: string
-  password: string
-}
+import { Box, Heading, Text, Stack } from '@chakra-ui/react'
+import Image from 'next/image'
+import { useQuery } from '@tanstack/react-query'
+import { useEffect } from 'react'
 
 export default function AuthSignIn() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormValues>()
+  const REST_API_KEY = process.env.NEXT_PUBLIC_KAKAO_RESTAPI_KEY
+  const redirectUri =
+    typeof window !== 'undefined'
+      ? `${window.location.origin}${process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI}`
+      : ''
 
-  const onSubmit = handleSubmit((data) => {
-    console.log(data)
-    return false
+  const { data: kakaoAuthUrl, refetch } = useQuery<string>({
+    queryKey: ['kakao-login'],
+    queryFn: async () => {
+      // 이름, 생년월일, 성별, 이메일 정보 동의 요청
+      // const scope = 'profile_nickname,account_email,name,birthyear,birthday,gender'
+      const scope = 'profile_nickname,profile_image,account_email'
+      return `https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=${REST_API_KEY}&redirect_uri=${redirectUri}&scope=${scope}`
+    },
+    enabled: false, // This ensures the query doesn't run on component mount
   })
 
+  useEffect(() => {
+    if (kakaoAuthUrl) {
+      window.location.href = kakaoAuthUrl
+    }
+  }, [kakaoAuthUrl])
+
+  const loginWithKakao = () => {
+    refetch() // Call refetch to trigger the query manually
+  }
+
   return (
-    <form onSubmit={onSubmit}>
-      <Fieldset.Root size="lg" maxW="md">
-        <Stack>
-          <Fieldset.Legend>Contact details</Fieldset.Legend>
-          <Fieldset.HelperText>
-            Please provide your contact details below.
-          </Fieldset.HelperText>
+    <Box
+      width="full"
+      minH="100vh"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      bg="gray.50"
+    >
+      <Stack gap={6} align="center" maxW="md" w="full" p={8}>
+        <Stack gap={2} align="center" textAlign="center">
+          <Heading size="2xl" color="teal.500">
+            고양 라켓단
+          </Heading>
+          <Text fontSize="lg" color="gray.600">
+            카카오 계정으로 간편하게 시작하세요
+          </Text>
         </Stack>
 
-        <Fieldset.Content>
-          <Field.Root invalid={!!errors.username}>
-            <Field.Label>Username</Field.Label>
-            <Input {...(register('username'), { required: true })} />
-            <Field.ErrorText>{errors.username?.message}</Field.ErrorText>
-          </Field.Root>
+        <Box
+          as="button"
+          onClick={loginWithKakao}
+          cursor="pointer"
+          transition="transform 0.2s"
+          _hover={{ transform: 'scale(1.05)' }}
+        >
+          <Image
+            src="https://k.kakaocdn.net/14/dn/btroDszwNrM/I6efHub1SN5KCJqLm1Ovx1/o.jpg"
+            width={183}
+            height={45}
+            alt="카카오 로그인 버튼"
+          />
+        </Box>
 
-          <Field.Root invalid={!!errors.password}>
-            <Field.Label>Password</Field.Label>
-            <PasswordInput {...(register('password'), { required: true })} />
-            <Field.ErrorText>{errors.password?.message}</Field.ErrorText>
-          </Field.Root>
-        </Fieldset.Content>
-
-        <Button type="submit" alignSelf="flex-start">
-          Submit
-        </Button>
-      </Fieldset.Root>
-    </form>
+        <Text fontSize="sm" color="gray.500" textAlign="center">
+          카카오 계정으로 로그인하면 자동으로 회원가입이 완료됩니다
+        </Text>
+      </Stack>
+    </Box>
   )
 }

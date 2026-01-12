@@ -1,0 +1,361 @@
+'use client'
+
+import { useSearchParams, useRouter } from 'next/navigation'
+import { useQuery } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
+import {
+  Box,
+  Spinner,
+  Stack,
+  Text,
+  Field,
+  Fieldset,
+  Input,
+  Button,
+  NativeSelectRoot,
+  NativeSelectField,
+  SegmentGroup,
+  Container,
+  Heading,
+} from '@chakra-ui/react'
+import { useForm, Controller } from 'react-hook-form'
+
+interface FormValues {
+  name: string
+  birthdate: string
+  gender: 'M' | 'F'
+  nickname: string
+  ntrp: string
+  phone?: string
+}
+
+export default function AuthSignInComplete() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const code = searchParams.get('code')
+  const redirectUri =
+    typeof window !== 'undefined'
+      ? `${window.location.origin}${process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI}`
+      : ''
+
+  const [showForm, setShowForm] = useState(false)
+  const [kakaoUserEmail, setKakaoUserEmail] = useState('')
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<FormValues>({
+    defaultValues: {
+      gender: 'M',
+    },
+  })
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['kakaoAuth', code],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        code: code ?? '',
+        redirect_uri: redirectUri,
+      })
+
+      const res = await fetch(`/api/auth/kakao?${params.toString()}`)
+      if (!res.ok) throw new Error('카카오 인증 실패')
+      return res.json()
+    },
+    enabled: !!code,
+  })
+
+  useEffect(() => {
+    if (data) {
+      // 기존 사용자인 경우 로그인 처리
+      if (data.existingUser) {
+        console.log('기존 사용자 로그인:', data.existingUser)
+
+        // 사용자 정보 저장
+        localStorage.setItem('user', JSON.stringify(data.existingUser))
+
+        // 임시 데이터 정리
+        localStorage.removeItem('kakaoUserTemp')
+
+        // 대시보드로 이동
+        router.push('/dashboard')
+      } else {
+        // 신규 사용자인 경우 폼 표시
+        console.log('신규 사용자, 프로필 입력 필요')
+        setKakaoUserEmail(data.user.kakao_account?.email || '')
+        setShowForm(true)
+      }
+    }
+  }, [data, router])
+
+  const onSubmit = handleSubmit(async (formData) => {
+    const signUpData = {
+      email: kakaoUserEmail,
+      name: formData.name,
+      gender: formData.gender,
+      nickname: formData.nickname,
+      ntrp: formData.ntrp,
+      phone: formData.phone,
+    }
+
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(signUpData),
+      })
+
+      if (res.ok) {
+        const result = await res.json()
+
+        // 회원가입 성공 시 사용자 정보 저장
+        if (result.success && result.user) {
+          localStorage.setItem('user', JSON.stringify(result.user))
+        }
+
+        // 임시 데이터 삭제
+        localStorage.removeItem('kakaoUserTemp')
+
+        // 대시보드로 이동
+        router.push('/dashboard')
+      } else {
+        const error = await res.json()
+        alert(error.error || '회원가입 실패')
+      }
+    } catch (error) {
+      console.error('회원가입 에러:', error)
+      alert('회원가입 중 오류가 발생했습니다.')
+    }
+  })
+
+  const ntrpLevels = [
+    { value: '', label: '선택하세요' },
+    { value: '1.0', label: '1.0 - 입문' },
+    { value: '1.5', label: '1.5' },
+    { value: '2.0', label: '2.0 - 초급' },
+    { value: '2.5', label: '2.5' },
+    { value: '3.0', label: '3.0 - 중급' },
+    { value: '3.5', label: '3.5' },
+    { value: '4.0', label: '4.0 - 상급' },
+    { value: '4.5', label: '4.5' },
+    { value: '5.0', label: '5.0 - 최상급' },
+  ]
+
+  if (isLoading) {
+    return (
+      <Box
+        minH="100vh"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Stack align="center" gap={4}>
+          <Spinner size="xl" color="teal.500" />
+          <Text fontSize="lg">카카오 인증 중...</Text>
+        </Stack>
+      </Box>
+    )
+  }
+
+  if (isError) {
+    return (
+      <Box
+        minH="100vh"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Stack align="center" gap={4}>
+          <Text fontSize="2xl">❌</Text>
+          <Text fontSize="lg" color="red.500">
+            카카오 인증 실패
+          </Text>
+          <Text fontSize="sm" color="gray.600">
+            다시 시도해주세요.
+          </Text>
+        </Stack>
+      </Box>
+    )
+  }
+
+  if (showForm) {
+    return (
+      <Container maxW="md" py={10} width="full">
+        <Stack gap={6}>
+          <Stack gap={2} textAlign="center">
+            <Heading size="xl" color="teal.500">
+              프로필 정보 입력
+            </Heading>
+            <Text color="gray.600">추가 정보를 입력해주세요</Text>
+          </Stack>
+
+          <form onSubmit={onSubmit}>
+            <Fieldset.Root size="lg">
+              <Fieldset.Content>
+                {/* 카카오 이메일 표시 */}
+                <Box p={4} bg="gray.50" borderRadius="md" mb={4}>
+                  <Text fontSize="sm" fontWeight="bold" mb={2} color="gray.700">
+                    카카오 계정
+                  </Text>
+                  <Text fontSize="sm" fontWeight="medium">
+                    {kakaoUserEmail || '정보 없음'}
+                  </Text>
+                </Box>
+
+                {/* 이름 */}
+                <Field.Root invalid={!!errors.name} required>
+                  <Field.Label>이름</Field.Label>
+                  <Input
+                    {...register('name', {
+                      required: '이름을 입력해주세요',
+                      minLength: {
+                        value: 2,
+                        message: '이름은 최소 2자 이상이어야 합니다',
+                      },
+                    })}
+                    placeholder="홍길동"
+                  />
+                  <Field.ErrorText>{errors.name?.message}</Field.ErrorText>
+                </Field.Root>
+
+                {/* 생년월일 */}
+                <Field.Root invalid={!!errors.birthdate} required>
+                  <Field.Label>생년월일</Field.Label>
+                  <Input
+                    {...register('birthdate', {
+                      required: '생년월일을 입력해주세요',
+                      pattern: {
+                        value: /^\d{4}-\d{2}-\d{2}$/,
+                        message: 'YYYY-MM-DD 형식으로 입력해주세요',
+                      },
+                    })}
+                    type="date"
+                    placeholder="1990-01-01"
+                  />
+                  <Field.HelperText>
+                    YYYY-MM-DD 형식 (예: 1990-01-01)
+                  </Field.HelperText>
+                  <Field.ErrorText>{errors.birthdate?.message}</Field.ErrorText>
+                </Field.Root>
+
+                {/* 성별 */}
+                <Field.Root invalid={!!errors.gender} required>
+                  <Field.Label>성별</Field.Label>
+                  <Controller
+                    name="gender"
+                    control={control}
+                    rules={{ required: '성별을 선택해주세요' }}
+                    render={({ field }) => (
+                      <SegmentGroup.Root
+                        value={field.value}
+                        onValueChange={(details) => {
+                          field.onChange(details.value)
+                        }}
+                      >
+                        <SegmentGroup.Indicator />
+                        <SegmentGroup.Item value="M">남성</SegmentGroup.Item>
+                        <SegmentGroup.Item value="F">여성</SegmentGroup.Item>
+                      </SegmentGroup.Root>
+                    )}
+                  />
+                  <Field.ErrorText>{errors.gender?.message}</Field.ErrorText>
+                </Field.Root>
+
+                {/* 별명 */}
+                <Field.Root invalid={!!errors.nickname} required>
+                  <Field.Label>별명</Field.Label>
+                  <Input
+                    {...register('nickname', {
+                      required: '별명을 입력해주세요',
+                      minLength: {
+                        value: 2,
+                        message: '별명은 최소 2자 이상이어야 합니다',
+                      },
+                      maxLength: {
+                        value: 10,
+                        message: '별명은 최대 10자까지 가능합니다',
+                      },
+                    })}
+                    placeholder="별명을 입력해주세요"
+                  />
+                  <Field.HelperText>
+                    모임에서 사용할 별명입니다 (2-10자)
+                  </Field.HelperText>
+                  <Field.ErrorText>{errors.nickname?.message}</Field.ErrorText>
+                </Field.Root>
+
+                {/* NTRP 등급 */}
+                <Field.Root invalid={!!errors.ntrp} required>
+                  <Field.Label>테니스 등급 (NTRP)</Field.Label>
+                  <NativeSelectRoot>
+                    <NativeSelectField
+                      {...register('ntrp', {
+                        required: '테니스 등급을 선택해주세요',
+                        validate: (value) =>
+                          value !== '' || '테니스 등급을 선택해주세요',
+                      })}
+                    >
+                      {ntrpLevels.map((level) => (
+                        <option key={level.value} value={level.value}>
+                          {level.label}
+                        </option>
+                      ))}
+                    </NativeSelectField>
+                  </NativeSelectRoot>
+                  <Field.HelperText>
+                    현재 테니스 실력 수준을 선택해주세요
+                  </Field.HelperText>
+                  <Field.ErrorText>{errors.ntrp?.message}</Field.ErrorText>
+                </Field.Root>
+
+                {/* 전화번호 */}
+                <Field.Root invalid={!!errors.phone}>
+                  <Field.Label>전화번호</Field.Label>
+                  <Input
+                    {...register('phone', {
+                      pattern: {
+                        value: /^01[0-9]-?[0-9]{4}-?[0-9]{4}$/,
+                        message:
+                          '올바른 전화번호 형식이 아닙니다 (예: 010-1234-5678)',
+                      },
+                    })}
+                    type="tel"
+                    placeholder="010-1234-5678"
+                  />
+                  <Field.HelperText>선택사항입니다</Field.HelperText>
+                  <Field.ErrorText>{errors.phone?.message}</Field.ErrorText>
+                </Field.Root>
+              </Fieldset.Content>
+
+              <Button
+                type="submit"
+                colorScheme="teal"
+                size="lg"
+                width="full"
+                mt={4}
+              >
+                완료
+              </Button>
+            </Fieldset.Root>
+          </form>
+        </Stack>
+      </Container>
+    )
+  }
+
+  return (
+    <Box
+      minH="100vh"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+    >
+      <Stack align="center" gap={4}>
+        <Spinner size="xl" color="teal.500" />
+        <Text fontSize="lg">로그인 처리 중...</Text>
+      </Stack>
+    </Box>
+  )
+}

@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { AbsoluteCenter } from '@chakra-ui/react'
 
 export default function AuthLayout({

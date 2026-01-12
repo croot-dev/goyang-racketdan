@@ -3,14 +3,17 @@
 import { Box, Heading, Text, Stack } from '@chakra-ui/react'
 import Image from 'next/image'
 import { useQuery } from '@tanstack/react-query'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function AuthSignIn() {
   const REST_API_KEY = process.env.NEXT_PUBLIC_KAKAO_RESTAPI_KEY
-  const redirectUri =
-    typeof window !== 'undefined'
-      ? `${window.location.origin}${process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI}`
-      : ''
+  const [redirectUri, setRedirectUri] = useState('')
+
+  useEffect(() => {
+    setRedirectUri(
+      `${window.location.origin}${process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI}`
+    )
+  }, [])
 
   const { data: kakaoAuthUrl, refetch } = useQuery<string>({
     queryKey: ['kakao-login'],

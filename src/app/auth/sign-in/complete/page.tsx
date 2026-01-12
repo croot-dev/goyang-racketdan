@@ -33,10 +33,13 @@ export default function AuthSignInComplete() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const code = searchParams.get('code')
-  const redirectUri =
-    typeof window !== 'undefined'
-      ? `${window.location.origin}${process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI}`
-      : ''
+  const [redirectUri, setRedirectUri] = useState('')
+
+  useEffect(() => {
+    setRedirectUri(
+      `${window.location.origin}${process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI}`
+    )
+  }, [])
 
   const [showForm, setShowForm] = useState(false)
   const [kakaoUserEmail, setKakaoUserEmail] = useState('')

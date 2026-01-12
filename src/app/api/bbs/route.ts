@@ -1,118 +1,99 @@
-import { NextRequest, NextResponse } from 'next/server'
 import { sql } from '@/lib/db'
-import bcrypt from 'bcryptjs'
+import { NextRequest, NextResponse } from 'next/server'
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
-    const body = await req.json()
-    const { email, name, gender, nickname, ntrp, phone } = body
+    const { searchParams } = new URL(req.url)
+    const post_id = searchParams.get('id')
+    const post_type = searchParams.get('type')
 
     // 필수 필드 검증
-    if (!email || !name || !gender || !nickname || !ntrp) {
+    if (!post_id || !post_type) {
       return NextResponse.json(
         { error: '필수 정보가 누락되었습니다.' },
-        { status: 400 }
+        { status: 500 }
       )
     }
-
-    // 이메일 중복 확인
-    const existingUserByEmail = await sql`
-      SELECT * FROM member WHERE email = ${email}
-    `
-
-    if (existingUserByEmail.length > 0) {
-      return NextResponse.json(
-        { error: '이미 가입된 이메일입니다.' },
-        { status: 409 }
-      )
-    }
-
-    // 별명 중복 확인
-    const existingUserByNickname = await sql`
-      SELECT * FROM member WHERE nickname = ${nickname}
-    `
-
-    if (existingUserByNickname.length > 0) {
-      return NextResponse.json(
-        { error: '이미 사용 중인 별명입니다.' },
-        { status: 409 }
-      )
-    }
-
-    // 카카오 로그인이므로 비밀번호는 랜덤 해시값 생성
-    const randomPassword = Math.random().toString(36).slice(-8)
-    const passwordHash = await bcrypt.hash(randomPassword, 12)
-
-    // gender 변환: M -> male, F -> female
-    const sexValue = gender === 'M' ? 'male' : 'female'
 
     // 데이터베이스에 사용자 저장
-    const newUser = await sql`
-      INSERT INTO member (
-        name,
-        nickname,
-        sex,
-        ntrp,
-        email,
-        password_hash,
-        phone,
-        status,
+    const writing = await sql`
+      SELECT (
+        title,
+        content,
+        writer_id,
+        view_count,
         created_at,
         updated_at
       )
-      VALUES (
-        ${name},
-        ${nickname},
-        ${sexValue},
-        ${ntrp},
-        ${email},
-        ${passwordHash},
-        ${phone || null},
-        'active',
-        NOW(),
-        NOW()
-      )
-      RETURNING id, email, name, nickname, ntrp, sex, phone, status, created_at
+        FROM bbs_post
+        WHERE post_id=${post_id} AND bbs_type_id=${post_type}
     `
-
-    const user = newUser[0]
-
-    console.log('회원가입 성공:', {
-      id: user.id,
-      email: user.email,
-      nickname: user.nickname,
-    })
-
-    // TODO: JWT 토큰 생성 및 쿠키 설정
-    // 임시로 간단한 토큰 생성
-    const mockToken = `token_${user.id}_${Date.now()}`
 
     return NextResponse.json(
       {
         success: true,
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          nickname: user.nickname,
-          ntrp: user.ntrp,
-          sex: user.sex,
-          phone: user.phone,
-        },
-        token: mockToken,
-      },
-      {
-        status: 201,
-        headers: {
-          'Set-Cookie': `auth-token=${mockToken}; Path=/; HttpOnly; SameSite=Strict; Max-Age=2592000`, // 30일
-        },
+        writing: (Array.isArray(writing) ? writing[0] : writing) ?? null
       }
     )
+
   } catch (error) {
-    console.error('회원가입 에러:', error)
+    console.error('글 조회 에러:', error)
     return NextResponse.json(
-      { error: '회원가입 처리 중 오류가 발생했습니다.' },
+      { error: '글 조회 처리 중 오류가 발생했습니다.' },
       { status: 500 }
     )
   }
 }
+
+export async function POST (req: NextRequest, res: NextResponse) {
+  try {
+    const body = await req.json()
+    const { bbs_type_id, title, content } = body
+
+    // 필수 필드 검증
+    if ([bbs_type_id, title, content].some(value => !value)) {
+      return NextResponse.json(
+        { error: '필수 정보가 누락되었습니다.' },
+        { status: 500 }
+      )
+    }
+
+    const writer_id = body.writer_id
+
+    // 데이터베이스에 사용자 저장
+    const newWriting = await sql`
+      INSERT INTO bbs_post (
+        bbs_type_id,
+        title,
+        content,
+        writer_id,
+        created_at,
+        updated_at
+      )
+      VALUES (
+        ${bbs_type_id},
+        ${title},
+        ${content},
+        ${writer_id},
+        NOW(),
+        NOW()
+      )
+      RETURNING post_id,bbs_type_id,title,content,writer_id,view_count,created_at,updated_at
+    `
+
+    const writing = newWriting[0]
+
+    console.log('글 작성 성공:', {
+      postId: writing.post_id,
+    })
+
+    return NextResponse.json(writing)
+  } catch (error) {
+    console.error('글 작성 에러:', error)
+    return NextResponse.json(
+      { error: '글 작성 처리 중 오류가 발생했습니다.' },
+      { status: 500 }
+    )
+  }
+}
+

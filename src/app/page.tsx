@@ -58,7 +58,7 @@ export default function Home() {
                   <Text color="gray.600">
                     모임의 최신 소식과 중요한 공지사항을 확인하세요
                   </Text>
-                  <Link href="/notice">
+                  <Link href="/notice/list">
                     <Button colorScheme="teal" variant="outline" width="full">
                       공지사항 보기
                     </Button>

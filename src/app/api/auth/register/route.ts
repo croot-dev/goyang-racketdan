@@ -1,81 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { sql } from '@/lib/db'
-import bcrypt from 'bcryptjs'
+import { registerService } from '@/services/auth.service'
+import { createAccessToken, createRefreshToken } from '@/lib/jwt'
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     const { email, name, gender, nickname, ntrp, phone } = body
 
-    // 필수 필드 검증
-    if (!email || !name || !gender || !nickname || !ntrp) {
-      return NextResponse.json(
-        { error: '필수 정보가 누락되었습니다.' },
-        { status: 400 }
-      )
-    }
-
-    // 이메일 중복 확인
-    const existingUserByEmail = await sql`
-      SELECT * FROM member WHERE email = ${email}
-    `
-
-    if (existingUserByEmail.length > 0) {
-      return NextResponse.json(
-        { error: '이미 가입된 이메일입니다.' },
-        { status: 409 }
-      )
-    }
-
-    // 별명 중복 확인
-    const existingUserByNickname = await sql`
-      SELECT * FROM member WHERE nickname = ${nickname}
-    `
-
-    if (existingUserByNickname.length > 0) {
-      return NextResponse.json(
-        { error: '이미 사용 중인 별명입니다.' },
-        { status: 409 }
-      )
-    }
-
-    // 카카오 로그인이므로 비밀번호는 랜덤 해시값 생성
-    const randomPassword = Math.random().toString(36).slice(-8)
-    const passwordHash = await bcrypt.hash(randomPassword, 12)
-
-    // gender 변환: M -> male, F -> female
-    const sexValue = gender === 'M' ? 'male' : 'female'
-
-    // 데이터베이스에 사용자 저장
-    const newUser = await sql`
-      INSERT INTO member (
-        name,
-        nickname,
-        sex,
-        ntrp,
-        email,
-        password_hash,
-        phone,
-        status,
-        created_at,
-        updated_at
-      )
-      VALUES (
-        ${name},
-        ${nickname},
-        ${sexValue},
-        ${ntrp},
-        ${email},
-        ${passwordHash},
-        ${phone || null},
-        'active',
-        NOW(),
-        NOW()
-      )
-      RETURNING id, email, name, nickname, ntrp, sex, phone, status, created_at
-    `
-
-    const user = newUser[0]
+    // 서비스 레이어를 통해 회원가입 처리
+    const user = await registerService({
+      email,
+      name,
+      gender,
+      nickname,
+      ntrp,
+      phone,
+    })
 
     console.log('회원가입 성공:', {
       id: user.id,
@@ -83,11 +23,19 @@ export async function POST(req: NextRequest) {
       nickname: user.nickname,
     })
 
-    // TODO: JWT 토큰 생성 및 쿠키 설정
-    // 임시로 간단한 토큰 생성
-    const mockToken = `token_${user.id}_${Date.now()}`
+    // JWT 토큰 생성
+    const accessToken = await createAccessToken({
+      userId: user.id,
+      email: user.email,
+    })
 
-    return NextResponse.json(
+    const refreshToken = await createRefreshToken({
+      userId: user.id,
+      email: user.email,
+    })
+
+    // 쿠키 설정
+    const response = NextResponse.json(
       {
         success: true,
         user: {
@@ -99,17 +47,46 @@ export async function POST(req: NextRequest) {
           sex: user.sex,
           phone: user.phone,
         },
-        token: mockToken,
+        accessToken,
       },
-      {
-        status: 201,
-        headers: {
-          'Set-Cookie': `auth-token=${mockToken}; Path=/; HttpOnly; SameSite=Strict; Max-Age=2592000`, // 30일
-        },
-      }
+      { status: 201 }
     )
+
+    // HttpOnly 쿠키로 토큰 설정
+    response.cookies.set('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 15, // 15분
+      path: '/',
+    })
+
+    response.cookies.set('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7, // 7일
+      path: '/',
+    })
+
+    return response
   } catch (error) {
     console.error('회원가입 에러:', error)
+
+    // 비즈니스 로직 에러 처리
+    if (error instanceof Error) {
+      // 중복 에러는 409 Conflict
+      if (
+        error.message.includes('이미 가입된') ||
+        error.message.includes('이미 사용 중인')
+      ) {
+        return NextResponse.json({ error: error.message }, { status: 409 })
+      }
+
+      // 유효성 검사 에러는 400 Bad Request
+      return NextResponse.json({ error: error.message }, { status: 400 })
+    }
+
     return NextResponse.json(
       { error: '회원가입 처리 중 오류가 발생했습니다.' },
       { status: 500 }

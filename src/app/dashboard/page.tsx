@@ -115,7 +115,10 @@ export default function DashboardPage() {
               <Text color="gray.500">최근 공지사항이 없습니다.</Text>
             </Card.Body>
             <Card.Footer>
-              <Button variant="outline" onClick={() => router.push('/notice')}>
+              <Button
+                variant="outline"
+                onClick={() => router.push('/notice/list')}
+              >
                 공지사항 보기
               </Button>
             </Card.Footer>

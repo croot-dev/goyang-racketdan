@@ -27,7 +27,7 @@ export default function Header() {
 
   const menuItems = [
     { label: '메인', href: '/' },
-    { label: '공지사항', href: '/notice' },
+    { label: '공지사항', href: '/notice/list' },
     ...(isLoggedIn
       ? [
           { label: '대시보드', href: '/dashboard' },

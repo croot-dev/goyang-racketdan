@@ -1,0 +1,134 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { withAuth } from '@/lib/middleware/auth'
+import {
+  getPostService,
+  updatePostService,
+  deletePostService,
+} from '@/services/post.service'
+
+// 단일 게시글 조회 API (인증 불필요)
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const { searchParams } = new URL(req.url)
+    const bbs_type_id = parseInt(searchParams.get('type') || '1')
+    const post_id = parseInt(id)
+
+    const post = await getPostService(post_id, bbs_type_id)
+
+    if (!post) {
+      return NextResponse.json(
+        { error: '게시글을 찾을 수 없습니다.' },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      post,
+    })
+  } catch (error) {
+    console.error('게시글 조회 에러:', error)
+    return NextResponse.json(
+      { error: '게시글 조회 중 오류가 발생했습니다.' },
+      { status: 500 }
+    )
+  }
+}
+
+// 게시글 수정 API (인증 필요)
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  return withAuth(req, async (authenticatedReq, user) => {
+    try {
+      const { id } = await params
+      const body = await authenticatedReq.json()
+      const { title, content, bbs_type_id } = body
+      const post_id = parseInt(id)
+      const type_id = parseInt(bbs_type_id || '1')
+
+      const updatedPost = await updatePostService(
+        post_id,
+        { title, content, user_id: user.userId },
+        type_id
+      )
+
+      return NextResponse.json({
+        success: true,
+        post: updatedPost,
+      })
+    } catch (error) {
+      console.error('게시글 수정 에러:', error)
+
+      if (error instanceof Error) {
+        // 권한 에러는 403 Forbidden
+        if (error.message.includes('권한이 없습니다')) {
+          return NextResponse.json({ error: error.message }, { status: 403 })
+        }
+
+        // 찾을 수 없음 에러는 404
+        if (error.message.includes('찾을 수 없습니다')) {
+          return NextResponse.json({ error: error.message }, { status: 404 })
+        }
+
+        // 기타 유효성 검사 에러는 400
+        return NextResponse.json({ error: error.message }, { status: 400 })
+      }
+
+      return NextResponse.json(
+        { error: '게시글 수정 중 오류가 발생했습니다.' },
+        { status: 500 }
+      )
+    }
+  })
+}
+
+// 게시글 삭제 API (인증 필요)
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  return withAuth(req, async (_authenticatedReq, user) => {
+    try {
+      const { id } = await params
+      const { searchParams } = new URL(req.url)
+      const bbs_type_id = parseInt(searchParams.get('type') || '1')
+      const post_id = parseInt(id)
+
+      await deletePostService(post_id, user.userId, bbs_type_id)
+
+      return NextResponse.json({
+        success: true,
+        message: '게시글이 삭제되었습니다.',
+      })
+    } catch (error) {
+      console.error('게시글 삭제 에러:', error)
+
+      if (error instanceof Error) {
+        // 권한 에러는 403 Forbidden
+        if (error.message.includes('권한이 없습니다')) {
+          return NextResponse.json({ error: error.message }, { status: 403 })
+        }
+
+        // 찾을 수 없음 에러는 404
+        if (error.message.includes('찾을 수 없습니다')) {
+          return NextResponse.json({ error: error.message }, { status: 404 })
+        }
+
+        // 기타 유효성 검사 에러는 400
+        return NextResponse.json({ error: error.message }, { status: 400 })
+      }
+
+      return NextResponse.json(
+        { error: '게시글 삭제 중 오류가 발생했습니다.' },
+        { status: 500 }
+      )
+    }
+  })
+}
+

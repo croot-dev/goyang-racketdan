@@ -10,20 +10,14 @@ import {
   Text,
 } from '@chakra-ui/react'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { FaBars, FaTimes } from 'react-icons/fa'
-import { isLoggedIn as checkLoggedIn, getUser, logout } from '@/lib/auth'
+import { logout } from '@/lib/auth-client'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [user, setUser] = useState<any>(null)
-
-  useEffect(() => {
-    // 클라이언트 사이드에서만 로그인 상태 확인
-    setIsLoggedIn(checkLoggedIn())
-    setUser(getUser())
-  }, [])
+  const { isAuthenticated: isLoggedIn, user } = useAuth()
 
   const menuItems = [
     { label: '메인', href: '/' },

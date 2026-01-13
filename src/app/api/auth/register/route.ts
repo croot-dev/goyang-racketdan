@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { registerService } from '@/services/auth.service'
 import { createAccessToken, createRefreshToken } from '@/lib/jwt'
+import {
+  generateCsrfToken,
+  CSRF_COOKIE_OPTIONS,
+  CSRF_COOKIE_NAME,
+} from '@/lib/csrf'
 
 export async function POST(req: NextRequest) {
   try {
@@ -34,6 +39,9 @@ export async function POST(req: NextRequest) {
       email: user.email,
     })
 
+    // CSRF 토큰 생성
+    const csrfToken = generateCsrfToken()
+
     // 쿠키 설정
     const response = NextResponse.json(
       {
@@ -48,11 +56,12 @@ export async function POST(req: NextRequest) {
           phone: user.phone,
         },
         accessToken,
+        csrfToken, // 클라이언트에서 헤더로 사용
       },
       { status: 201 }
     )
 
-    // HttpOnly 쿠키로 토큰 설정
+    // HttpOnly 쿠키로 JWT 토큰 설정
     response.cookies.set('accessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -68,6 +77,9 @@ export async function POST(req: NextRequest) {
       maxAge: 60 * 60 * 24 * 7, // 7일
       path: '/',
     })
+
+    // CSRF 토큰 쿠키 설정 (Double Submit Cookie 패턴)
+    response.cookies.set(CSRF_COOKIE_NAME, csrfToken, CSRF_COOKIE_OPTIONS)
 
     return response
   } catch (error) {

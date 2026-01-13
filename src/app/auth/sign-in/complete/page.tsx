@@ -19,6 +19,7 @@ import {
   Heading,
 } from '@chakra-ui/react'
 import { useForm, Controller } from 'react-hook-form'
+import { setCsrfToken } from '@/lib/auth-client'
 
 interface FormValues {
   name: string
@@ -76,8 +77,10 @@ export default function AuthSignInComplete() {
       if (data.existingUser) {
         console.log('기존 사용자 로그인:', data.existingUser)
 
-        // 사용자 정보 저장
-        localStorage.setItem('user', JSON.stringify(data.existingUser))
+        // CSRF 토큰 저장 (API 요청 시 사용)
+        if (data.csrfToken) {
+          setCsrfToken(data.csrfToken)
+        }
 
         // 임시 데이터 정리
         localStorage.removeItem('kakaoUserTemp')
@@ -113,9 +116,9 @@ export default function AuthSignInComplete() {
       if (res.ok) {
         const result = await res.json()
 
-        // 회원가입 성공 시 사용자 정보 저장
-        if (result.success && result.user) {
-          localStorage.setItem('user', JSON.stringify(result.user))
+        // CSRF 토큰 저장 (API 요청 시 사용)
+        if (result.csrfToken) {
+          setCsrfToken(result.csrfToken)
         }
 
         // 임시 데이터 삭제

@@ -56,10 +56,7 @@ export async function POST(req: NextRequest) {
 
       // 비즈니스 로직 에러 처리
       if (error instanceof Error) {
-        return NextResponse.json(
-          { error: error.message },
-          { status: 400 }
-        )
+        return NextResponse.json({ error: error.message }, { status: 400 })
       }
 
       return NextResponse.json(
@@ -69,4 +66,3 @@ export async function POST(req: NextRequest) {
     }
   })
 }
-

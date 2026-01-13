@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   Box,
@@ -12,25 +12,21 @@ import {
   Button,
   Spinner,
 } from '@chakra-ui/react'
-import { getUser, logout } from '@/lib/auth'
+import { logout } from '@/lib/auth-client'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [user, setUser] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const { isAuthenticated, user, isLoading } = useAuth()
 
   useEffect(() => {
-    const userData = getUser()
-    if (!userData) {
-      // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
+    // 로딩이 끝난 후 인증되지 않았으면 로그인 페이지로 이동
+    if (!isLoading && !isAuthenticated) {
       router.push('/auth/sign-in')
-    } else {
-      setUser(userData)
-      setLoading(false)
     }
-  }, [router])
+  }, [isLoading, isAuthenticated, router])
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Box
         minH="100vh"
@@ -41,6 +37,10 @@ export default function DashboardPage() {
         <Spinner size="xl" color="teal.500" />
       </Box>
     )
+  }
+
+  if (!user) {
+    return null // 리다이렉트 중
   }
 
   const handleLogout = () => {

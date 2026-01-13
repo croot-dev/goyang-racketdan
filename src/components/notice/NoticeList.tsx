@@ -1,20 +1,30 @@
 import { Box, Table, Stack, Text } from '@chakra-ui/react'
 import Link from 'next/link'
-import { getPostList } from '@/lib/queries/post'
+import { getPostListService } from '@/services/post.service'
 
 interface NoticeListProps {
   currentPage: number
 }
 
 export default async function NoticeList({ currentPage }: NoticeListProps) {
-  const { posts, total, totalPages } = await getPostList(1, currentPage, 10)
+  const { posts, total, totalPages } = await getPostListService(
+    1,
+    currentPage,
+    10
+  )
 
   return (
     <>
       {/* 모바일 카드 뷰 */}
       <Box display={{ base: 'block', md: 'none' }}>
         {posts.length === 0 ? (
-          <Box textAlign="center" py={10} border="1px solid" borderColor="gray.200" borderRadius="md">
+          <Box
+            textAlign="center"
+            py={10}
+            border="1px solid"
+            borderColor="gray.200"
+            borderRadius="md"
+          >
             <Text color="gray.600">게시글이 없습니다.</Text>
           </Box>
         ) : (
@@ -34,21 +44,38 @@ export default async function NoticeList({ currentPage }: NoticeListProps) {
                   _hover={{ bg: 'gray.50', borderColor: 'teal.500' }}
                   cursor="pointer"
                 >
-                  <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
-                    <Text fontWeight="bold" fontSize="md" color="gray.900" flex="1" mr={2}>
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="flex-start"
+                    mb={2}
+                  >
+                    <Text
+                      fontWeight="bold"
+                      fontSize="md"
+                      color="gray.900"
+                      flex="1"
+                      mr={2}
+                    >
                       {post.title}
                     </Text>
                     <Text fontSize="xs" color="gray.500" whiteSpace="nowrap">
                       #{total - (currentPage - 1) * 10 - index}
                     </Text>
                   </Box>
-                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
                     <Text fontSize="sm" color="gray.600">
                       {post.writer_id}
                     </Text>
                     <Box display="flex" gap={3} fontSize="xs" color="gray.500">
                       <Text>조회 {post.view_count}</Text>
-                      <Text>{new Date(post.created_at).toLocaleDateString('ko-KR')}</Text>
+                      <Text>
+                        {new Date(post.created_at).toLocaleDateString('ko-KR')}
+                      </Text>
                     </Box>
                   </Box>
                 </Box>
@@ -121,7 +148,13 @@ export default async function NoticeList({ currentPage }: NoticeListProps) {
 
       {/* 페이지네이션 */}
       {totalPages > 1 && (
-        <Box display="flex" justifyContent="center" gap={2} mt={6} flexWrap="wrap">
+        <Box
+          display="flex"
+          justifyContent="center"
+          gap={2}
+          mt={6}
+          flexWrap="wrap"
+        >
           {currentPage > 1 && (
             <Link href={`/notice/list?page=${currentPage - 1}`}>
               <Box

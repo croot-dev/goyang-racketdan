@@ -148,3 +148,24 @@ export async function refreshAccessToken(
 
   return await createAccessToken(payload)
 }
+
+/**
+ * NextRequest에서 인증된 사용자 정보 가져오기
+ */
+export async function getAuthUserFromNextRequest(
+  request: Request
+): Promise<TokenPayload | null> {
+  // 쿠키에서 accessToken 가져오기
+  const cookieHeader = request.headers.get('cookie')
+  if (!cookieHeader) {
+    return null
+  }
+
+  const match = cookieHeader.match(/accessToken=([^;]+)/)
+  if (!match) {
+    return null
+  }
+
+  const token = match[1]
+  return await verifyToken(token)
+}

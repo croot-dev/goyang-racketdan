@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { withAuth } from '@/lib/middleware/auth'
+import { withAuth } from '@/lib/auth.server'
 import {
   getPostService,
   updatePostService,
   deletePostService,
-} from '@/services/post.service'
+} from '@/domains/post/post.service'
 
 // 단일 게시글 조회 API (인증 불필요)
 export async function GET(
@@ -131,4 +131,3 @@ export async function DELETE(
     }
   })
 }
-

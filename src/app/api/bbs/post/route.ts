@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { withAuth } from '@/lib/middleware/auth'
-import { getPostListService, createPostService } from '@/services/post.service'
+import { withAuth } from '@/lib/auth.server'
+import { getPostListService, createPostService } from '@/domains/post/post.service'
 
 // 게시글 목록 조회 API (인증 불필요)
 export async function GET(req: NextRequest) {

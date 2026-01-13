@@ -1,6 +1,6 @@
 import { Box, Table, Stack, Text } from '@chakra-ui/react'
 import Link from 'next/link'
-import { getPostListService } from '@/services/post.service'
+import { getPostListService } from '@/domains/post/post.service'
 
 interface NoticeListProps {
   currentPage: number

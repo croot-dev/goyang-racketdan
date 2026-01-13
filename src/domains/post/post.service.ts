@@ -3,8 +3,10 @@
  * 비즈니스 로직을 처리하고 데이터 액세스 계층(쿼리)을 호출
  */
 
-import { getPostList, getPost, Post, PostListResult } from '@/lib/queries/post'
-import { sql } from '@/lib/db'
+import 'server-only'
+import { getPostList, getPost } from './post.query'
+import { Post, PostListResult, CreatePostDto } from './post.model'
+import { sql } from '@/lib/db.server'
 
 /**
  * 게시글 목록 조회
@@ -38,12 +40,9 @@ export async function getPostService(
 /**
  * 게시글 생성
  */
-export async function createPostService(data: {
-  bbs_type_id: number
-  title: string
-  content: string
-  writer_id: string
-}): Promise<Post> {
+export async function createPostService(
+  data: CreatePostDto
+): Promise<Post> {
   const { bbs_type_id, title, content, writer_id } = data
 
   // 유효성 검증

@@ -1,23 +1,11 @@
 /**
- * 회원 데이터 액세스 레이어
+ * Member 데이터 액세스 레이어
  * SQL 쿼리만 담당
  */
 
-import { sql } from '@/lib/db'
-
-export interface Member {
-  id: string
-  email: string
-  name: string
-  nickname: string
-  ntrp: string
-  sex: 'male' | 'female'
-  phone: string | null
-  password_hash: string
-  status: string
-  created_at: string
-  updated_at: string
-}
+import 'server-only'
+import { sql } from '@/lib/db.server'
+import { Member, CreateMemberDto } from './member.model'
 
 /**
  * 이메일로 회원 조회
@@ -54,15 +42,7 @@ export async function getMemberById(id: string): Promise<Member | null> {
 /**
  * 회원 생성
  */
-export async function createMember(data: {
-  email: string
-  name: string
-  nickname: string
-  sex: 'male' | 'female'
-  ntrp: string
-  password_hash: string
-  phone?: string | null
-}): Promise<Member> {
+export async function createMember(data: CreateMemberDto): Promise<Member> {
   const { email, name, nickname, sex, ntrp, password_hash, phone } = data
 
   const result = (await sql`

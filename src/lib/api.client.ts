@@ -3,7 +3,9 @@
  * CSRF 토큰을 자동으로 포함하는 fetch 래퍼
  */
 
-import { CSRF_HEADER_NAME } from '@/lib/csrf'
+import 'client-only'
+
+const CSRF_HEADER_NAME = 'x-csrf-token'
 
 /**
  * CSRF 토큰이 포함된 fetch 래퍼

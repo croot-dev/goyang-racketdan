@@ -3,43 +3,19 @@
  * 비즈니스 로직을 처리하고 데이터 액세스 계층(쿼리)을 호출
  */
 
+import 'server-only'
 import bcrypt from 'bcryptjs'
 import {
   getMemberByEmail,
   getMemberByNickname,
   createMember,
-  Member,
-} from '@/lib/queries/member'
-
-/**
- * 회원가입 데이터 타입
- */
-export interface RegisterData {
-  email: string
-  name: string
-  gender: string // 'M' or 'F'
-  nickname: string
-  ntrp: string
-  phone?: string
-}
-
-/**
- * 회원 정보 (비밀번호 제외)
- */
-export interface UserInfo {
-  id: string
-  email: string
-  name: string
-  nickname: string
-  ntrp: string
-  sex: 'male' | 'female'
-  phone: string | null
-}
+} from '@/domains/member/member.query'
+import { RegisterDto, UserInfo } from './auth.model'
 
 /**
  * 회원가입 서비스
  */
-export async function registerService(data: RegisterData): Promise<UserInfo> {
+export async function registerService(data: RegisterDto): Promise<UserInfo> {
   const { email, name, gender, nickname, ntrp, phone } = data
 
   // 필수 필드 검증

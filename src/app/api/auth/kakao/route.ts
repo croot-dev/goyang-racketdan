@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { sql } from '@/lib/db'
-import { createAccessToken, createRefreshToken } from '@/lib/jwt'
+import { sql } from '@/lib/db.server'
+import { createAccessToken, createRefreshToken } from '@/lib/jwt.server'
 import {
   generateCsrfToken,
   CSRF_COOKIE_OPTIONS,
   CSRF_COOKIE_NAME,
-} from '@/lib/csrf'
+} from '@/lib/csrf.server'
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get('code')

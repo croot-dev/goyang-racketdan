@@ -1,14 +1,8 @@
 // 클라이언트 사이드 인증 헬퍼 함수
 // JWT 토큰은 HttpOnly 쿠키로 관리되며, CSRF 토큰만 localStorage 사용
 
-export interface User {
-  id: string
-  email?: string
-  name?: string
-  nickname?: string
-  ntrp: string
-  phone?: string
-}
+import { UserInfo } from '@/domains/auth'
+import 'client-only'
 
 /**
  * CSRF 토큰 가져오기
@@ -35,16 +29,50 @@ export function clearCsrfToken() {
 }
 
 /**
+ * 토큰 갱신 시도
+ */
+async function refreshToken(): Promise<boolean> {
+  try {
+    const response = await fetch('/api/auth/refresh', {
+      method: 'POST',
+      credentials: 'include',
+    })
+
+    return response.ok
+  } catch (error) {
+    console.error('Token refresh failed:', error)
+    return false
+  }
+}
+
+/**
  * 서버에서 현재 사용자 정보 가져오기
  * HttpOnly 쿠키의 JWT를 사용하여 인증 상태 확인
+ * 401 에러 시 자동으로 토큰 갱신 시도
  */
-export async function getUser(): Promise<User | null> {
+export async function getUser(): Promise<UserInfo | null> {
   if (typeof window === 'undefined') return null
 
   try {
-    const response = await fetch('/api/auth/me', {
+    let response = await fetch('/api/auth/me', {
       credentials: 'include', // HttpOnly 쿠키 포함
     })
+
+    // 401 에러 시 토큰 갱신 시도
+    if (response.status === 401) {
+      const refreshed = await refreshToken()
+
+      if (refreshed) {
+        // 토큰 갱신 성공 시 재시도
+        response = await fetch('/api/auth/me', {
+          credentials: 'include',
+        })
+      } else {
+        // 토큰 갱신 실패 시 로그아웃 처리
+        await logout()
+        return null
+      }
+    }
 
     if (!response.ok) {
       return null
@@ -85,6 +113,7 @@ export async function logout() {
  * 인증된 fetch 요청
  * 쿠키에 있는 JWT 토큰이 자동으로 포함됨
  * CSRF 토큰을 헤더에 추가
+ * 401 에러 시 자동으로 토큰 갱신 시도
  */
 export async function authenticatedFetch(
   url: string,
@@ -103,15 +132,32 @@ export async function authenticatedFetch(
     }
   }
 
-  const response = await fetch(url, {
+  let response = await fetch(url, {
     ...options,
     headers,
     credentials: 'include', // 쿠키 포함
   })
 
-  // 401 에러 시 로그아웃 처리
+  // 401 에러 시 토큰 갱신 시도
   if (response.status === 401) {
-    await logout()
+    const refreshed = await refreshToken()
+
+    if (refreshed) {
+      // 토큰 갱신 성공 시 원래 요청 재시도
+      response = await fetch(url, {
+        ...options,
+        headers,
+        credentials: 'include',
+      })
+
+      // 재시도 후에도 401이면 로그아웃
+      if (response.status === 401) {
+        await logout()
+      }
+    } else {
+      // 토큰 갱신 실패 시 로그아웃 처리
+      await logout()
+    }
   }
 
   return response

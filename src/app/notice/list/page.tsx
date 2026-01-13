@@ -3,13 +3,12 @@ import {
   Container,
   Heading,
   Stack,
-  Button,
   Skeleton,
 } from '@chakra-ui/react'
-import Link from 'next/link'
 import { Suspense } from 'react'
 import Header from '@/components/layouts/Header'
 import NoticeList from '@/components/notice/NoticeList'
+import NoticeWriteButton from '@/components/notice/NoticeWriteButton'
 
 export const metadata = {
   title: '공지사항 - 고양 라켓단',
@@ -53,9 +52,7 @@ export default async function NoticeListPage({ searchParams }: PageProps) {
             alignItems="center"
           >
             <Heading size="2xl">공지사항</Heading>
-            <Link href="/notice/write">
-              <Button colorScheme="teal">글쓰기</Button>
-            </Link>
+            <NoticeWriteButton />
           </Box>
 
           <Suspense key={currentPage} fallback={<NoticeListFallback />}>

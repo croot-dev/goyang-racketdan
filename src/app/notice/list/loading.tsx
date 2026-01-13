@@ -14,7 +14,6 @@ export default function NoticeListLoading() {
             alignItems="center"
           >
             <Heading size="2xl">공지사항</Heading>
-            <Skeleton height="40px" width="100px" />
           </Box>
 
           <Box>

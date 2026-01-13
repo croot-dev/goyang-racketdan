@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { refreshAccessToken, verifyToken, setAuthCookies } from '@/lib/jwt'
+import { refreshAccessToken, verifyToken } from '@/lib/jwt.server'
+import { cookies } from 'next/headers'
 
 /**
  * 토큰 갱신 API
+ * HttpOnly 쿠키에서 refreshToken을 읽어서 새로운 accessToken 발급
  */
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
-    const { refreshToken } = body
+    // 쿠키에서 refreshToken 가져오기
+    const cookieStore = await cookies()
+    const refreshToken = cookieStore.get('refreshToken')?.value
 
     if (!refreshToken) {
       return NextResponse.json(
@@ -34,14 +37,21 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // 쿠키에 새 토큰 설정
-    await setAuthCookies(newAccessToken, refreshToken)
-
-    return NextResponse.json({
+    // Response 생성
+    const response = NextResponse.json({
       success: true,
-      accessToken: newAccessToken,
-      refreshToken,
     })
+
+    // 새로운 accessToken을 쿠키에 설정
+    response.cookies.set('accessToken', newAccessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 15, // 15분
+      path: '/',
+    })
+
+    return response
 
   } catch (error) {
     console.error('토큰 갱신 에러:', error)

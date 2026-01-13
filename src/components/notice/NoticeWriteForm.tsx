@@ -4,7 +4,7 @@ import { Field, Stack, Button, Input, Box } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
-import { authenticatedFetch } from '@/lib/auth-client'
+import { authenticatedFetch } from '@/lib/auth.client'
 
 // Quill 에디터를 동적으로 로드 (SSR 방지)
 const QuillEditor = dynamic(() => import('@/components/editor/QuillEditor'), {

@@ -3,6 +3,7 @@
  * Double Submit Cookie 패턴 사용
  */
 
+import 'server-only'
 import { randomBytes } from 'crypto'
 
 /**

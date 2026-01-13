@@ -1,5 +1,6 @@
+import 'server-only'
 import { NextRequest, NextResponse } from 'next/server'
-import { getAuthUser, TokenPayload } from '@/lib/jwt'
+import { getAuthUser, TokenPayload } from '@/lib/jwt.server'
 
 export interface AuthenticatedRequest extends NextRequest {
   user?: TokenPayload

@@ -12,14 +12,14 @@ import {
   Fieldset,
   Input,
   Button,
-  NativeSelectRoot,
-  NativeSelectField,
+  NativeSelect,
   SegmentGroup,
   Container,
   Heading,
 } from '@chakra-ui/react'
 import { useForm, Controller } from 'react-hook-form'
-import { setCsrfToken } from '@/lib/auth-client'
+import { setCsrfToken } from '@/lib/auth.client'
+import { NTRP_LEVELS } from '@/shared/constants/ntrp'
 
 interface FormValues {
   name: string
@@ -135,19 +135,6 @@ export default function AuthSignInComplete() {
       alert('회원가입 중 오류가 발생했습니다.')
     }
   })
-
-  const ntrpLevels = [
-    { value: '', label: '선택하세요' },
-    { value: '1.0', label: '1.0 - 입문' },
-    { value: '1.5', label: '1.5' },
-    { value: '2.0', label: '2.0 - 초급' },
-    { value: '2.5', label: '2.5' },
-    { value: '3.0', label: '3.0 - 중급' },
-    { value: '3.5', label: '3.5' },
-    { value: '4.0', label: '4.0 - 상급' },
-    { value: '4.5', label: '4.5' },
-    { value: '5.0', label: '5.0 - 최상급' },
-  ]
 
   if (isLoading) {
     return (
@@ -295,21 +282,21 @@ export default function AuthSignInComplete() {
                 {/* NTRP 등급 */}
                 <Field.Root invalid={!!errors.ntrp} required>
                   <Field.Label>테니스 등급 (NTRP)</Field.Label>
-                  <NativeSelectRoot>
-                    <NativeSelectField
+                  <NativeSelect.Root>
+                    <NativeSelect.Field
                       {...register('ntrp', {
                         required: '테니스 등급을 선택해주세요',
                         validate: (value) =>
                           value !== '' || '테니스 등급을 선택해주세요',
                       })}
                     >
-                      {ntrpLevels.map((level) => (
+                      {NTRP_LEVELS.map((level) => (
                         <option key={level.value} value={level.value}>
                           {level.label}
                         </option>
                       ))}
-                    </NativeSelectField>
-                  </NativeSelectRoot>
+                    </NativeSelect.Field>
+                  </NativeSelect.Root>
                   <Field.HelperText>
                     현재 테니스 실력 수준을 선택해주세요
                   </Field.HelperText>

@@ -12,11 +12,12 @@ import {
 import Link from 'next/link'
 import { useState } from 'react'
 import { FaBars, FaTimes } from 'react-icons/fa'
-import { logout } from '@/lib/auth-client'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/lib/hooks/useAuth'
+import LogoutDialog from '@/components/common/LogoutDialog'
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false)
   const { isAuthenticated: isLoggedIn, user } = useAuth()
 
   const menuItems = [
@@ -31,8 +32,8 @@ export default function Header() {
       : []),
   ]
 
-  const handleLogout = () => {
-    logout()
+  const handleLogoutClick = () => {
+    setLogoutDialogOpen(true)
     setIsOpen(false)
   }
 
@@ -90,7 +91,7 @@ export default function Header() {
                   colorScheme="teal"
                   variant="outline"
                   size="sm"
-                  onClick={handleLogout}
+                  onClick={handleLogoutClick}
                 >
                   로그아웃
                 </Button>
@@ -145,7 +146,7 @@ export default function Header() {
                     variant="outline"
                     size="sm"
                     width="full"
-                    onClick={handleLogout}
+                    onClick={handleLogoutClick}
                   >
                     로그아웃
                   </Button>
@@ -168,6 +169,11 @@ export default function Header() {
           </Box>
         )}
       </Container>
+
+      <LogoutDialog
+        open={logoutDialogOpen}
+        onOpenChange={setLogoutDialogOpen}
+      />
     </Box>
   )
 }

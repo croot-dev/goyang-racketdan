@@ -1,21 +1,11 @@
-import { sql } from '@/lib/db'
+/**
+ * Post 데이터 액세스 레이어
+ * SQL 쿼리만 담당
+ */
 
-export interface Post {
-  post_id: number
-  bbs_type_id: number
-  title: string
-  content?: string
-  writer_id: string
-  view_count: number
-  created_at: string
-  updated_at: string
-}
-
-export interface PostListResult {
-  posts: Post[]
-  total: number
-  totalPages: number
-}
+import 'server-only'
+import { sql } from '@/lib/db.server'
+import { Post, PostListResult } from './post.model'
 
 /**
  * 게시글 목록 조회

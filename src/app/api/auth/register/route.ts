@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { registerService } from '@/services/auth.service'
-import { createAccessToken, createRefreshToken } from '@/lib/jwt'
+import { registerService } from '@/domains/auth/auth.service'
+import { createAccessToken, createRefreshToken, setAuthCookies } from '@/lib/jwt.server'
 import {
   generateCsrfToken,
   CSRF_COOKIE_OPTIONS,
   CSRF_COOKIE_NAME,
-} from '@/lib/csrf'
+} from '@/lib/csrf.server'
 
 export async function POST(req: NextRequest) {
   try {

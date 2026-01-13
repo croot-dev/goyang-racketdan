@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAuthUserFromNextRequest } from '@/lib/jwt'
-import { sql } from '@/lib/db'
+import { getAuthUserFromNextRequest } from '@/lib/jwt.server'
+import { sql } from '@/lib/db.server'
 
 /**
  * 현재 로그인한 사용자 정보 조회 API

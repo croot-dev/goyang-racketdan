@@ -75,7 +75,7 @@ export default function QuillEditor({
   }, [value])
 
   return (
-    <div>
+    <div style={{ width: '100%' }}>
       <div
         ref={editorRef}
         style={{ minHeight: '300px', backgroundColor: 'white' }}

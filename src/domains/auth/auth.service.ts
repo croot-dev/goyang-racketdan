@@ -10,13 +10,18 @@ import {
   getMemberByNickname,
   createMember,
 } from '@/domains/member/member.query'
-import { RegisterDto, UserInfo } from './auth.model'
+import { Member } from '../member'
 
 /**
  * 회원가입 서비스
  */
-export async function registerService(data: RegisterDto): Promise<UserInfo> {
-  const { email, name, gender, nickname, ntrp, phone } = data
+export async function registerService(
+  data: Pick<
+    Member,
+    'member_id' | 'email' | 'name' | 'nickname' | 'ntrp' | 'gender' | 'phone'
+  >
+): Promise<Member> {
+  const { member_id, email, name, gender, nickname, ntrp, phone } = data
 
   // 필수 필드 검증
   if (!email || !name || !gender || !nickname || !ntrp) {
@@ -41,34 +46,24 @@ export async function registerService(data: RegisterDto): Promise<UserInfo> {
     throw new Error('이미 사용 중인 별명입니다.')
   }
 
-  // gender 변환: M -> male, F -> female
-  const sex: 'male' | 'female' = gender === 'M' ? 'male' : 'female'
-
   // 카카오 로그인이므로 비밀번호는 랜덤 해시값 생성
   const randomPassword = Math.random().toString(36).slice(-8)
   const passwordHash = await bcrypt.hash(randomPassword, 12)
 
   // 회원 생성
   const newMember = await createMember({
+    member_id,
     email,
     name,
     nickname,
-    sex,
+    gender,
     ntrp,
     password_hash: passwordHash,
     phone: phone || null,
   })
 
   // 비밀번호 제외한 사용자 정보 반환
-  return {
-    id: newMember.id,
-    email: newMember.email,
-    name: newMember.name,
-    nickname: newMember.nickname,
-    ntrp: newMember.ntrp,
-    sex: newMember.sex,
-    phone: newMember.phone,
-  }
+  return newMember
 }
 
 /**
@@ -76,7 +71,10 @@ export async function registerService(data: RegisterDto): Promise<UserInfo> {
  */
 export async function findMemberByEmailService(
   email: string
-): Promise<UserInfo | null> {
+): Promise<Pick<
+  Member,
+  'member_id' | 'email' | 'name' | 'nickname' | 'ntrp' | 'gender' | 'phone'
+> | null> {
   if (!email) {
     return null
   }
@@ -87,12 +85,12 @@ export async function findMemberByEmailService(
   }
 
   return {
-    id: member.id,
+    member_id: member.member_id,
     email: member.email,
     name: member.name,
     nickname: member.nickname,
     ntrp: member.ntrp,
-    sex: member.sex,
+    gender: member.gender,
     phone: member.phone,
   }
 }

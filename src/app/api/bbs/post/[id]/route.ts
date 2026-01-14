@@ -54,7 +54,7 @@ export async function PUT(
 
       const updatedPost = await updatePostService(
         post_id,
-        { title, content, user_id: user.userId },
+        { title, content, user_id: user.memberId },
         type_id
       )
 
@@ -100,7 +100,7 @@ export async function DELETE(
       const bbs_type_id = parseInt(searchParams.get('type') || '1')
       const post_id = parseInt(id)
 
-      await deletePostService(post_id, user.userId, bbs_type_id)
+      await deletePostService(post_id, user.memberId, bbs_type_id)
 
       return NextResponse.json({
         success: true,

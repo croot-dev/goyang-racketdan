@@ -26,7 +26,7 @@ export async function PUT(req: NextRequest) {
       )
     }
 
-    const userId = payload.userId
+    const memberId = payload.memberId
 
     // 요청 본문 파싱
     const body = await req.json()
@@ -44,9 +44,9 @@ export async function PUT(req: NextRequest) {
     const result = await pool.query(
       `UPDATE member
        SET name = $1, nickname = $2, ntrp = $3, phone = $4, updated_at = NOW()
-       WHERE id = $5
-       RETURNING id, email, name, nickname, ntrp, sex, phone`,
-      [name, nickname, ntrp, phone || null, userId]
+       WHERE member_id = $5
+       RETURNING member_id, email, name, nickname, ntrp, gender, phone`,
+      [name, nickname, ntrp, phone || null, memberId]
     )
 
     if (result.rowCount === 0) {
@@ -66,7 +66,7 @@ export async function PUT(req: NextRequest) {
         name: updatedUser.name,
         nickname: updatedUser.nickname,
         ntrp: updatedUser.ntrp,
-        sex: updatedUser.sex,
+        gender: updatedUser.gender,
         phone: updatedUser.phone,
       },
     })

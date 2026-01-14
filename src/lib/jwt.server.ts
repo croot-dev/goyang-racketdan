@@ -11,9 +11,10 @@ const ACCESS_TOKEN_EXPIRY = '15m' // 15분
 const REFRESH_TOKEN_EXPIRY = '7d' // 7일
 
 export interface TokenPayload {
-  userId: string
+  memberId: string
+  roleCode?: string
+  roleName?: string
   email?: string
-  name?: string
 }
 
 /**
@@ -50,11 +51,10 @@ export async function verifyToken(token: string): Promise<TokenPayload | null> {
     const { payload } = await jwtVerify(token, JWT_SECRET)
 
     // payload에서 필요한 필드만 추출하여 TokenPayload로 변환
-    if (payload && typeof payload.userId === 'string') {
+    if (payload && typeof payload.memberId === 'string') {
       return {
-        userId: payload.userId,
+        memberId: payload.memberId,
         email: payload.email as string | undefined,
-        name: payload.name as string | undefined,
       }
     }
 

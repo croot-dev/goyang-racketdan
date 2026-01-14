@@ -3,11 +3,11 @@
 import { useState } from 'react'
 import { Box, Text, Stack, Card, Button } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
-import { UserInfo } from '@/domains/auth/auth.model'
 import LogoutDialog from '@/components/common/LogoutDialog'
+import { Member } from '@/domains/member'
 
 interface ProfileCardProps {
-  user: UserInfo
+  user: Member
 }
 
 export default function ProfileCard({ user }: ProfileCardProps) {

@@ -17,9 +17,9 @@ export async function GET(req: NextRequest) {
 
     // 데이터베이스에서 사용자 정보 조회
     const users = await sql`
-      SELECT id, email, name, nickname, ntrp, sex, phone, status
+      SELECT member_id, email, name, nickname, ntrp, gender, phone, status
       FROM member
-      WHERE id = ${tokenPayload.userId}
+      WHERE member_id = ${tokenPayload.memberId}
       LIMIT 1
     `
 
@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
         name: user.name,
         nickname: user.nickname,
         ntrp: user.ntrp,
-        sex: user.sex,
+        gender: user.gender,
         phone: user.phone,
         status: user.status,
       },

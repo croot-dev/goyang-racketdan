@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { registerService } from '@/domains/auth/auth.service'
-import { createAccessToken, createRefreshToken, setAuthCookies } from '@/lib/jwt.server'
+import { createAccessToken, createRefreshToken } from '@/lib/jwt.server'
 import {
   generateCsrfToken,
   CSRF_COOKIE_OPTIONS,
@@ -10,10 +10,18 @@ import {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { email, name, gender, nickname, ntrp, phone } = body
+    const { member_id, email, name, gender, nickname, ntrp, phone } = body
+
+    if (!member_id) {
+      return NextResponse.json(
+        { error: '사용자 인증 정보가 없습니다.' },
+        { status: 500 }
+      )
+    }
 
     // 서비스 레이어를 통해 회원가입 처리
     const user = await registerService({
+      member_id,
       email,
       name,
       gender,
@@ -22,20 +30,21 @@ export async function POST(req: NextRequest) {
       phone,
     })
 
+    console.log(user)
     console.log('회원가입 성공:', {
-      id: user.id,
+      member_id: user.member_id,
       email: user.email,
       nickname: user.nickname,
     })
 
     // JWT 토큰 생성
     const accessToken = await createAccessToken({
-      userId: user.id,
+      memberId: user.member_id,
       email: user.email,
     })
 
     const refreshToken = await createRefreshToken({
-      userId: user.id,
+      memberId: user.member_id,
       email: user.email,
     })
 
@@ -47,12 +56,12 @@ export async function POST(req: NextRequest) {
       {
         success: true,
         user: {
-          id: user.id,
+          member_id: user.member_id,
           email: user.email,
           name: user.name,
           nickname: user.nickname,
           ntrp: user.ntrp,
-          sex: user.sex,
+          gender: user.gender,
           phone: user.phone,
         },
         accessToken,

@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { withAuth } from '@/lib/auth.server'
-import { getPostListService, createPostService } from '@/domains/post/post.service'
+import {
+  getPostListService,
+  createPostService,
+} from '@/domains/post/post.service'
 
 // 게시글 목록 조회 API (인증 불필요)
 export async function GET(req: NextRequest) {
@@ -39,12 +42,12 @@ export async function POST(req: NextRequest) {
         bbs_type_id: parseInt(bbs_type_id) || 1,
         title,
         content,
-        writer_id: user.userId,
+        writer_id: user.memberId,
       })
 
       console.log('게시글 작성 성공:', {
         postId: post.post_id,
-        userId: user.userId,
+        memberId: user.memberId,
       })
 
       return NextResponse.json({

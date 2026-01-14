@@ -7,21 +7,9 @@
  * JWT 토큰 페이로드
  */
 export interface TokenPayload {
-  userId: string
+  memberId: string
   email?: string
   name?: string
-}
-
-/**
- * 회원가입 요청 데이터
- */
-export interface RegisterDto {
-  email: string
-  name: string
-  gender: string // 'M' or 'F'
-  nickname: string
-  ntrp: string
-  phone?: string
 }
 
 /**
@@ -44,29 +32,4 @@ export interface KakaoUserInfo {
       nickname?: string
     }
   }
-}
-
-/**
- * 인증된 사용자 정보 (클라이언트용)
- */
-export interface AuthUser {
-  id: string
-  email?: string
-  name?: string
-  nickname?: string
-  ntrp: string
-  phone?: string
-}
-
-/**
- * 회원 정보 (비밀번호 제외)
- */
-export interface UserInfo {
-  id: string
-  email: string
-  name: string
-  nickname: string
-  ntrp: string
-  sex: 'male' | 'female'
-  phone: string
 }

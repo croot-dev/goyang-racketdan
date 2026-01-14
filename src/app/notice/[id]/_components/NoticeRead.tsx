@@ -1,6 +1,7 @@
 import { Field, Stack, Button, Input, Box, Text } from '@chakra-ui/react'
 import Link from 'next/link'
 import { getPostService } from '@/domains/post/post.service'
+import NoticeActions from './NoticeActions'
 
 interface NoticeReadProps {
   postId: number
@@ -67,14 +68,7 @@ export default async function NoticeRead({ postId }: NoticeReadProps) {
           <Button variant="outline">목록으로</Button>
         </Link>
 
-        <Box display="flex" gap={3}>
-          <Link href={`/notice/edit/${post.post_id}`}>
-            <Button colorScheme="blue">수정</Button>
-          </Link>
-          <Button colorScheme="red" variant="outline">
-            삭제
-          </Button>
-        </Box>
+        <NoticeActions postId={post.post_id} writerId={post.writer_id} />
       </Box>
     </Stack>
   )

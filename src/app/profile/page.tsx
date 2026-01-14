@@ -16,17 +16,22 @@ import {
   NativeSelect,
 } from '@chakra-ui/react'
 import { useAuth } from '@/lib/hooks/useAuth'
-import { UserInfo } from '@/domains/auth/auth.model'
 import { authenticatedFetch } from '@/lib/auth.client'
 import { toaster } from '@/components/ui/toaster'
-import { NTRP_LEVELS } from '@/constants'
+import { NTRP_LEVELS, MEMBER_GENDER } from '@/constants'
+import type { Member } from '@/domains/member/member.model'
+
+const GENDER_OPTIONS = [
+  { value: MEMBER_GENDER.MALE, label: '남성' },
+  { value: MEMBER_GENDER.FEMALE, label: '여성' },
+] as const
 
 export default function ProfilePage() {
   const router = useRouter()
   const { isAuthenticated, user, isLoading: authLoading } = useAuth()
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [formData, setFormData] = useState<Partial<UserInfo>>({
+  const [formData, setFormData] = useState<Partial<Member>>({
     name: '',
     nickname: '',
     ntrp: '',
@@ -52,7 +57,7 @@ export default function ProfilePage() {
     }
   }, [user])
 
-  const handleInputChange = (field: keyof UserInfo, value: string) => {
+  const handleInputChange = (field: keyof Member, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -204,7 +209,7 @@ export default function ProfilePage() {
               <Field.Root>
                 <Field.Label>전화번호</Field.Label>
                 <Input
-                  value={formData.phone}
+                  value={formData.phone ?? ''}
                   onChange={(e) => handleInputChange('phone', e.target.value)}
                   disabled={!isEditing}
                   placeholder="010-1234-5678"
@@ -214,11 +219,8 @@ export default function ProfilePage() {
               <Field.Root readOnly>
                 <Field.Label>성별</Field.Label>
                 <NativeSelect.Root>
-                  <NativeSelect.Field value={user.sex} disabled={!isEditing}>
-                    {[
-                      { value: 'M', label: '남성' },
-                      { value: 'F', label: '여성' },
-                    ].map((level) => (
+                  <NativeSelect.Field value={user.gender} disabled={!isEditing}>
+                    {GENDER_OPTIONS.map((level) => (
                       <option key={level.value} value={level.value}>
                         {level.label}
                       </option>

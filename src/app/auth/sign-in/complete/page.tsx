@@ -18,7 +18,7 @@ import {
   Heading,
 } from '@chakra-ui/react'
 import { useForm, Controller } from 'react-hook-form'
-import { setCsrfToken } from '@/lib/auth.client'
+import { setCsrfToken, setAuthFlag } from '@/lib/auth.client'
 import { NTRP_LEVELS } from '@/constants'
 
 interface FormValues {
@@ -43,7 +43,7 @@ export default function AuthSignInComplete() {
   }, [])
 
   const [showForm, setShowForm] = useState(false)
-  const [kakaoUserEmail, setKakaoUserEmail] = useState('')
+  const [kakaoUserInfo, setKakaoUserInfo] = useState({ id: null, email: null })
 
   const {
     register,
@@ -82,15 +82,19 @@ export default function AuthSignInComplete() {
           setCsrfToken(data.csrfToken)
         }
 
+        // 인증 플래그 설정
+        setAuthFlag()
+
         // 임시 데이터 정리
         localStorage.removeItem('kakaoUserTemp')
 
         // 대시보드로 이동
         router.push('/dashboard')
       } else {
-        // 신규 사용자인 경우 폼 표시
-        console.log('신규 사용자, 프로필 입력 필요')
-        setKakaoUserEmail(data.user.kakao_account?.email || '')
+        setKakaoUserInfo({
+          id: data.user.id,
+          email: data.user.kakao_account?.email || '',
+        })
         setShowForm(true)
       }
     }
@@ -98,7 +102,8 @@ export default function AuthSignInComplete() {
 
   const onSubmit = handleSubmit(async (formData) => {
     const signUpData = {
-      email: kakaoUserEmail,
+      member_id: kakaoUserInfo.id,
+      email: kakaoUserInfo.email,
       name: formData.name,
       gender: formData.gender,
       nickname: formData.nickname,
@@ -120,6 +125,9 @@ export default function AuthSignInComplete() {
         if (result.csrfToken) {
           setCsrfToken(result.csrfToken)
         }
+
+        // 인증 플래그 설정
+        setAuthFlag()
 
         // 임시 데이터 삭제
         localStorage.removeItem('kakaoUserTemp')
@@ -193,7 +201,7 @@ export default function AuthSignInComplete() {
                     카카오 계정
                   </Text>
                   <Text fontSize="sm" fontWeight="medium">
-                    {kakaoUserEmail || '정보 없음'}
+                    {kakaoUserInfo.email || '정보 없음'}
                   </Text>
                 </Box>
 

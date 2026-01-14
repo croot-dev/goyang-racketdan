@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import { getUser } from '@/lib/auth.client'
-import { UserInfo } from '@/domains/auth/auth.model'
+import { Member } from '@/domains/member'
 
 /**
  * 인증 상태를 관리하는 커스텀 훅
@@ -9,7 +9,7 @@ import { UserInfo } from '@/domains/auth/auth.model'
  */
 export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [user, setUser] = useState<UserInfo | null>(null)
+  const [user, setUser] = useState<Member | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const hasFetched = useRef(false)
 

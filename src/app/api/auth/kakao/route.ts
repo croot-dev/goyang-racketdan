@@ -6,6 +6,8 @@ import {
   CSRF_COOKIE_OPTIONS,
   CSRF_COOKIE_NAME,
 } from '@/lib/csrf.server'
+import { KakaoUserInfo } from '@/domains/auth'
+import { getMemberWithRole } from '@/domains/member'
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get('code')
@@ -43,30 +45,27 @@ export async function GET(req: NextRequest) {
     },
   })
 
-  const userData = await userRes.json()
-  const email = userData.kakao_account?.email
+  const userData: KakaoUserInfo = await userRes.json()
+  const member_id = userData.id.toString()
 
-  // 이메일로 기존 사용자 확인
+  // 기존 사용자 확인
   let existingUser = null
-  if (email) {
-    const users = await sql`
-      SELECT id, email, name, nickname, ntrp, sex, phone, status
-      FROM member
-      WHERE email = ${email}
-      LIMIT 1
-    `
-    existingUser = users.length > 0 ? users[0] : null
+  if (member_id) {
+    const users = await getMemberWithRole(member_id)
+    existingUser = users ?? null
   }
 
   // 기존 사용자인 경우 JWT 토큰 생성 및 쿠키 설정
   if (existingUser) {
     const accessToken = await createAccessToken({
-      userId: existingUser.id,
+      memberId: existingUser.member_id,
+      roleName: existingUser.role_name,
+      roleCode: existingUser.role_code,
       email: existingUser.email,
     })
 
     const refreshToken = await createRefreshToken({
-      userId: existingUser.id,
+      memberId: existingUser.member_id,
       email: existingUser.email,
     })
 

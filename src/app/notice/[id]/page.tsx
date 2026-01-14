@@ -1,7 +1,7 @@
 import { Box, Container, Heading, Stack, Skeleton } from '@chakra-ui/react'
 import { Suspense } from 'react'
 import Header from '@/components/layouts/Header'
-import NoticeRead from '@/components/notice/NoticeRead'
+import NoticeRead from './_components/NoticeRead'
 
 export const metadata = {
   title: '공지사항 상세 - 고양 라켓단',

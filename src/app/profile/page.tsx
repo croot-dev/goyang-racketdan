@@ -19,7 +19,7 @@ import { useAuth } from '@/lib/hooks/useAuth'
 import { UserInfo } from '@/domains/auth/auth.model'
 import { authenticatedFetch } from '@/lib/auth.client'
 import { toaster } from '@/components/ui/toaster'
-import { NTRP_LEVELS } from '@/shared/constants/ntrp'
+import { NTRP_LEVELS } from '@/constants'
 
 export default function ProfilePage() {
   const router = useRouter()

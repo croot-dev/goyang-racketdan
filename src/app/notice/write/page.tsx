@@ -1,7 +1,7 @@
 import { Box, Container, Heading, Stack, Skeleton } from '@chakra-ui/react'
 import { Suspense } from 'react'
 import Header from '@/components/layouts/Header'
-import NoticeWriteForm from '@/components/notice/NoticeWriteForm'
+import NoticeWriteForm from './_components/NoticeWriteForm'
 
 export const metadata = {
   title: '공지사항 작성 - 고양 라켓단',

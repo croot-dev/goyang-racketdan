@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react'
 import { useForm, Controller } from 'react-hook-form'
 import { setCsrfToken } from '@/lib/auth.client'
-import { NTRP_LEVELS } from '@/shared/constants/ntrp'
+import { NTRP_LEVELS } from '@/constants'
 
 interface FormValues {
   name: string

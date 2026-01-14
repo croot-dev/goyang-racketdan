@@ -4,9 +4,9 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Box, Container, Heading, Text, Stack, Spinner } from '@chakra-ui/react'
 import { useAuth } from '@/lib/hooks/useAuth'
-import ProfileCard from '@/components/dashboard/ProfileCard'
-import RecentNoticesCard from '@/components/dashboard/RecentNoticesCard'
-import ReservationCard from '@/components/dashboard/ReservationCard'
+import ProfileCard from './_components/ProfileCard'
+import RecentNoticesCard from './_components/RecentNoticesCard'
+import ReservationCard from './_components/ReservationCard'
 
 export default function DashboardPage() {
   const router = useRouter()

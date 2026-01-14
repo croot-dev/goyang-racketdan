@@ -4,7 +4,7 @@ import { Field, Stack, Button } from '@chakra-ui/react'
 import {
   PasswordInput,
   PasswordStrengthMeter,
-} from '@/components/ui/password-input'
+} from './_components/password-input'
 import { useForm } from 'react-hook-form'
 
 interface FormValues {

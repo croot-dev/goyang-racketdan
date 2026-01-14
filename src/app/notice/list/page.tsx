@@ -7,8 +7,8 @@ import {
 } from '@chakra-ui/react'
 import { Suspense } from 'react'
 import Header from '@/components/layouts/Header'
-import NoticeList from '@/components/notice/NoticeList'
-import NoticeWriteButton from '@/components/notice/NoticeWriteButton'
+import NoticeList from './_components/NoticeList'
+import NoticeWriteButton from './_components/NoticeWriteButton'
 
 export const metadata = {
   title: '공지사항 - 고양 라켓단',

@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic'
 import { authenticatedFetch } from '@/lib/auth.client'
 
 // Quill 에디터를 동적으로 로드 (SSR 방지)
-const QuillEditor = dynamic(() => import('@/components/editor/QuillEditor'), {
+const QuillEditor = dynamic(() => import('./QuillEditor'), {
   ssr: false,
   loading: () => <Box minH="300px" bg="gray.100" borderRadius="md" />,
 })

@@ -1,25 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { registerService } from '@/domains/auth/auth.service'
+import { registerService } from '@/domains/auth'
 import { createAccessToken, createRefreshToken } from '@/lib/jwt.server'
 import {
   generateCsrfToken,
   CSRF_COOKIE_OPTIONS,
   CSRF_COOKIE_NAME,
 } from '@/lib/csrf.server'
+import { modifyMemberService } from '@/domains/member'
+import { withAuth } from '@/lib/auth.server'
+import { handleApiError } from '@/lib/api.error'
+import { ServiceError, ErrorCode } from '@/lib/error'
 
-export async function POST(req: NextRequest) {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id: member_id } = await params
     const body = await req.json()
-    const { member_id, email, name, gender, nickname, ntrp, phone } = body
+    const { email, name, gender, nickname, ntrp, phone } = body
 
     if (!member_id) {
-      return NextResponse.json(
-        { error: '사용자 인증 정보가 없습니다.' },
-        { status: 500 }
+      throw new ServiceError(
+        ErrorCode.UNAUTHORIZED,
+        '사용자 인증 정보가 없습니다.'
       )
     }
 
-    // 서비스 레이어를 통해 회원가입 처리
     const user = await registerService({
       member_id,
       email,
@@ -28,13 +35,6 @@ export async function POST(req: NextRequest) {
       nickname,
       ntrp,
       phone,
-    })
-
-    console.log(user)
-    console.log('회원가입 성공:', {
-      member_id: user.member_id,
-      email: user.email,
-      nickname: user.nickname,
     })
 
     // JWT 토큰 생성
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
           phone: user.phone,
         },
         accessToken,
-        csrfToken, // 클라이언트에서 헤더로 사용
+        csrfToken,
       },
       { status: 201 }
     )
@@ -93,24 +93,37 @@ export async function POST(req: NextRequest) {
     return response
   } catch (error) {
     console.error('회원가입 에러:', error)
-
-    // 비즈니스 로직 에러 처리
-    if (error instanceof Error) {
-      // 중복 에러는 409 Conflict
-      if (
-        error.message.includes('이미 가입된') ||
-        error.message.includes('이미 사용 중인')
-      ) {
-        return NextResponse.json({ error: error.message }, { status: 409 })
-      }
-
-      // 유효성 검사 에러는 400 Bad Request
-      return NextResponse.json({ error: error.message }, { status: 400 })
-    }
-
-    return NextResponse.json(
-      { error: '회원가입 처리 중 오류가 발생했습니다.' },
-      { status: 500 }
-    )
+    return handleApiError(error, '회원가입 처리 중 오류가 발생했습니다.')
   }
+}
+
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  return withAuth(req, async (authenticatedReq, user) => {
+    try {
+      const { id: member_id } = await params
+      const body = await authenticatedReq.json()
+      const { name, gender, nickname, ntrp, phone } = body
+
+      const updatedUser = await modifyMemberService({
+        member_id,
+        requester_id: user.memberId,
+        name,
+        nickname,
+        gender,
+        ntrp,
+        phone: phone || null,
+      })
+
+      return NextResponse.json({
+        success: true,
+        user: updatedUser,
+      })
+    } catch (error) {
+      console.error('회원정보 수정 에러:', error)
+      return handleApiError(error, '회원정보 수정 처리 중 오류가 발생했습니다.')
+    }
+  })
 }

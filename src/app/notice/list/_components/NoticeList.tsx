@@ -1,6 +1,6 @@
 import { Box, Table, Stack, Text } from '@chakra-ui/react'
 import Link from 'next/link'
-import { getPostListService } from '@/domains/post/post.service'
+import { getPostListService } from '@/domains/post'
 
 interface NoticeListProps {
   currentPage: number
@@ -69,7 +69,7 @@ export default async function NoticeList({ currentPage }: NoticeListProps) {
                     alignItems="center"
                   >
                     <Text fontSize="sm" color="gray.600">
-                      {post.writer_id}
+                      {post.writer_name}
                     </Text>
                     <Box display="flex" gap={3} fontSize="xs" color="gray.500">
                       <Text>조회 {post.view_count}</Text>

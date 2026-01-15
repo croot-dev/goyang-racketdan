@@ -5,7 +5,8 @@
 
 import 'server-only'
 import { sql } from '@/lib/db.server'
-import { Post, PostListResult } from './post.model'
+import { PostListItem, PostListResult } from './post.model'
+import { Paging } from '../common/paging.query'
 
 /**
  * 게시글 목록 조회
@@ -20,14 +21,17 @@ export async function getPostList(
   const [posts, countResult] = (await Promise.all([
     sql`
       SELECT
-        post_id,
-        bbs_type_id,
-        title,
-        writer_id,
-        view_count,
-        created_at,
-        updated_at
-      FROM bbs_post
+        p.post_id,
+        p.bbs_type_id,
+        p.title,
+        p.writer_id,
+        p.view_count,
+        p.created_at,
+        p.updated_at,
+        m.nickname as writer_name
+      FROM bbs_post p
+      JOIN member m
+        ON p.writer_id = m.member_id
       WHERE bbs_type_id = ${bbs_type_id}
       ORDER BY created_at DESC
       LIMIT ${limit}
@@ -38,7 +42,7 @@ export async function getPostList(
       FROM bbs_post
       WHERE bbs_type_id = ${bbs_type_id}
     `,
-  ])) as [Post[], { total: number }[]]
+  ])) as [PostListItem[], Paging[]]
 
   return {
     posts,
@@ -53,20 +57,24 @@ export async function getPostList(
 export async function getPost(
   post_id: number,
   bbs_type_id: number = 1
-): Promise<Post | null> {
-  const result = await sql`
+): Promise<PostListItem | null> {
+  const result = (await sql`
     SELECT
-      post_id,
-      bbs_type_id,
-      title,
-      content,
-      writer_id,
-      view_count,
-      created_at,
-      updated_at
-    FROM bbs_post
-    WHERE post_id = ${post_id} AND bbs_type_id = ${bbs_type_id}
-  `
+      p.post_id,
+      p.bbs_type_id,
+      p.title,
+      p.content,
+      p.writer_id,
+      p.view_count,
+      p.created_at,
+      p.updated_at,
+      m.nickname as writer_name
+    FROM bbs_post p
+      JOIN member m
+        ON p.writer_id = m.member_id
+    WHERE post_id = ${post_id} 
+      AND bbs_type_id = ${bbs_type_id}
+  `) as PostListItem[]
 
-  return (result[0] as Post) || null
+  return result[0] || null
 }

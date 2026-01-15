@@ -1,6 +1,6 @@
 import { Field, Stack, Button, Input, Box, Text } from '@chakra-ui/react'
 import Link from 'next/link'
-import { getPostService } from '@/domains/post/post.service'
+import { getPostService } from '@/domains/post'
 import NoticeActions from './NoticeActions'
 
 interface NoticeReadProps {

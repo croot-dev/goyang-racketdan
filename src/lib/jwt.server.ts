@@ -54,6 +54,8 @@ export async function verifyToken(token: string): Promise<TokenPayload | null> {
     if (payload && typeof payload.memberId === 'string') {
       return {
         memberId: payload.memberId,
+        roleCode: payload.roleCode as string | undefined,
+        roleName: payload.roleName as string | undefined,
         email: payload.email as string | undefined,
       }
     }

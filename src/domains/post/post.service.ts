@@ -5,8 +5,14 @@
 
 import 'server-only'
 import { getPostList, getPost } from './post.query'
-import { Post, PostListResult, CreatePostDto } from './post.model'
+import {
+  PostListItem,
+  PostListResult,
+  CreatePostDto,
+  PostDto,
+} from './post.model'
 import { sql } from '@/lib/db.server'
+import { ServiceError, ErrorCode } from '@/lib/error'
 
 /**
  * 게시글 목록 조회
@@ -26,10 +32,7 @@ export async function getPostListService(
 /**
  * 단일 게시글 조회
  */
-export async function getPostService(
-  post_id: number,
-  bbs_type_id: number = 1
-): Promise<Post | null> {
+export async function getPostService(post_id: number, bbs_type_id: number = 1) {
   if (!post_id || post_id < 1) {
     return null
   }
@@ -40,22 +43,20 @@ export async function getPostService(
 /**
  * 게시글 생성
  */
-export async function createPostService(
-  data: CreatePostDto
-): Promise<Post> {
+export async function createPostService(data: CreatePostDto) {
   const { bbs_type_id, title, content, writer_id } = data
 
   // 유효성 검증
   if (!title || title.trim().length === 0) {
-    throw new Error('제목을 입력해주세요.')
+    throw new ServiceError(ErrorCode.VALIDATION_ERROR, '제목을 입력해주세요.')
   }
 
   if (!content || content.trim().length === 0) {
-    throw new Error('내용을 입력해주세요.')
+    throw new ServiceError(ErrorCode.VALIDATION_ERROR, '내용을 입력해주세요.')
   }
 
   if (!writer_id) {
-    throw new Error('작성자 정보가 필요합니다.')
+    throw new ServiceError(ErrorCode.UNAUTHORIZED, '작성자 정보가 필요합니다.')
   }
 
   // 데이터베이스에 게시글 저장
@@ -79,7 +80,7 @@ export async function createPostService(
     RETURNING post_id, bbs_type_id, title, content, writer_id, view_count, created_at, updated_at
   `
 
-  return newPost[0] as Post
+  return newPost[0] as PostListItem
 }
 
 /**
@@ -93,35 +94,41 @@ export async function updatePostService(
     user_id: string
   },
   bbs_type_id: number = 1
-): Promise<Post | null> {
+) {
   const { title, content, user_id } = data
 
   // 유효성 검증
   if (!title || title.trim().length === 0) {
-    throw new Error('제목을 입력해주세요.')
+    throw new ServiceError(ErrorCode.VALIDATION_ERROR, '제목을 입력해주세요.')
   }
 
   if (!content || content.trim().length === 0) {
-    throw new Error('내용을 입력해주세요.')
+    throw new ServiceError(ErrorCode.VALIDATION_ERROR, '내용을 입력해주세요.')
   }
 
   if (!user_id) {
-    throw new Error('사용자 인증이 필요합니다.')
+    throw new ServiceError(ErrorCode.UNAUTHORIZED, '사용자 인증이 필요합니다.')
   }
 
   // 게시글 존재 여부 확인
   const existingPost = await getPost(post_id, bbs_type_id)
   if (!existingPost) {
-    throw new Error('게시글을 찾을 수 없습니다.')
+    throw new ServiceError(
+      ErrorCode.POST_NOT_FOUND,
+      '게시글을 찾을 수 없습니다.'
+    )
   }
 
   // 작성자 권한 확인
   if (existingPost.writer_id !== user_id) {
-    throw new Error('게시글을 수정할 권한이 없습니다.')
+    throw new ServiceError(
+      ErrorCode.NOT_OWNER,
+      '게시글을 수정할 권한이 없습니다.'
+    )
   }
 
   // 데이터베이스 업데이트
-  const updatedPost = await sql`
+  const updatedPost = (await sql`
     UPDATE bbs_post
     SET
       title = ${title.trim()},
@@ -129,9 +136,9 @@ export async function updatePostService(
       updated_at = NOW()
     WHERE post_id = ${post_id} AND bbs_type_id = ${bbs_type_id}
     RETURNING post_id, bbs_type_id, title, content, writer_id, view_count, created_at, updated_at
-  `
+  `) as PostDto[]
 
-  return (updatedPost[0] as Post) || null
+  return updatedPost[0] || null
 }
 
 /**
@@ -143,22 +150,31 @@ export async function deletePostService(
   bbs_type_id: number = 1
 ): Promise<boolean> {
   if (!post_id || post_id < 1) {
-    throw new Error('유효하지 않은 게시글 ID입니다.')
+    throw new ServiceError(
+      ErrorCode.INVALID_INPUT,
+      '유효하지 않은 게시글 ID입니다.'
+    )
   }
 
   if (!user_id) {
-    throw new Error('사용자 인증이 필요합니다.')
+    throw new ServiceError(ErrorCode.UNAUTHORIZED, '사용자 인증이 필요합니다.')
   }
 
   // 게시글 존재 여부 확인
   const existingPost = await getPost(post_id, bbs_type_id)
   if (!existingPost) {
-    throw new Error('게시글을 찾을 수 없습니다.')
+    throw new ServiceError(
+      ErrorCode.POST_NOT_FOUND,
+      '게시글을 찾을 수 없습니다.'
+    )
   }
 
   // 작성자 권한 확인
   if (existingPost.writer_id !== user_id) {
-    throw new Error('게시글을 삭제할 권한이 없습니다.')
+    throw new ServiceError(
+      ErrorCode.NOT_OWNER,
+      '게시글을 삭제할 권한이 없습니다.'
+    )
   }
 
   // 데이터베이스에서 삭제

@@ -4,7 +4,9 @@ import {
   getPostService,
   updatePostService,
   deletePostService,
-} from '@/domains/post/post.service'
+} from '@/domains/post'
+import { handleApiError } from '@/lib/api.error'
+import { ServiceError, ErrorCode } from '@/lib/error'
 
 // 단일 게시글 조회 API (인증 불필요)
 export async function GET(
@@ -20,9 +22,9 @@ export async function GET(
     const post = await getPostService(post_id, bbs_type_id)
 
     if (!post) {
-      return NextResponse.json(
-        { error: '게시글을 찾을 수 없습니다.' },
-        { status: 404 }
+      throw new ServiceError(
+        ErrorCode.POST_NOT_FOUND,
+        '게시글을 찾을 수 없습니다.'
       )
     }
 
@@ -32,10 +34,7 @@ export async function GET(
     })
   } catch (error) {
     console.error('게시글 조회 에러:', error)
-    return NextResponse.json(
-      { error: '게시글 조회 중 오류가 발생했습니다.' },
-      { status: 500 }
-    )
+    return handleApiError(error, '게시글 조회 중 오류가 발생했습니다.')
   }
 }
 
@@ -64,26 +63,7 @@ export async function PUT(
       })
     } catch (error) {
       console.error('게시글 수정 에러:', error)
-
-      if (error instanceof Error) {
-        // 권한 에러는 403 Forbidden
-        if (error.message.includes('권한이 없습니다')) {
-          return NextResponse.json({ error: error.message }, { status: 403 })
-        }
-
-        // 찾을 수 없음 에러는 404
-        if (error.message.includes('찾을 수 없습니다')) {
-          return NextResponse.json({ error: error.message }, { status: 404 })
-        }
-
-        // 기타 유효성 검사 에러는 400
-        return NextResponse.json({ error: error.message }, { status: 400 })
-      }
-
-      return NextResponse.json(
-        { error: '게시글 수정 중 오류가 발생했습니다.' },
-        { status: 500 }
-      )
+      return handleApiError(error, '게시글 수정 중 오류가 발생했습니다.')
     }
   })
 }
@@ -108,26 +88,7 @@ export async function DELETE(
       })
     } catch (error) {
       console.error('게시글 삭제 에러:', error)
-
-      if (error instanceof Error) {
-        // 권한 에러는 403 Forbidden
-        if (error.message.includes('권한이 없습니다')) {
-          return NextResponse.json({ error: error.message }, { status: 403 })
-        }
-
-        // 찾을 수 없음 에러는 404
-        if (error.message.includes('찾을 수 없습니다')) {
-          return NextResponse.json({ error: error.message }, { status: 404 })
-        }
-
-        // 기타 유효성 검사 에러는 400
-        return NextResponse.json({ error: error.message }, { status: 400 })
-      }
-
-      return NextResponse.json(
-        { error: '게시글 삭제 중 오류가 발생했습니다.' },
-        { status: 500 }
-      )
+      return handleApiError(error, '게시글 삭제 중 오류가 발생했습니다.')
     }
   })
 }

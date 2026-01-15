@@ -19,7 +19,7 @@ export default function ReservationCard() {
         </Text>
       </Card.Body>
       <Card.Footer>
-        <Button colorScheme="teal" onClick={() => router.push('/reservation')}>
+        <Button colorScheme="teal" onClick={() => router.push('/schedule')}>
           예약하러 가기
         </Button>
       </Card.Footer>

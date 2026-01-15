@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { withAuth } from '@/lib/auth.server'
-import {
-  getPostListService,
-  createPostService,
-} from '@/domains/post/post.service'
+import { getPostListService, createPostService } from '@/domains/post'
+import { handleApiError } from '@/lib/api.error'
 
 // 게시글 목록 조회 API (인증 불필요)
 export async function GET(req: NextRequest) {
@@ -23,10 +21,7 @@ export async function GET(req: NextRequest) {
     })
   } catch (error) {
     console.error('게시글 목록 조회 에러:', error)
-    return NextResponse.json(
-      { error: '게시글 목록 조회 중 오류가 발생했습니다.' },
-      { status: 500 }
-    )
+    return handleApiError(error, '게시글 목록 조회 중 오류가 발생했습니다.')
   }
 }
 
@@ -37,17 +32,11 @@ export async function POST(req: NextRequest) {
       const body = await authenticatedReq.json()
       const { bbs_type_id, title, content } = body
 
-      // 서비스 레이어를 통해 게시글 생성
       const post = await createPostService({
         bbs_type_id: parseInt(bbs_type_id) || 1,
         title,
         content,
         writer_id: user.memberId,
-      })
-
-      console.log('게시글 작성 성공:', {
-        postId: post.post_id,
-        memberId: user.memberId,
       })
 
       return NextResponse.json({
@@ -56,16 +45,7 @@ export async function POST(req: NextRequest) {
       })
     } catch (error) {
       console.error('게시글 작성 에러:', error)
-
-      // 비즈니스 로직 에러 처리
-      if (error instanceof Error) {
-        return NextResponse.json({ error: error.message }, { status: 400 })
-      }
-
-      return NextResponse.json(
-        { error: '게시글 작성 중 오류가 발생했습니다.' },
-        { status: 500 }
-      )
+      return handleApiError(error, '게시글 작성 중 오류가 발생했습니다.')
     }
   })
 }

@@ -5,7 +5,13 @@
 
 import 'server-only'
 import { sql } from '@/lib/db.server'
-import { Member, CreateMemberDto, MemberWithRole } from './member.model'
+import {
+  Member,
+  CreateMemberDto,
+  MemberWithRole,
+  UpdateMemberDto,
+  MemberListResult,
+} from './member.model'
 import { MEMBER_ROLE, MEMBER_STATUS } from '@/constants'
 
 /**
@@ -41,6 +47,39 @@ export async function getMemberById(id: string): Promise<Member | null> {
 }
 
 /**
+ * 회원 전체 조회
+ * @returns
+ */
+export async function getMemberList(
+  page: number = 1,
+  limit: number = 10
+): Promise<MemberListResult> {
+  const offset = (page - 1) * limit
+
+  const [members, countResult] = (await Promise.all([
+    sql`
+    SELECT *
+    FROM member
+    WHERE 1=1
+    ORDER BY created_at DESC
+    LIMIT ${limit}
+    OFFSET ${offset}
+    `,
+    sql`
+      SELECT COUNT(*) as total
+      FROM bbs_post
+      WHERE 1=1
+    `,
+  ])) as [Member[], { total: number }[]]
+
+  return {
+    members,
+    total: Number(countResult[0].total),
+    totalPages: Math.ceil(Number(countResult[0].total) / limit),
+  }
+}
+
+/**
  * ID로 회원 조회
  */
 export async function getMemberWithRole(
@@ -67,16 +106,16 @@ export async function getMemberWithRole(
 export async function createMember(data: CreateMemberDto): Promise<Member> {
   const {
     member_id,
-    email,
     name,
     nickname,
     gender,
     ntrp,
+    email,
     password_hash,
     phone,
   } = data
 
-  const memberResult = await sql`
+  const memberResult = (await sql`
   WITH inserted_member AS (
     INSERT INTO member (
         member_id,
@@ -113,7 +152,6 @@ export async function createMember(data: CreateMemberDto): Promise<Member> {
         ntrp,
         gender,
         phone,
-        password_hash,
         status,
         created_at,
         updated_at
@@ -145,13 +183,59 @@ export async function createMember(data: CreateMemberDto): Promise<Member> {
       ntrp,
       gender,
       phone,
-      password_hash,
       status,
       created_at,
       updated_at
   FROM inserted_member;
-  `
+  `) as Member[]
 
-  console.log(memberResult)
+  return memberResult[0]
+}
+
+/**
+ * 회원 수정
+ */
+export async function updateMember(data: UpdateMemberDto): Promise<Member> {
+  const { member_id, name, nickname, gender, ntrp, phone } = data
+
+  const memberResult = (await sql`
+  WITH updated_member AS (
+    UPDATE member
+    SET
+        name       = ${name},
+        nickname   = ${nickname},
+        gender     = ${gender},
+        ntrp       = ${ntrp},
+        phone      = ${phone || null},
+        updated_at = NOW()
+    WHERE member_id = ${member_id}
+      AND deleted_at IS NULL
+    RETURNING
+        seq,
+        member_id,
+        name,
+        nickname,
+        gender,
+        ntrp,
+        email,
+        phone,
+        status,
+        created_at,
+        updated_at
+  )
+  SELECT
+      member_id,
+      name,
+      nickname,
+      gender,
+      ntrp,
+      email,
+      phone,
+      status,
+      created_at,
+      updated_at
+  FROM updated_member;
+  `) as Member[]
+
   return memberResult[0]
 }

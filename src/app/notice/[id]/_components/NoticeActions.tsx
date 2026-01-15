@@ -3,15 +3,19 @@
 import { Box, Button } from '@chakra-ui/react'
 import Link from 'next/link'
 import { useAuth } from '@/lib/hooks/useAuth'
+import { useMemo } from 'react'
 
 interface NoticeActionsProps {
   postId: number
   writerId: string
 }
 
-export default function NoticeActions({ postId, writerId }: NoticeActionsProps) {
+export default function NoticeActions({
+  postId,
+  writerId,
+}: NoticeActionsProps) {
   const { user } = useAuth()
-  const isAuthor = user?.member_id === writerId
+  const isAuthor = useMemo(() => user?.member_id === writerId, [user])
 
   if (!isAuthor) {
     return null

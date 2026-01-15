@@ -15,7 +15,7 @@ interface Event {
   description?: string
 }
 
-export default function CalendarPage() {
+export default function ManagementSchedulerPage() {
   const [events, setEvents] = useState<Event[]>([])
   const router = useRouter()
 

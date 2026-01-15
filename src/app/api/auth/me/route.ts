@@ -32,10 +32,11 @@ export async function GET(req: NextRequest) {
 
     const user = users[0]
 
+    console.log(user)
     return NextResponse.json({
       success: true,
       user: {
-        id: user.id,
+        member_id: user.member_id,
         email: user.email,
         name: user.name,
         nickname: user.nickname,

@@ -78,7 +78,7 @@ export default function Home() {
                   <Text color="gray.600">
                     편리하게 테니스 코트를 예약하고 관리하세요
                   </Text>
-                  <Link href="/reservation">
+                  <Link href="/schedule">
                     <Button colorScheme="teal" variant="outline" width="full">
                       예약하기
                     </Button>

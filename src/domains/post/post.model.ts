@@ -3,7 +3,10 @@
  * 게시글 테이블 스키마 정의
  */
 
-export interface Post {
+import { Paging } from '../common/paging.query'
+import { Member } from '../member'
+
+export interface PostDto {
   post_id: number
   bbs_type_id: number
   title: string
@@ -35,10 +38,12 @@ export interface UpdatePostDto {
 /**
  * 게시글 목록 응답
  */
-export interface PostListResult {
-  posts: Post[]
-  total: number
-  totalPages: number
+export interface PostListItem extends PostDto {
+  writer_name: Member['nickname']
+}
+
+export interface PostListResult extends Paging {
+  posts: PostListItem[]
 }
 
 /**

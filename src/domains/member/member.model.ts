@@ -38,3 +38,24 @@ export interface CreateMemberDto {
   password_hash: string
   phone: string | null
 }
+
+/**
+ * 회원 수정 DTO
+ */
+export interface UpdateMemberDto {
+  member_id: string
+  name: string
+  nickname: string
+  gender: MemberGender
+  ntrp: string
+  phone: string | null
+}
+
+/**
+ * 게시글 목록 응답
+ */
+export interface MemberListResult {
+  members: Member[]
+  total: number
+  totalPages: number
+}

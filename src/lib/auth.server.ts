@@ -1,6 +1,7 @@
 import 'server-only'
+import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
-import { getAuthUser, TokenPayload } from '@/lib/jwt.server'
+import { getAuthUser, verifyToken, TokenPayload } from '@/lib/jwt.server'
 
 export interface AuthenticatedRequest extends NextRequest {
   user?: TokenPayload
@@ -49,4 +50,19 @@ export async function withOptionalAuth(
   }
 
   return handler(authenticatedRequest, user)
+}
+
+/**
+ * 페이지에서 현재 인증된 사용자 정보 가져오기
+ * 쿠키의 accessToken을 검증하여 TokenPayload 반환
+ */
+export async function getAuthSession(): Promise<TokenPayload | null> {
+  const cookieStore = await cookies()
+  const token = cookieStore.get('accessToken')?.value
+
+  if (!token) {
+    return null
+  }
+
+  return await verifyToken(token)
 }

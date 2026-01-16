@@ -1,7 +1,7 @@
 'use client'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Member, UpdateMemberDto } from '@/domains/member'
+import { Member, MemberWithRole, UpdateMemberDto } from '@/domains/member'
 import { request } from '@/lib/api.client'
 
 export const memberKeys = {
@@ -14,12 +14,22 @@ export const memberKeys = {
 }
 
 /**
+ * 프로필 목록 mutation
+ */
+export function useMemberList({ page = 1, limit = 10 }) {
+  return useQuery({
+    queryKey: memberKeys.list(page, limit),
+    queryFn: () => request(`/api/member`),
+  })
+}
+
+/**
  * 프로필 조회 mutation
  */
 export function useMember(member_id: string) {
   return useQuery({
     queryKey: memberKeys.detail(member_id),
-    queryFn: () => request(`/api/auth/me`),
+    queryFn: () => request<MemberWithRole>(`/api/member/${member_id}`),
     enabled: !!member_id,
   })
 }

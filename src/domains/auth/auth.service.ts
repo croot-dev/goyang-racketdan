@@ -10,7 +10,7 @@ import {
   getMemberByNickname,
   createMember,
 } from '@/domains/member/member.query'
-import { Member } from '../member'
+import { Member, MemberWithRole } from '../member'
 import { ServiceError, ErrorCode } from '@/lib/error'
 
 /**
@@ -21,30 +21,42 @@ export async function registerService(
     Member,
     'member_id' | 'email' | 'name' | 'nickname' | 'ntrp' | 'gender' | 'phone'
   >
-): Promise<Member> {
+): Promise<MemberWithRole> {
   const { member_id, email, name, gender, nickname, ntrp, phone } = data
 
   // 필수 필드 검증
   if (!email || !name || !gender || !nickname || !ntrp) {
-    throw new ServiceError(ErrorCode.MISSING_REQUIRED_FIELD, '필수 정보가 누락되었습니다.')
+    throw new ServiceError(
+      ErrorCode.MISSING_REQUIRED_FIELD,
+      '필수 정보가 누락되었습니다.'
+    )
   }
 
   // 이메일 형식 검증
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRegex.test(email)) {
-    throw new ServiceError(ErrorCode.VALIDATION_ERROR, '올바른 이메일 형식이 아닙니다.')
+    throw new ServiceError(
+      ErrorCode.VALIDATION_ERROR,
+      '올바른 이메일 형식이 아닙니다.'
+    )
   }
 
   // 이메일 중복 확인
   const existingUserByEmail = await getMemberByEmail(email)
   if (existingUserByEmail) {
-    throw new ServiceError(ErrorCode.DUPLICATE_EMAIL, '이미 가입된 이메일입니다.')
+    throw new ServiceError(
+      ErrorCode.DUPLICATE_EMAIL,
+      '이미 가입된 이메일입니다.'
+    )
   }
 
   // 별명 중복 확인
   const existingUserByNickname = await getMemberByNickname(nickname)
   if (existingUserByNickname) {
-    throw new ServiceError(ErrorCode.DUPLICATE_NICKNAME, '이미 사용 중인 별명입니다.')
+    throw new ServiceError(
+      ErrorCode.DUPLICATE_NICKNAME,
+      '이미 사용 중인 별명입니다.'
+    )
   }
 
   // 카카오 로그인이므로 비밀번호는 랜덤 해시값 생성

@@ -3,7 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { hasAuthFlag, clearAuthFlag } from '@/lib/auth.client'
 import { ApiError, request } from '@/lib/api.client'
-import { Member } from '@/domains/member'
+import { Member, MemberWithRole } from '@/domains/member'
 
 export const authKeys = {
   all: ['auth'] as const,
@@ -58,7 +58,7 @@ export function useUserInfo() {
       if (!hasAuthFlag()) return null
 
       try {
-        return await request<Member>('/api/auth/me')
+        return await request<MemberWithRole>('/api/auth/me')
       } catch (error) {
         // 인증 만료 케이스만 정책 처리
         if (error instanceof ApiError && error.status === 401) {
@@ -71,7 +71,7 @@ export function useUserInfo() {
 
           // refresh 성공 → 재시도
           try {
-            return await request<Member>('/api/auth/me')
+            return await request<MemberWithRole>('/api/auth/me')
           } catch {
             clearAuthFlag()
             return null

@@ -82,7 +82,7 @@ export async function getMemberList(
 /**
  * ID로 회원 조회
  */
-export async function getMemberWithRole(
+export async function getMemberByIdWithRole(
   id: string
 ): Promise<MemberWithRole | null> {
   const result = (await sql`
@@ -103,7 +103,9 @@ export async function getMemberWithRole(
 /**
  * 회원 생성
  */
-export async function createMember(data: CreateMemberDto): Promise<Member> {
+export async function createMember(
+  data: CreateMemberDto
+): Promise<MemberWithRole> {
   const {
     member_id,
     name,
@@ -187,7 +189,7 @@ export async function createMember(data: CreateMemberDto): Promise<Member> {
       created_at,
       updated_at
   FROM inserted_member;
-  `) as Member[]
+  `) as MemberWithRole[]
 
   return memberResult[0]
 }

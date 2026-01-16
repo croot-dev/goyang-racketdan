@@ -19,7 +19,7 @@ import {
 } from '@chakra-ui/react'
 import { useForm, Controller } from 'react-hook-form'
 import { setAuthFlag } from '@/lib/auth.client'
-import { NTRP_LEVELS } from '@/constants'
+import { MEMBER_GENDER, NTRP_LEVELS } from '@/constants'
 import { useMemberJoin } from '@/hooks/useAuth'
 
 interface FormValues {
@@ -28,8 +28,13 @@ interface FormValues {
   gender: 'M' | 'F'
   nickname: string
   ntrp: string
-  phone?: string
+  phone: string
 }
+
+const GENDER_OPTIONS = [
+  { value: MEMBER_GENDER.MALE, label: '남성' },
+  { value: MEMBER_GENDER.FEMALE, label: '여성' },
+]
 
 export default function AuthSignInComplete() {
   const searchParams = useSearchParams()
@@ -102,10 +107,11 @@ export default function AuthSignInComplete() {
       member_id: kakaoUserInfo.id,
       email: kakaoUserInfo.email,
       name: formData.name,
+      birthdate: formData.birthdate.replace(/-/g, ''),
       gender: formData.gender,
       nickname: formData.nickname,
       ntrp: formData.ntrp,
-      phone: formData.phone,
+      phone: formData.phone.replace(/-/g, ''),
     }
 
     memberJoin.mutate(signUpData, {
@@ -198,7 +204,7 @@ export default function AuthSignInComplete() {
                         message: '이름은 최소 2자 이상이어야 합니다',
                       },
                     })}
-                    placeholder="홍길동"
+                    placeholder="박보검"
                   />
                   <Field.ErrorText>{errors.name?.message}</Field.ErrorText>
                 </Field.Root>
@@ -263,29 +269,6 @@ export default function AuthSignInComplete() {
                   <Field.ErrorText>{errors.birthdate?.message}</Field.ErrorText>
                 </Field.Root>
 
-                {/* 성별 */}
-                <Field.Root invalid={!!errors.gender} required>
-                  <Field.Label>성별</Field.Label>
-                  <Controller
-                    name="gender"
-                    control={control}
-                    rules={{ required: '성별을 선택해주세요' }}
-                    render={({ field }) => (
-                      <SegmentGroup.Root
-                        value={field.value}
-                        onValueChange={(details) => {
-                          field.onChange(details.value)
-                        }}
-                      >
-                        <SegmentGroup.Indicator />
-                        <SegmentGroup.Item value="M">남성</SegmentGroup.Item>
-                        <SegmentGroup.Item value="F">여성</SegmentGroup.Item>
-                      </SegmentGroup.Root>
-                    )}
-                  />
-                  <Field.ErrorText>{errors.gender?.message}</Field.ErrorText>
-                </Field.Root>
-
                 {/* 별명 */}
                 <Field.Root invalid={!!errors.nickname} required>
                   <Field.Label>별명</Field.Label>
@@ -307,6 +290,28 @@ export default function AuthSignInComplete() {
                     모임에서 사용할 별명입니다 (2-10자)
                   </Field.HelperText>
                   <Field.ErrorText>{errors.nickname?.message}</Field.ErrorText>
+                </Field.Root>
+
+                {/* 성별 */}
+                <Field.Root invalid={!!errors.gender} required>
+                  <Field.Label>성별</Field.Label>
+                  <Controller
+                    name="gender"
+                    control={control}
+                    rules={{ required: '성별을 선택해주세요' }}
+                    render={({ field }) => (
+                      <SegmentGroup.Root
+                        value={field.value}
+                        onValueChange={(details) => {
+                          field.onChange(details.value)
+                        }}
+                      >
+                        <SegmentGroup.Indicator />
+                        <SegmentGroup.Items items={GENDER_OPTIONS} />
+                      </SegmentGroup.Root>
+                    )}
+                  />
+                  <Field.ErrorText>{errors.gender?.message}</Field.ErrorText>
                 </Field.Root>
 
                 {/* NTRP 등급 */}
@@ -336,45 +341,33 @@ export default function AuthSignInComplete() {
                 {/* 전화번호 */}
                 <Field.Root invalid={!!errors.phone} required>
                   <Field.Label>전화번호</Field.Label>
-                  <Controller
-                    name="phone"
-                    control={control}
-                    rules={{
+                  <Input
+                    placeholder="010-0000-0000"
+                    maxLength={13}
+                    inputMode="numeric"
+                    {...register('phone', {
                       validate: (value) => {
                         if (!value) return true
                         const digits = value.replace(/\D/g, '')
-                        if (digits.length > 0 && digits.length !== 11) {
+                        if (digits.length !== 11)
                           return '전화번호 11자리를 입력해주세요'
-                        }
-                        if (digits.length === 11 && !digits.startsWith('01')) {
+                        if (!digits.startsWith('01'))
                           return '올바른 전화번호를 입력해주세요'
-                        }
                         return true
                       },
-                    }}
-                    render={({ field }) => (
-                      <Input
-                        value={field.value || ''}
-                        onChange={(e) => {
-                          const digits = e.target.value.replace(/\D/g, '')
-                          const limited = digits.slice(0, 11)
-                          let formatted = limited
-                          if (limited.length >= 4) {
-                            formatted = `${limited.slice(0, 3)}-${limited.slice(
-                              3,
-                              7
-                            )}`
-                            if (limited.length >= 8) {
-                              formatted += `-${limited.slice(7, 11)}`
-                            }
-                          }
-                          field.onChange(formatted)
-                        }}
-                        placeholder="010-0000-0000"
-                        maxLength={13}
-                        inputMode="numeric"
-                      />
-                    )}
+                      onChange: (event) => {
+                        const value = event.target.value
+                        const digits = value.replace(/\D/g, '').slice(0, 11)
+
+                        if (digits.length < 4) return digits
+                        if (digits.length < 8)
+                          return `${digits.slice(0, 3)}-${digits.slice(3)}`
+                        return `${digits.slice(0, 3)}-${digits.slice(
+                          3,
+                          7
+                        )}-${digits.slice(7)}`
+                      },
+                    })}
                   />
                   <Field.HelperText>선택사항입니다</Field.HelperText>
                   <Field.ErrorText>{errors.phone?.message}</Field.ErrorText>

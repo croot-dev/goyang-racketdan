@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getMemberByIdWithRole, modifyMemberService } from '@/domains/member'
 import { withAuth } from '@/lib/auth.server'
 import { handleApiError } from '@/lib/api.error'
+import { MEMBER_ROLE } from '@/constants'
+import { ErrorCode, ServiceError } from '@/lib/error'
 
 // 멤버 상세 조회 API
 export async function GET(
@@ -29,12 +31,20 @@ export async function PUT(
     try {
       const { id: member_id } = await params
       const body = await authenticatedReq.json()
-      const { name, gender, nickname, ntrp, phone } = body
+      const { name, gender, birthdate, nickname, ntrp, phone } = body
+
+      if (member_id !== user.memberId && user.roleCode !== MEMBER_ROLE.ADMIN) {
+        throw new ServiceError(
+          ErrorCode.NOT_OWNER,
+          '멤버 정보를 수정할 권한이 없습니다.'
+        )
+      }
 
       const updatedUser = await modifyMemberService({
         member_id,
         requester_id: user.memberId,
         name,
+        birthdate,
         nickname,
         gender,
         ntrp,

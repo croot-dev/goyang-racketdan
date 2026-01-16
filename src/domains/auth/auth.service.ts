@@ -68,6 +68,7 @@ export async function registerService(
     member_id,
     email,
     name,
+    birthdate,
     nickname,
     gender,
     ntrp,

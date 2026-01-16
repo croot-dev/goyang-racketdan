@@ -22,14 +22,13 @@ export default function Header() {
   const isLoggedIn = useMemo(() => !!user, [user])
 
   const menuItems = [
-    { label: '메인', href: '/' },
     { label: '공지사항', href: '/notice' },
     ...(!!isLoggedIn
       ? [
           { label: '대시보드', href: '/dashboard' },
           { label: '예약', href: '/reservation' },
           { label: '프로필', href: '/profile' },
-          { label: '회원관리', href: '/management/member' },
+          { label: '회원관리', href: '/member' },
         ]
       : []),
   ]

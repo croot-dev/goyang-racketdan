@@ -1,12 +1,5 @@
-import {
-  Box,
-  Container,
-  Heading,
-  Stack,
-  Skeleton,
-} from '@chakra-ui/react'
+import { Box, Container, Heading, Stack, Skeleton } from '@chakra-ui/react'
 import { Suspense } from 'react'
-import Header from '@/components/layouts/Header'
 import NoticeList from './_components/NoticeList'
 import NoticeWriteButton from './_components/NoticeWriteButton'
 
@@ -41,25 +34,17 @@ export default async function NoticeListPage({ searchParams }: PageProps) {
   const currentPage = Number(params.page) || 1
 
   return (
-    <Box>
-      <Header />
+    <Container maxW="container.xl" py={10}>
+      <Stack gap={6}>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Heading size="2xl">공지사항</Heading>
+          <NoticeWriteButton />
+        </Box>
 
-      <Container maxW="container.xl" py={10}>
-        <Stack gap={6}>
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            <Heading size="2xl">공지사항</Heading>
-            <NoticeWriteButton />
-          </Box>
-
-          <Suspense key={currentPage} fallback={<NoticeListFallback />}>
-            <NoticeList currentPage={currentPage} />
-          </Suspense>
-        </Stack>
-      </Container>
-    </Box>
+        <Suspense key={currentPage} fallback={<NoticeListFallback />}>
+          <NoticeList currentPage={currentPage} />
+        </Suspense>
+      </Stack>
+    </Container>
   )
 }

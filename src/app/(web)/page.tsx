@@ -12,13 +12,10 @@ import {
 } from '@chakra-ui/react'
 import Link from 'next/link'
 import { FaBell, FaCalendarAlt, FaUser } from 'react-icons/fa'
-import Header from '@/components/layouts/Header'
 
 export default function Home() {
   return (
     <Box>
-      <Header />
-
       {/* Hero Section */}
       <Box bg="teal.500" color="white" py={20}>
         <Container maxW="container.xl">
@@ -98,7 +95,7 @@ export default function Home() {
                   <Text color="gray.600">
                     개인 정보를 관리하고 활동 내역을 확인하세요
                   </Text>
-                  <Link href="/profile">
+                  <Link href="/member">
                     <Button colorScheme="teal" variant="outline" width="full">
                       프로필 보기
                     </Button>

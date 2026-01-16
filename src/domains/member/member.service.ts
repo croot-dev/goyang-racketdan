@@ -18,6 +18,7 @@ interface ModifyMemberData {
   member_id: string
   requester_id: string // 요청자 ID (인증된 사용자)
   name: string
+  birthdate: string
   nickname: string
   ntrp: string
   gender: MemberGender
@@ -42,7 +43,16 @@ export async function getMemberListService(
 export async function modifyMemberService(
   data: ModifyMemberData
 ): Promise<Member> {
-  const { member_id, requester_id, name, gender, nickname, ntrp, phone } = data
+  const {
+    member_id,
+    requester_id,
+    name,
+    birthdate,
+    gender,
+    nickname,
+    ntrp,
+    phone,
+  } = data
 
   // 필수 필드 검증
   if (!member_id) {
@@ -51,14 +61,6 @@ export async function modifyMemberService(
 
   if (!requester_id) {
     throw new ServiceError(ErrorCode.UNAUTHORIZED, '사용자 인증이 필요합니다.')
-  }
-
-  // 권한 검증: 본인만 수정 가능
-  if (requester_id !== member_id) {
-    throw new ServiceError(
-      ErrorCode.NOT_OWNER,
-      '본인의 정보만 수정할 수 있습니다.'
-    )
   }
 
   // 대상 회원 존재 여부 확인
@@ -83,6 +85,7 @@ export async function modifyMemberService(
   const updatedMember = await updateMember({
     member_id,
     name,
+    birthdate,
     nickname,
     gender,
     ntrp,

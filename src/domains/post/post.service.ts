@@ -4,7 +4,7 @@
  */
 
 import 'server-only'
-import { getPostList, getPost } from './post.query'
+import { getPostList, getPost, createPost } from './post.query'
 import { PostListItem, CreatePostDto, PostDto } from './post.model'
 import { sql } from '@/lib/db.server'
 import { ServiceError, ErrorCode } from '@/lib/error'
@@ -54,28 +54,7 @@ export async function createPostService(data: CreatePostDto) {
     throw new ServiceError(ErrorCode.UNAUTHORIZED, '작성자 정보가 필요합니다.')
   }
 
-  // 데이터베이스에 게시글 저장
-  const newPost = await sql`
-    INSERT INTO bbs_post (
-      bbs_type_id,
-      title,
-      content,
-      writer_id,
-      created_at,
-      updated_at
-    )
-    VALUES (
-      ${bbs_type_id},
-      ${title.trim()},
-      ${content.trim()},
-      ${writer_id},
-      NOW(),
-      NOW()
-    )
-    RETURNING post_id, bbs_type_id, title, content, writer_id, view_count, created_at, updated_at
-  `
-
-  return newPost[0] as PostListItem
+  return createPost({ bbs_type_id, title, content, writer_id })
 }
 
 /**

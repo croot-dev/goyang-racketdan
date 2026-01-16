@@ -20,7 +20,7 @@ export default async function MemberDetailPage({ params }: PageProps) {
 
   const initialData = await getMemberByIdWithRole(memberId)
   if (!initialData) {
-    redirect('/management/member')
+    redirect('/member')
   }
 
   return (

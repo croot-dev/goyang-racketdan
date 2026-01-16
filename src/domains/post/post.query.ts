@@ -78,3 +78,41 @@ export async function getPost(
 
   return result[0] || null
 }
+
+/**
+ *
+ */
+export async function createPost({
+  bbs_type_id,
+  title,
+  content,
+  writer_id,
+}: {
+  bbs_type_id: number
+  title: string
+  content: string
+  writer_id: string
+}) {
+  // 데이터베이스에 게시글 저장
+  const newPost = await sql`
+    INSERT INTO bbs_post (
+      bbs_type_id,
+      title,
+      content,
+      writer_id,
+      created_at,
+      updated_at
+    )
+    VALUES (
+      ${bbs_type_id},
+      ${title},
+      ${content},
+      ${writer_id},
+      NOW(),
+      NOW()
+    )
+    RETURNING post_id, bbs_type_id, title, content, writer_id, view_count, created_at, updated_at
+  `
+
+  return newPost[0] as PostListItem
+}

@@ -1,6 +1,5 @@
 import { Box, Container, Heading, Stack, Skeleton } from '@chakra-ui/react'
 import { Suspense } from 'react'
-import Header from '@/components/layouts/Header'
 import NoticeForm from './_components/NoticeForm'
 
 export const metadata = {
@@ -31,18 +30,14 @@ function NoticeFormFallback() {
 
 export default function NoticeWritePage() {
   return (
-    <Box>
-      <Header />
+    <Container maxW="container.lg" py={10}>
+      <Stack gap={8}>
+        <Heading size="2xl">공지사항 작성</Heading>
 
-      <Container maxW="container.lg" py={10}>
-        <Stack gap={8}>
-          <Heading size="2xl">공지사항 작성</Heading>
-
-          <Suspense fallback={<NoticeFormFallback />}>
-            <NoticeForm />
-          </Suspense>
-        </Stack>
-      </Container>
-    </Box>
+        <Suspense fallback={<NoticeFormFallback />}>
+          <NoticeForm />
+        </Suspense>
+      </Stack>
+    </Container>
   )
 }

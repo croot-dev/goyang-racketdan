@@ -60,7 +60,10 @@ export function useCreatePost() {
 
   return useMutation({
     mutationFn: (data: CreatePostInput) =>
-      request<{ post: PostDto }>('/api/bbs/post', { body: data }),
+      request<PostDto>('/api/bbs/post', {
+        method: 'POST',
+        body: data,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: postKeys.lists() })
     },

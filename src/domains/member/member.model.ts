@@ -9,6 +9,7 @@ export interface Member {
   member_id: string
   email: string
   name: string
+  birthdate: string
   nickname: string
   ntrp: string
   gender: MemberGender
@@ -32,6 +33,7 @@ export interface CreateMemberDto {
   member_id: string
   email: string
   name: string
+  birthdate: string
   nickname: string
   gender: MemberGender
   ntrp: string
@@ -45,6 +47,7 @@ export interface CreateMemberDto {
 export interface UpdateMemberDto {
   member_id: string
   name: string
+  birthdate: string
   nickname: string
   gender: MemberGender
   ntrp: string

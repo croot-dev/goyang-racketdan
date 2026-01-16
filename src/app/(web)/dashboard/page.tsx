@@ -37,23 +37,25 @@ export default function DashboardPage() {
   }
 
   return (
-    <Container maxW="container.xl" py={8}>
-      <Stack gap={6}>
-        <Box>
-          <Heading size="2xl" mb={2}>
-            안녕하세요, {user.name}님! 👋
-          </Heading>
-          <Text color="gray.600" fontSize="lg">
-            고양 라켓단에 오신 것을 환영합니다.
-          </Text>
-        </Box>
+    <Box>
+      <Container maxW="container.xl" py={8}>
+        <Stack gap={6}>
+          <Box>
+            <Heading size="2xl" mb={2}>
+              안녕하세요, {user.name}님! 👋
+            </Heading>
+            <Text color="gray.600" fontSize="lg">
+              고양 라켓단에 오신 것을 환영합니다.
+            </Text>
+          </Box>
 
-        <Stack gap={4}>
-          <ProfileCard user={user} />
-          <RecentNoticesCard />
-          <ReservationCard />
+          <Stack gap={4}>
+            <ProfileCard user={user} />
+            <RecentNoticesCard />
+            <ReservationCard />
+          </Stack>
         </Stack>
-      </Stack>
-    </Container>
+      </Container>
+    </Box>
   )
 }

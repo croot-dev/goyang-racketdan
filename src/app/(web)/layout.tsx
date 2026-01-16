@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import '@/styles/globals.css'
 import { Provider as ChakraProvider } from '@/components/ui/provider'
 import TanstackProvider from '@/components/tanstackProvider'
+import Header from '@/components/layouts/Header'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -31,7 +32,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ChakraProvider>
-          <TanstackProvider>{children}</TanstackProvider>
+          <TanstackProvider>
+            <Header />
+            {children}
+          </TanstackProvider>
         </ChakraProvider>
       </body>
     </html>

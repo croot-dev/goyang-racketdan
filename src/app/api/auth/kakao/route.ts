@@ -53,14 +53,16 @@ export async function GET(req: NextRequest) {
   if (existingUser) {
     const accessToken = await createAccessToken({
       memberId: existingUser.member_id,
+      email: existingUser.email,
       roleName: existingUser.role_name,
       roleCode: existingUser.role_code,
-      email: existingUser.email,
     })
 
     const refreshToken = await createRefreshToken({
       memberId: existingUser.member_id,
       email: existingUser.email,
+      roleName: existingUser.role_name,
+      roleCode: existingUser.role_code,
     })
 
     const response = NextResponse.json({

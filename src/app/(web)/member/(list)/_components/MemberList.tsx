@@ -41,10 +41,7 @@ export default async function MemberList({ currentPage }: MemberListProps) {
         ) : (
           <Stack gap={3}>
             {members.map((member, index) => (
-              <Link
-                key={member.member_id}
-                href={`/management/member/${member.member_id}`}
-              >
+              <Link key={member.member_id} href={`/member/${member.member_id}`}>
                 <Box
                   p={4}
                   border="1px solid"
@@ -55,42 +52,44 @@ export default async function MemberList({ currentPage }: MemberListProps) {
                   _hover={{ borderColor: 'teal.300', bg: 'gray.50' }}
                   transition="all 0.2s"
                 >
-                <Box
-                  display="flex"
-                  justifyContent="space-between"
-                  alignItems="flex-start"
-                  mb={2}
-                >
-                  <Text fontWeight="bold" fontSize="md" color="gray.900">
-                    {member.nickname}
-                  </Text>
-                  <Text fontSize="xs" color="gray.500" whiteSpace="nowrap">
-                    #{total - (currentPage - 1) * 10 - index}
-                  </Text>
-                </Box>
-                <Box display="flex" flexDirection="column" gap={1}>
-                  <Text fontSize="sm" color="gray.600">
-                    {member.name} ({getGenderLabel(member.gender)})
-                  </Text>
-                  <Text fontSize="sm" color="gray.600">
-                    {member.email}
-                  </Text>
                   <Box
                     display="flex"
                     justifyContent="space-between"
-                    alignItems="center"
-                    mt={2}
+                    alignItems="flex-start"
+                    mb={2}
                   >
-                    <Box display="flex" gap={2} alignItems="center">
-                      <Badge colorPalette="teal">NTRP {member.ntrp}</Badge>
-                      {getStatusBadge(member.status)}
-                    </Box>
-                    <Text fontSize="xs" color="gray.500">
-                      {new Date(member.created_at).toLocaleDateString('ko-KR')}
+                    <Text fontWeight="bold" fontSize="md" color="gray.900">
+                      {member.nickname}
+                    </Text>
+                    <Text fontSize="xs" color="gray.500" whiteSpace="nowrap">
+                      #{total - (currentPage - 1) * 10 - index}
                     </Text>
                   </Box>
+                  <Box display="flex" flexDirection="column" gap={1}>
+                    <Text fontSize="sm" color="gray.600">
+                      {member.name} ({getGenderLabel(member.gender)})
+                    </Text>
+                    <Text fontSize="sm" color="gray.600">
+                      {member.email}
+                    </Text>
+                    <Box
+                      display="flex"
+                      justifyContent="space-between"
+                      alignItems="center"
+                      mt={2}
+                    >
+                      <Box display="flex" gap={2} alignItems="center">
+                        <Badge colorPalette="teal">NTRP {member.ntrp}</Badge>
+                        {getStatusBadge(member.status)}
+                      </Box>
+                      <Text fontSize="xs" color="gray.500">
+                        {new Date(member.created_at).toLocaleDateString(
+                          'ko-KR'
+                        )}
+                      </Text>
+                    </Box>
+                  </Box>
                 </Box>
-              </Box>
               </Link>
             ))}
           </Stack>
@@ -137,7 +136,7 @@ export default async function MemberList({ currentPage }: MemberListProps) {
               members.map((member, index) => (
                 <Link
                   key={member.member_id}
-                  href={`/management/member/${member.member_id}`}
+                  href={`/member/${member.member_id}`}
                   style={{ display: 'contents' }}
                 >
                   <Table.Row
@@ -181,7 +180,7 @@ export default async function MemberList({ currentPage }: MemberListProps) {
           flexWrap="wrap"
         >
           {currentPage > 1 && (
-            <a href={`/management/member?page=${currentPage - 1}`}>
+            <a href={`/member?page=${currentPage - 1}`}>
               <Box
                 as="button"
                 px={{ base: 3, md: 4 }}
@@ -199,7 +198,7 @@ export default async function MemberList({ currentPage }: MemberListProps) {
 
           {Array.from({ length: totalPages }, (_, i) => i + 1).map(
             (pageNum) => (
-              <a key={pageNum} href={`/management/member?page=${pageNum}`}>
+              <a key={pageNum} href={`/member?page=${pageNum}`}>
                 <Box
                   as="button"
                   px={{ base: 3, md: 4 }}
@@ -224,7 +223,7 @@ export default async function MemberList({ currentPage }: MemberListProps) {
           )}
 
           {currentPage < totalPages && (
-            <a href={`/management/member?page=${currentPage + 1}`}>
+            <a href={`/member?page=${currentPage + 1}`}>
               <Box
                 as="button"
                 px={{ base: 3, md: 4 }}

@@ -1,6 +1,5 @@
 import { Box, Container, Heading, Stack, Skeleton } from '@chakra-ui/react'
 import { Suspense } from 'react'
-import Header from '@/components/layouts/Header'
 import NoticeRead from './_components/NoticeRead'
 
 export const metadata = {
@@ -45,18 +44,14 @@ export default async function NoticeReadPage({ params }: PageProps) {
   const postId = parseInt(id)
 
   return (
-    <Box>
-      <Header />
+    <Container maxW="container.lg" py={10}>
+      <Stack gap={8}>
+        <Heading size="2xl">공지사항</Heading>
 
-      <Container maxW="container.lg" py={10}>
-        <Stack gap={8}>
-          <Heading size="2xl">공지사항</Heading>
-
-          <Suspense fallback={<NoticeReadFallback />}>
-            <NoticeRead postId={postId} />
-          </Suspense>
-        </Stack>
-      </Container>
-    </Box>
+        <Suspense fallback={<NoticeReadFallback />}>
+          <NoticeRead postId={postId} />
+        </Suspense>
+      </Stack>
+    </Container>
   )
 }

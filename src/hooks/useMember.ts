@@ -42,13 +42,13 @@ export function useUpdateMember() {
 
   return useMutation({
     mutationFn: (data: Partial<UpdateMemberDto>) =>
-      request<{ user: Member }>(`/api/member/${data.member_id}`, {
+      request<Member>(`/api/member/${data.member_id}`, {
         method: 'PUT',
         body: data,
         auth: true,
       }),
     onSuccess: (response) => {
-      const updatedUser = response.user
+      const updatedUser = response
 
       // detail 업데이트
       queryClient.setQueryData<Member>(

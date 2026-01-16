@@ -38,7 +38,7 @@ export default function NoticeForm() {
       },
       {
         onSuccess: (result) => {
-          router.push(`/notice/${result}`)
+          router.push(`/notice/${result.post_id}`)
           setIsSubmitting(false)
         },
         onError: (error) => {

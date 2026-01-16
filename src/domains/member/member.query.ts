@@ -109,6 +109,7 @@ export async function createMember(
   const {
     member_id,
     name,
+    birthdate,
     nickname,
     gender,
     ntrp,
@@ -122,6 +123,7 @@ export async function createMember(
     INSERT INTO member (
         member_id,
         name,
+        birthdate,
         nickname,
         gender,
         ntrp,
@@ -135,6 +137,7 @@ export async function createMember(
     VALUES (
         ${member_id},
         ${name},
+        ${birthdate},
         ${nickname},
         ${gender},
         ${ntrp},
@@ -150,6 +153,7 @@ export async function createMember(
         member_id,
         email,
         name,
+        birthdate,
         nickname,
         ntrp,
         gender,
@@ -181,6 +185,7 @@ export async function createMember(
       member_id,
       email,
       name,
+      birthdate,
       nickname,
       ntrp,
       gender,
@@ -198,13 +203,14 @@ export async function createMember(
  * 회원 수정
  */
 export async function updateMember(data: UpdateMemberDto): Promise<Member> {
-  const { member_id, name, nickname, gender, ntrp, phone } = data
+  const { member_id, name, birthdate, nickname, gender, ntrp, phone } = data
 
   const memberResult = (await sql`
   WITH updated_member AS (
     UPDATE member
     SET
         name       = ${name},
+        birthdate  = ${birthdate},
         nickname   = ${nickname},
         gender     = ${gender},
         ntrp       = ${ntrp},
@@ -216,6 +222,7 @@ export async function updateMember(data: UpdateMemberDto): Promise<Member> {
         seq,
         member_id,
         name,
+        birthdate,
         nickname,
         gender,
         ntrp,
@@ -228,6 +235,7 @@ export async function updateMember(data: UpdateMemberDto): Promise<Member> {
   SELECT
       member_id,
       name,
+      birthdate,
       nickname,
       gender,
       ntrp,

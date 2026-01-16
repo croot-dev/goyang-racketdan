@@ -1,6 +1,5 @@
 import { Box, Container, Heading, Stack, Skeleton } from '@chakra-ui/react'
 import { Suspense } from 'react'
-import Header from '@/components/layouts/Header'
 import MemberList from './_components/MemberList'
 
 export const metadata = {
@@ -36,24 +35,16 @@ export default async function ManagementMemberPage({
   const currentPage = Number(params.page) || 1
 
   return (
-    <Box>
-      <Header />
+    <Container maxW="container.xl" py={10}>
+      <Stack gap={6}>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Heading size="2xl">회원 관리</Heading>
+        </Box>
 
-      <Container maxW="container.xl" py={10}>
-        <Stack gap={6}>
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            <Heading size="2xl">회원 관리</Heading>
-          </Box>
-
-          <Suspense key={currentPage} fallback={<MemberListFallback />}>
-            <MemberList currentPage={currentPage} />
-          </Suspense>
-        </Stack>
-      </Container>
-    </Box>
+        <Suspense key={currentPage} fallback={<MemberListFallback />}>
+          <MemberList currentPage={currentPage} />
+        </Suspense>
+      </Stack>
+    </Container>
   )
 }

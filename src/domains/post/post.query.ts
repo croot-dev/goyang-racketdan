@@ -5,8 +5,8 @@
 
 import 'server-only'
 import { sql } from '@/lib/db.server'
-import { PostListItem, PostListResult } from './post.model'
-import { Paging } from '../common/paging.query'
+import { PostListItem } from './post.model'
+import { ResponseList, ResponsePaging } from '../common/response.query'
 
 /**
  * 게시글 목록 조회
@@ -15,7 +15,7 @@ export async function getPostList(
   bbs_type_id: number = 1,
   page: number = 1,
   limit: number = 10
-): Promise<PostListResult> {
+): Promise<ResponseList<PostListItem>> {
   const offset = (page - 1) * limit
 
   const [posts, countResult] = (await Promise.all([
@@ -42,10 +42,10 @@ export async function getPostList(
       FROM bbs_post
       WHERE bbs_type_id = ${bbs_type_id}
     `,
-  ])) as [PostListItem[], Paging[]]
+  ])) as [PostListItem[], ResponsePaging[]]
 
   return {
-    posts,
+    list: posts,
     total: Number(countResult[0].total),
     totalPages: Math.ceil(Number(countResult[0].total) / limit),
   }

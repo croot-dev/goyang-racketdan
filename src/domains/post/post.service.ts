@@ -5,12 +5,7 @@
 
 import 'server-only'
 import { getPostList, getPost } from './post.query'
-import {
-  PostListItem,
-  PostListResult,
-  CreatePostDto,
-  PostDto,
-} from './post.model'
+import { PostListItem, CreatePostDto, PostDto } from './post.model'
 import { sql } from '@/lib/db.server'
 import { ServiceError, ErrorCode } from '@/lib/error'
 
@@ -21,7 +16,7 @@ export async function getPostListService(
   bbs_type_id: number = 1,
   page: number = 1,
   limit: number = 10
-): Promise<PostListResult> {
+) {
   // 페이지 유효성 검증
   if (page < 1) page = 1
   if (limit < 1 || limit > 100) limit = 10

@@ -15,11 +15,11 @@ import {
   Field,
   NativeSelect,
 } from '@chakra-ui/react'
-import { useAuth } from '@/lib/hooks/useAuth'
-import { authenticatedFetch } from '@/lib/auth.client'
+import { useUserInfo } from '@/hooks/useAuth'
 import { toaster } from '@/components/ui/toaster'
 import { NTRP_LEVELS, MEMBER_GENDER } from '@/constants'
-import type { Member } from '@/domains/member/member.model'
+import type { Member, UpdateMemberDto } from '@/domains/member/member.model'
+import { useUpdateMember } from '@/hooks/useMember'
 
 const GENDER_OPTIONS = [
   { value: MEMBER_GENDER.MALE, label: '남성' },
@@ -28,10 +28,12 @@ const GENDER_OPTIONS = [
 
 export default function ProfilePage() {
   const router = useRouter()
-  const { isAuthenticated, user, isLoading: authLoading } = useAuth()
+  const updateMember = useUpdateMember()
+  const { data: myInfo, isLoading: authLoading } = useUserInfo()
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const [formData, setFormData] = useState<Partial<Member>>({
+  const [formData, setFormData] = useState<Partial<UpdateMemberDto>>({
+    member_id: '',
     name: '',
     nickname: '',
     ntrp: '',
@@ -40,22 +42,23 @@ export default function ProfilePage() {
 
   useEffect(() => {
     // 로딩이 끝난 후 인증되지 않았으면 로그인 페이지로 이동
-    if (!authLoading && !isAuthenticated) {
+    if (!authLoading && !myInfo) {
       router.push('/auth/sign-in')
     }
-  }, [authLoading, isAuthenticated, router])
+  }, [authLoading, myInfo, router])
 
   useEffect(() => {
     // 사용자 정보가 로드되면 폼 데이터 초기화
-    if (user) {
+    if (myInfo) {
       setFormData({
-        name: user.name,
-        nickname: user.nickname,
-        ntrp: user.ntrp,
-        phone: user.phone || '',
+        member_id: myInfo.member_id,
+        name: myInfo.name,
+        nickname: myInfo.nickname,
+        ntrp: myInfo.ntrp,
+        phone: myInfo.phone,
       })
     }
-  }, [user])
+  }, [myInfo])
 
   const handleInputChange = (field: keyof Member, value: string) => {
     setFormData((prev) => ({
@@ -75,53 +78,31 @@ export default function ProfilePage() {
     }
 
     setIsSaving(true)
+    updateMember.mutate(formData, {
+      onSuccess: (result) => {
+        toaster.create({
+          title: '성공',
+          description: '프로필이 업데이트되었습니다.',
+          type: 'success',
+        })
 
-    try {
-      const response = await authenticatedFetch('/api/auth/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || '프로필 업데이트에 실패했습니다.')
-      }
-
-      toaster.create({
-        title: '성공',
-        description: '프로필이 업데이트되었습니다.',
-        type: 'success',
-      })
-
-      setIsEditing(false)
-      // 페이지 새로고침하여 최신 사용자 정보 반영
-      window.location.reload()
-    } catch (error) {
-      console.error('프로필 업데이트 실패:', error)
-      toaster.create({
-        title: '오류',
-        description:
-          error instanceof Error
-            ? error.message
-            : '프로필 업데이트에 실패했습니다.',
-        type: 'error',
-      })
-    } finally {
-      setIsSaving(false)
-    }
+        setIsEditing(false)
+        setFormData(result.user)
+      },
+      onError: (error) => {
+        console.log(error)
+      },
+    })
   }
 
   const handleCancel = () => {
     // 폼 데이터를 원래 사용자 정보로 되돌림
-    if (user) {
+    if (myInfo) {
       setFormData({
-        name: user.name,
-        nickname: user.nickname,
-        ntrp: user.ntrp,
-        phone: user.phone || '',
+        name: myInfo.name,
+        nickname: myInfo.nickname,
+        ntrp: myInfo.ntrp,
+        phone: myInfo.phone || '',
       })
     }
     setIsEditing(false)
@@ -140,7 +121,7 @@ export default function ProfilePage() {
     )
   }
 
-  if (!user) {
+  if (!myInfo) {
     return null // 리다이렉트 중
   }
 
@@ -166,7 +147,7 @@ export default function ProfilePage() {
             <Stack gap={4}>
               <Field.Root readOnly>
                 <Field.Label>이메일</Field.Label>
-                <Input value={user.email} disabled />
+                <Input value={myInfo.email} disabled />
               </Field.Root>
 
               <Field.Root required>
@@ -219,7 +200,10 @@ export default function ProfilePage() {
               <Field.Root readOnly>
                 <Field.Label>성별</Field.Label>
                 <NativeSelect.Root>
-                  <NativeSelect.Field value={user.gender} disabled={!isEditing}>
+                  <NativeSelect.Field
+                    value={myInfo.gender}
+                    disabled={!isEditing}
+                  >
                     {GENDER_OPTIONS.map((level) => (
                       <option key={level.value} value={level.value}>
                         {level.label}

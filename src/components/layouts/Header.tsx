@@ -10,20 +10,21 @@ import {
   Text,
 } from '@chakra-ui/react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { FaBars, FaTimes } from 'react-icons/fa'
-import { useAuth } from '@/lib/hooks/useAuth'
+import { useUserInfo } from '@/hooks/useAuth'
 import LogoutDialog from '@/components/common/LogoutDialog'
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false)
-  const { isAuthenticated: isLoggedIn, user } = useAuth()
+  const { data: user } = useUserInfo()
+  const isLoggedIn = useMemo(() => !!user, [user])
 
   const menuItems = [
     { label: '메인', href: '/' },
     { label: '공지사항', href: '/notice/list' },
-    ...(isLoggedIn
+    ...(!!isLoggedIn
       ? [
           { label: '대시보드', href: '/dashboard' },
           { label: '예약', href: '/reservation' },

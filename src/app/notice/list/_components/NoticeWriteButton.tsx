@@ -2,12 +2,12 @@
 
 import { Button } from '@chakra-ui/react'
 import Link from 'next/link'
-import { useAuth } from '@/lib/hooks/useAuth'
+import { useUserInfo } from '@/hooks/useAuth'
 
 export default function NoticeWriteButton() {
-  const { isAuthenticated } = useAuth()
+  const { data } = useUserInfo()
 
-  if (!isAuthenticated) {
+  if (!data) {
     return null
   }
 

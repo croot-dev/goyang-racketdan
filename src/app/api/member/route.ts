@@ -14,7 +14,6 @@ export async function GET(req: NextRequest) {
       const result = await getMemberListService(page, limit)
 
       return NextResponse.json({
-        success: true,
         ...result,
         page,
         limit,

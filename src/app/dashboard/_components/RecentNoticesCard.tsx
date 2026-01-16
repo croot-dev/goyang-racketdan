@@ -1,43 +1,19 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
 import { Box, Text, Stack, Card, Button, Spinner } from '@chakra-ui/react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-
-interface Post {
-  post_id: number
-  title: string
-  created_at: string
-}
+import { usePostList } from '@/hooks/usePosts'
+import { BbsType } from '@/domains/post/post.model'
 
 export default function RecentNoticesCard() {
   const router = useRouter()
-  const [recentNotices, setRecentNotices] = useState<Post[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const hasFetched = useRef(false)
-
-  useEffect(() => {
-    // Strict Mode에서 중복 호출 방지
-    if (hasFetched.current) return
-
-    const fetchRecentNotices = async () => {
-      hasFetched.current = true
-      try {
-        const response = await fetch('/api/bbs/post?type=1&page=1&limit=3')
-        if (response.ok) {
-          const data = await response.json()
-          setRecentNotices(data.posts || [])
-        }
-      } catch (error) {
-        console.error('Failed to fetch notices:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchRecentNotices()
-  }, [])
+  const { data, isLoading } = usePostList({
+    bbsTypeId: BbsType.NOTICE,
+    page: 1,
+    limit: 3,
+  })
+  const recentNotices = data?.list || []
 
   return (
     <Card.Root>

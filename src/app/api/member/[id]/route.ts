@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { registerService } from '@/domains/auth'
 import { createAccessToken, createRefreshToken } from '@/lib/jwt.server'
-import {
-  generateCsrfToken,
-  CSRF_COOKIE_OPTIONS,
-  CSRF_COOKIE_NAME,
-} from '@/lib/csrf.server'
 import { modifyMemberService } from '@/domains/member'
 import { withAuth } from '@/lib/auth.server'
 import { handleApiError } from '@/lib/api.error'
@@ -48,9 +43,6 @@ export async function POST(
       email: user.email,
     })
 
-    // CSRF 토큰 생성
-    const csrfToken = generateCsrfToken()
-
     // 쿠키 설정
     const response = NextResponse.json(
       {
@@ -65,7 +57,6 @@ export async function POST(
           phone: user.phone,
         },
         accessToken,
-        csrfToken,
       },
       { status: 201 }
     )
@@ -86,9 +77,6 @@ export async function POST(
       maxAge: 60 * 60 * 24 * 7, // 7일
       path: '/',
     })
-
-    // CSRF 토큰 쿠키 설정 (Double Submit Cookie 패턴)
-    response.cookies.set(CSRF_COOKIE_NAME, csrfToken, CSRF_COOKIE_OPTIONS)
 
     return response
   } catch (error) {
@@ -117,10 +105,7 @@ export async function PUT(
         phone: phone || null,
       })
 
-      return NextResponse.json({
-        success: true,
-        user: updatedUser,
-      })
+      return NextResponse.json(updatedUser)
     } catch (error) {
       console.error('회원정보 수정 에러:', error)
       return handleApiError(error, '회원정보 수정 처리 중 오류가 발생했습니다.')

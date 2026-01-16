@@ -32,20 +32,7 @@ export async function GET(req: NextRequest) {
 
     const user = users[0]
 
-    console.log(user)
-    return NextResponse.json({
-      success: true,
-      user: {
-        member_id: user.member_id,
-        email: user.email,
-        name: user.name,
-        nickname: user.nickname,
-        ntrp: user.ntrp,
-        gender: user.gender,
-        phone: user.phone,
-        status: user.status,
-      },
-    })
+    return NextResponse.json(user)
   } catch (error) {
     console.error('사용자 정보 조회 에러:', error)
     return NextResponse.json(

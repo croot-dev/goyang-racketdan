@@ -7,11 +7,11 @@ interface NoticeListProps {
 }
 
 export default async function NoticeList({ currentPage }: NoticeListProps) {
-  const { posts, total, totalPages } = await getPostListService(
-    1,
-    currentPage,
-    10
-  )
+  const {
+    list: posts,
+    total,
+    totalPages,
+  } = await getPostListService(1, currentPage, 10)
 
   return (
     <>

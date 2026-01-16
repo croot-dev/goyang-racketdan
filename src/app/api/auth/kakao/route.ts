@@ -1,11 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { sql } from '@/lib/db.server'
 import { createAccessToken, createRefreshToken } from '@/lib/jwt.server'
-import {
-  generateCsrfToken,
-  CSRF_COOKIE_OPTIONS,
-  CSRF_COOKIE_NAME,
-} from '@/lib/csrf.server'
 import { KakaoUserInfo } from '@/domains/auth'
 import { getMemberWithRole } from '@/domains/member'
 
@@ -69,16 +63,12 @@ export async function GET(req: NextRequest) {
       email: existingUser.email,
     })
 
-    // CSRF 토큰 생성
-    const csrfToken = generateCsrfToken()
-
     const response = NextResponse.json({
       token: tokenData,
       user: userData,
       existingUser,
       isNewUser: false,
       accessToken,
-      csrfToken, // 클라이언트에서 헤더로 사용
     })
 
     // HttpOnly 쿠키로 JWT 토큰 설정
@@ -97,9 +87,6 @@ export async function GET(req: NextRequest) {
       maxAge: 60 * 60 * 24 * 7, // 7일
       path: '/',
     })
-
-    // CSRF 토큰 쿠키 설정 (Double Submit Cookie 패턴)
-    response.cookies.set(CSRF_COOKIE_NAME, csrfToken, CSRF_COOKIE_OPTIONS)
 
     return response
   }

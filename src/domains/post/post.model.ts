@@ -3,7 +3,6 @@
  * 게시글 테이블 스키마 정의
  */
 
-import { Paging } from '../common/paging.query'
 import { Member } from '../member'
 
 export interface PostDto {
@@ -40,10 +39,6 @@ export interface UpdatePostDto {
  */
 export interface PostListItem extends PostDto {
   writer_name: Member['nickname']
-}
-
-export interface PostListResult extends Paging {
-  posts: PostListItem[]
 }
 
 /**

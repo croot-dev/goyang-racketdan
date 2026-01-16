@@ -1,17 +1,21 @@
 'use client'
 
 import { Button, Dialog, Text } from '@chakra-ui/react'
-import { logout } from '@/lib/auth.client'
+import { useLogout } from '@/hooks/useAuth'
 
 interface LogoutDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
-export default function LogoutDialog({ open, onOpenChange }: LogoutDialogProps) {
+export default function LogoutDialog({
+  open,
+  onOpenChange,
+}: LogoutDialogProps) {
+  const logout = useLogout()
   const handleLogout = () => {
     onOpenChange(false)
-    logout()
+    logout.mutate()
   }
 
   return (

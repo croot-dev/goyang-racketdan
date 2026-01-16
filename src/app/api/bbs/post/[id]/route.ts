@@ -28,10 +28,7 @@ export async function GET(
       )
     }
 
-    return NextResponse.json({
-      success: true,
-      post,
-    })
+    return NextResponse.json(post)
   } catch (error) {
     console.error('게시글 조회 에러:', error)
     return handleApiError(error, '게시글 조회 중 오류가 발생했습니다.')
@@ -57,10 +54,7 @@ export async function PUT(
         type_id
       )
 
-      return NextResponse.json({
-        success: true,
-        post: updatedPost,
-      })
+      return NextResponse.json(updatedPost)
     } catch (error) {
       console.error('게시글 수정 에러:', error)
       return handleApiError(error, '게시글 수정 중 오류가 발생했습니다.')
@@ -82,10 +76,7 @@ export async function DELETE(
 
       await deletePostService(post_id, user.memberId, bbs_type_id)
 
-      return NextResponse.json({
-        success: true,
-        message: '게시글이 삭제되었습니다.',
-      })
+      return NextResponse.json(true)
     } catch (error) {
       console.error('게시글 삭제 에러:', error)
       return handleApiError(error, '게시글 삭제 중 오류가 발생했습니다.')

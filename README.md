@@ -105,26 +105,35 @@ src/
 ├── app/                          # Next.js App Router 페이지
 │   ├── api/                      # API Routes
 │   │   ├── auth/                 # 인증 API
-│   │   └── bbs/                  # 게시판 API
+│   │   ├── bbs/                  # 게시판 API
+│   │   └── member/               # 회원 API
 │   │
-│   └── auth/                     # 인증 페이지
-│       └── _components/          # 인증 페이지 컴포넌트
+│   ├── tanstackProvider.tsx      # TanStack Query Provider
+│   └── [page]/                   # 각 페이지
+│       └── _components/          # 페이지 전용 컴포넌트
 │
 ├── components/                   # 공통 컴포넌트
 │   ├── common/                   # 공통 UI
 │   ├── layouts/                  # 레이아웃
 │   └── ui/                       # Chakra UI 커스텀 컴포넌트
 │
-├── domains/                      # 도메인 레이어 (비즈니스 로직)
+├── domains/                      # 도메인 레이어 (서버 비즈니스 로직)
 │   └── [domain]/                 # 도메인명
 │       ├── [domain].model.ts     # 도메인 타입 정의
 │       ├── [domain].query.ts     # 도메인 DB 접근
 │       └── [domain].service.ts   # 도메인 비즈니스 로직
 │
+├── hooks/                        # TanStack Query 커스텀 훅
+│   ├── useAuth.ts                # 인증 관련 (useUserInfo, useLogout 등)
+│   ├── useMember.ts              # 회원 관련 (useMember, useUpdateMember)
+│   ├── usePosts.ts               # 게시글 관련 (usePostList, useCreatePost 등)
+│   └── useEvent.ts               # 일정 관련 (useEvents, useCreateEvent)
+│
 ├── lib/                          # 유틸리티 및 공통 라이브러리
-│   ├── *.client.ts               # 클라이언트 유틸
-│   ├── *.server.ts               # 서버 유틸
-│   └── hooks/                    # 커스텀 훅
+│   ├── api.client.ts             # API 요청 래퍼 (request, ApiError, authenticatedFetch)
+│   ├── auth.client.ts            # 클라이언트 인증
+│   ├── *.server.ts               # 서버 전용 유틸
+│   └── error.ts                  # 에러 처리
 │
 ├── constants/                    # 상수 정의
 │
@@ -134,7 +143,8 @@ src/
 ### 주요 컨벤션
 
 - **`_components/`**: 해당 페이지에서만 사용되는 단독 컴포넌트
-- **`domains/`**: Repository-Service 패턴으로 비즈니스 로직 분리
+- **`domains/`**: Repository-Service 패턴으로 서버 비즈니스 로직 분리
+- **`hooks/`**: TanStack Query 기반 데이터 페칭/캐싱 훅
 - **`.server.ts`**: 서버에서만 실행되는 코드
 - **`.client.ts`**: 클라이언트에서만 실행되는 코드
 
@@ -147,7 +157,13 @@ src/
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                      Client (Browser)                       │
-│              React Components, Custom Hooks                 │
+│     React Components + TanStack Query Hooks (useXxx)        │
+└─────────────────────────┬───────────────────────────────────┘
+                          │ request()
+                          ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  API Client (api.client.ts)                 │
+│       공통 요청 래퍼, 에러 처리, 자동 토큰 갱신               │
 └─────────────────────────┬───────────────────────────────────┘
                           │ HTTP Request
                           ▼
@@ -176,13 +192,100 @@ src/
 
 ### 레이어별 책임
 
-| 레이어      | 파일             | 책임                                         |
-| ----------- | ---------------- | -------------------------------------------- |
-| **Client**  | React 컴포넌트   | UI 렌더링, 사용자 입력, API 호출             |
-| **API**     | `route.ts`       | HTTP 요청/응답 처리, 인증 미들웨어, 쿠키 설정 |
-| **Service** | `*.service.ts`   | 비즈니스 로직, 유효성 검증, 권한 검증        |
-| **Query**   | `*.query.ts`     | SQL 쿼리 실행, 데이터 반환                   |
-| **DB**      | PostgreSQL       | 데이터 저장                                  |
+| 레이어          | 파일              | 책임                                            |
+| --------------- | ----------------- | ----------------------------------------------- |
+| **Client**      | React 컴포넌트    | UI 렌더링, 사용자 입력                          |
+| **Query Hooks** | `hooks/useXxx.ts` | TanStack Query 기반 데이터 페칭, 캐싱, 뮤테이션 |
+| **API Client**  | `api.client.ts`   | 공통 요청 래퍼, 에러 처리, 자동 토큰 갱신       |
+| **API**         | `route.ts`        | HTTP 요청/응답 처리, 인증 미들웨어, 쿠키 설정   |
+| **Service**     | `*.service.ts`    | 비즈니스 로직, 유효성 검증, 권한 검증           |
+| **Query**       | `*.query.ts`      | SQL 쿼리 실행, 데이터 반환                      |
+| **DB**          | PostgreSQL        | 데이터 저장                                     |
+
+### TanStack Query 구조
+
+클라이언트 상태 관리는 TanStack Query를 사용하여 서버 상태와 동기화합니다.
+
+```typescript
+// Query Key Factory 패턴
+export const postKeys = {
+  all: ['posts'] as const,
+  lists: () => [postKeys.all, 'list'] as const,
+  list: (bbsTypeId: number, page: number, limit: number) =>
+    [postKeys.lists(), { bbsTypeId, page, limit }] as const,
+  details: () => [postKeys.all, 'detail'] as const,
+  detail: (id: number) => [postKeys.details(), id] as const,
+}
+
+// Query Hook
+export function usePostList({ bbsTypeId, page, limit }) {
+  return useQuery({
+    queryKey: postKeys.list(bbsTypeId, page, limit),
+    queryFn: () =>
+      request(`/api/bbs/post?type=${bbsTypeId}&page=${page}&limit=${limit}`),
+  })
+}
+
+// Mutation Hook
+export function useCreatePost() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data) => request('/api/bbs/post', { body: data }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: postKeys.lists() }),
+  })
+}
+```
+
+**주요 훅**
+
+| 훅                  | 용도                         |
+| ------------------- | ---------------------------- |
+| `useUserInfo()`     | 현재 로그인 사용자 정보 조회 |
+| `useLogout()`       | 로그아웃 처리                |
+| `useMemberJoin()`   | 회원가입 (프로필 생성)       |
+| `useUpdateMember()` | 회원정보 수정                |
+| `usePostList()`     | 게시글 목록 조회             |
+| `usePost()`         | 단일 게시글 조회             |
+| `useCreatePost()`   | 게시글 작성                  |
+| `useUpdatePost()`   | 게시글 수정                  |
+| `useDeletePost()`   | 게시글 삭제                  |
+| `useEvents()`       | 일정 목록 조회               |
+| `useCreateEvent()`  | 일정 생성                    |
+
+### API Client
+
+공통 API 요청 래퍼 (`api.client.ts`)를 통해 일관된 에러 처리와 자동 토큰 갱신을 제공합니다.
+
+```typescript
+// 공통 request 함수
+const data = await request<Member>('/api/auth/me')
+
+// 옵션 지정
+await request('/api/member/123', {
+  method: 'PUT',
+  body: { name: '홍길동' },
+  auth: true, // 인증 필요 여부 (기본값: true)
+})
+
+// ApiError로 일관된 에러 처리
+try {
+  await request('/api/protected')
+} catch (error) {
+  if (error instanceof ApiError && error.status === 401) {
+    // 인증 만료 처리
+  }
+}
+```
+
+**자동 토큰 갱신 흐름**:
+
+```
+1. API 요청 → 401 Unauthorized
+2. /api/auth/refresh 호출
+3. 토큰 갱신 성공 → 원래 요청 자동 재시도
+4. 토큰 갱신 실패 → 인증 플래그 제거, 로그아웃 처리
+```
 
 ### 에러 처리 구조
 
@@ -199,26 +302,28 @@ return handleApiError(error, '기본 에러 메시지')
 
 **에러 코드 → HTTP 상태 매핑**
 
-| 에러 코드                              | HTTP 상태 |
-| -------------------------------------- | --------- |
-| `UNAUTHORIZED`, `TOKEN_EXPIRED`        | 401       |
-| `FORBIDDEN`, `NOT_OWNER`               | 403       |
-| `NOT_FOUND`, `MEMBER_NOT_FOUND`        | 404       |
-| `DUPLICATE_EMAIL`, `DUPLICATE_NICKNAME`| 409       |
-| `VALIDATION_ERROR`, `INVALID_INPUT`    | 400       |
-| `INTERNAL_ERROR`                       | 500       |
+| 에러 코드                               | HTTP 상태 |
+| --------------------------------------- | --------- |
+| `UNAUTHORIZED`, `TOKEN_EXPIRED`         | 401       |
+| `FORBIDDEN`, `NOT_OWNER`                | 403       |
+| `NOT_FOUND`, `MEMBER_NOT_FOUND`         | 404       |
+| `DUPLICATE_EMAIL`, `DUPLICATE_NICKNAME` | 409       |
+| `VALIDATION_ERROR`, `INVALID_INPUT`     | 400       |
+| `INTERNAL_ERROR`                        | 500       |
 
 ### 데이터 흐름 예시
 
 **회원정보 수정 요청**
 
 ```
-1. Client: PUT /api/member { member_id, name, ... }
-2. API: withAuth()로 인증 확인 → modifyMember() 호출
-3. Service: 권한 검증 (본인 확인) → 중복 체크 → updateMember() 호출
-4. Query: UPDATE SQL 실행
-5. DB: 데이터 수정
-6. 역순으로 결과 반환 → Client에 JSON 응답
+1. Component: useUpdateMember().mutate({ member_id, name })
+2. API Client: request('/api/member/123', { method: 'PUT', body })
+3. authenticatedFetch: 쿠키 포함 요청 (401 시 자동 갱신)
+4. API Route: withAuth()로 인증 확인 → modifyMember() 호출
+5. Service: 권한 검증 (본인 확인) → 중복 체크 → updateMember() 호출
+6. Query: UPDATE SQL 실행
+7. DB: 데이터 수정
+8. 역순으로 결과 반환 → onSuccess에서 queryClient.setQueryData로 캐시 갱신
 ```
 
 ---

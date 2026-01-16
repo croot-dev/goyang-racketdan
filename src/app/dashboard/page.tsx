@@ -3,23 +3,23 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Box, Container, Heading, Text, Stack, Spinner } from '@chakra-ui/react'
-import { useAuth } from '@/lib/hooks/useAuth'
+import { useUserInfo } from '@/hooks/useAuth'
 import ProfileCard from './_components/ProfileCard'
 import RecentNoticesCard from './_components/RecentNoticesCard'
 import ReservationCard from './_components/ReservationCard'
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { isAuthenticated, user, isLoading } = useAuth()
+  const { data: user, isFetched, isLoading } = useUserInfo()
 
   useEffect(() => {
     // 로딩이 끝난 후 인증되지 않았으면 로그인 페이지로 이동
-    if (!isLoading && !isAuthenticated) {
+    if (isFetched && !isLoading && !user) {
       router.push('/auth/sign-in')
     }
-  }, [isLoading, isAuthenticated, router])
+  }, [isFetched, isLoading, user, router])
 
-  if (isLoading) {
+  if (!isFetched || isLoading) {
     return (
       <Box
         minH="100vh"

@@ -5,8 +5,22 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 export default function Providers({ children }: { children: ReactNode }) {
-  // ✅ 매번 새로운 QueryClient가 생기지 않도록 useState로 관리
-  const [queryClient] = useState(() => new QueryClient())
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 1000 * 60, // 1분간 fresh 상태 유지
+            gcTime: 1000 * 60 * 5, // 5분간 캐시 유지
+            retry: 1,
+            refetchOnWindowFocus: false,
+          },
+          mutations: {
+            retry: 0,
+          },
+        },
+      })
+  )
 
   return (
     <QueryClientProvider client={queryClient}>

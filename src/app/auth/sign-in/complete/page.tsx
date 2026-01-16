@@ -18,8 +18,9 @@ import {
   Heading,
 } from '@chakra-ui/react'
 import { useForm, Controller } from 'react-hook-form'
-import { setCsrfToken, setAuthFlag } from '@/lib/auth.client'
+import { setAuthFlag } from '@/lib/auth.client'
 import { NTRP_LEVELS } from '@/constants'
+import { useMemberJoin } from '@/hooks/useAuth'
 
 interface FormValues {
   name: string
@@ -33,6 +34,7 @@ interface FormValues {
 export default function AuthSignInComplete() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const memberJoin = useMemberJoin()
   const code = searchParams.get('code')
   const [redirectUri, setRedirectUri] = useState('')
 
@@ -77,11 +79,6 @@ export default function AuthSignInComplete() {
       if (data.existingUser) {
         console.log('기존 사용자 로그인:', data.existingUser)
 
-        // CSRF 토큰 저장 (API 요청 시 사용)
-        if (data.csrfToken) {
-          setCsrfToken(data.csrfToken)
-        }
-
         // 인증 플래그 설정
         setAuthFlag()
 
@@ -111,21 +108,8 @@ export default function AuthSignInComplete() {
       phone: formData.phone,
     }
 
-    try {
-      const res = await fetch('/api/member', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(signUpData),
-      })
-
-      if (res.ok) {
-        const result = await res.json()
-
-        // CSRF 토큰 저장 (API 요청 시 사용)
-        if (result.csrfToken) {
-          setCsrfToken(result.csrfToken)
-        }
-
+    memberJoin.mutate(signUpData, {
+      onSuccess: async (result) => {
         // 인증 플래그 설정
         setAuthFlag()
 
@@ -134,14 +118,12 @@ export default function AuthSignInComplete() {
 
         // 대시보드로 이동
         router.push('/dashboard')
-      } else {
-        const error = await res.json()
-        alert(error.error || '회원가입 실패')
-      }
-    } catch (error) {
-      console.error('회원가입 에러:', error)
-      alert('회원가입 중 오류가 발생했습니다.')
-    }
+      },
+      onError: (error) => {
+        console.error('회원가입 에러:', error)
+        alert('회원가입 중 오류가 발생했습니다.')
+      },
+    })
   })
 
   if (isLoading) {

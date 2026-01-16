@@ -13,12 +13,7 @@ export async function GET(req: NextRequest) {
 
     const result = await getPostListService(bbs_type_id, page, limit)
 
-    return NextResponse.json({
-      success: true,
-      ...result,
-      page,
-      limit,
-    })
+    return NextResponse.json(result)
   } catch (error) {
     console.error('게시글 목록 조회 에러:', error)
     return handleApiError(error, '게시글 목록 조회 중 오류가 발생했습니다.')
@@ -32,17 +27,14 @@ export async function POST(req: NextRequest) {
       const body = await authenticatedReq.json()
       const { bbs_type_id, title, content } = body
 
-      const post = await createPostService({
+      const result = await createPostService({
         bbs_type_id: parseInt(bbs_type_id) || 1,
         title,
         content,
         writer_id: user.memberId,
       })
 
-      return NextResponse.json({
-        success: true,
-        ...post,
-      })
+      return NextResponse.json(result)
     } catch (error) {
       console.error('게시글 작성 에러:', error)
       return handleApiError(error, '게시글 작성 중 오류가 발생했습니다.')

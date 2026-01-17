@@ -6,6 +6,7 @@
 import type { MemberGender } from '@/constants'
 
 export interface Member {
+  seq: number
   member_id: string
   email: string
   name: string

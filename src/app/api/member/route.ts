@@ -4,7 +4,6 @@ import { handleApiError } from '@/lib/api.error'
 import { getMemberList } from '@/domains/member'
 import { registerService } from '@/domains/auth'
 import { createAccessToken, createRefreshToken } from '@/lib/jwt.server'
-import { ErrorCode, ServiceError } from '@/lib/error'
 
 // 멤버 목록 조회 API
 export async function GET(req: NextRequest) {

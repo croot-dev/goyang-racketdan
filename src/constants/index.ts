@@ -5,3 +5,4 @@
 // export * from './csrf'
 export * from './member'
 export * from './ntrp'
+export * from './bbs'

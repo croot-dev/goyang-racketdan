@@ -52,7 +52,6 @@ export async function POST(req: NextRequest) {
     })
 
     return response
-
   } catch (error) {
     console.error('토큰 갱신 에러:', error)
     return NextResponse.json(

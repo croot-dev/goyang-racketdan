@@ -1,44 +1,34 @@
-'use client'
+import { Box } from '@chakra-ui/react'
+import { getEventListService } from '@/domains/event'
+import type { EventWithHost } from '@/domains/event/event.model'
+import type { CalendarEvent } from '@/hooks/useEvent'
+import ScheduleCalendar from './_components/ScheduleCalendar'
+import ScheduleList from './_components/ScheduleList'
 
-import FullCalendar from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import interactionPlugin from '@fullcalendar/interaction'
-import { useRouter } from 'next/navigation'
-import { useEvents, useCreateEvent } from '@/hooks/useEvent'
-
-export default function ManagementSchedulerPage() {
-  const router = useRouter()
-  const { data: events = [] } = useEvents()
-  const createEvent = useCreateEvent()
-
-  const handleDateClick = (arg: { dateStr: string }) => {
-    const dateStr = arg.dateStr
-    const title = prompt('일정 제목을 입력하세요:')
-    if (title) {
-      createEvent.mutate({ id: crypto.randomUUID(), title, start: dateStr })
-    }
+function toCalendarEvent(event: EventWithHost): CalendarEvent {
+  return {
+    id: String(event.id),
+    title: event.title,
+    start: `${new Date(event.start_datetime).toISOString()}`,
+    end: `${new Date(event.end_datetime).toISOString()}`,
+    extendedProps: {
+      description: event.description || undefined,
+      location_name: event.location_name || undefined,
+      max_participants: event.max_participants,
+      current_participants: event.current_participants,
+      host_nickname: event.host_nickname,
+    },
   }
+}
 
-  const handleEventClick = (arg: { event: { id: string } }) => {
-    // 상세 화면으로 이동
-    router.push(`/calendar/event/${arg.event.id}`)
-  }
+export default async function SchedulePage() {
+  const result = await getEventListService(1, 100)
+  const events = result.events.map(toCalendarEvent)
 
   return (
-    <div>
-      <FullCalendar
-        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        initialView="dayGridMonth"
-        events={events}
-        dateClick={handleDateClick}
-        eventClick={handleEventClick}
-        headerToolbar={{
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay',
-        }}
-      />
-    </div>
+    <Box p={4}>
+      <ScheduleCalendar initialEvents={events} />
+      <ScheduleList events={events} />
+    </Box>
   )
 }

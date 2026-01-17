@@ -5,7 +5,7 @@
 
 import 'server-only'
 import { getPostList, getPost, createPost } from './post.query'
-import { PostListItem, CreatePostDto, PostDto } from './post.model'
+import { CreatePostDto, PostDto } from './post.model'
 import { sql } from '@/lib/db.server'
 import { ServiceError, ErrorCode } from '@/lib/error'
 

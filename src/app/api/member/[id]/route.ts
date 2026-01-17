@@ -10,7 +10,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  return withAuth(req, async (authenticatedReq, user) => {
+  return withAuth(req, async () => {
     try {
       const { id } = await params
       const result = await getMemberByIdWithRole(id)

@@ -14,12 +14,14 @@ import { useMemo, useState } from 'react'
 import { FaBars, FaTimes } from 'react-icons/fa'
 import { useUserInfo } from '@/hooks/useAuth'
 import LogoutDialog from '@/components/common/LogoutDialog'
+import { MEMBER_ROLE } from '@/constants'
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false)
   const { data: user } = useUserInfo()
   const isLoggedIn = useMemo(() => !!user, [user])
+  const isAdmin = useMemo(() => user?.role_code === MEMBER_ROLE.ADMIN, [user])
 
   const menuItems = [
     { label: '공지사항', href: '/notice' },
@@ -27,8 +29,9 @@ export default function Header() {
       ? [
           { label: '대시보드', href: '/dashboard' },
           { label: '예약', href: '/reservation' },
-          { label: '프로필', href: '/profile' },
-          { label: '회원관리', href: '/member' },
+          isAdmin
+            ? { label: '회원관리', href: '/member' }
+            : { label: '프로필', href: `/member/${user?.member_id}` },
         ]
       : []),
   ]

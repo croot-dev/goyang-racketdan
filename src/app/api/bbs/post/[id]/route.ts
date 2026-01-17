@@ -4,6 +4,7 @@ import {
   getPostService,
   updatePostService,
   deletePostService,
+  incrementViewCountService,
 } from '@/domains/post'
 import { handleApiError } from '@/lib/api.error'
 import { ServiceError, ErrorCode } from '@/lib/error'
@@ -27,6 +28,8 @@ export async function GET(
         '게시글을 찾을 수 없습니다.'
       )
     }
+
+    incrementViewCountService(post_id, bbs_type_id)
 
     return NextResponse.json(post)
   } catch (error) {

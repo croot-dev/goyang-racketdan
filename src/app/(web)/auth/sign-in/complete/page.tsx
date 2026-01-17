@@ -103,7 +103,7 @@ export default function AuthSignInComplete() {
   }, [data, router])
 
   const onSubmit = handleSubmit(async (formData) => {
-    const signUpData = {
+    const memberJoinData = {
       member_id: kakaoUserInfo.id,
       email: kakaoUserInfo.email,
       name: formData.name,
@@ -114,7 +114,7 @@ export default function AuthSignInComplete() {
       phone: formData.phone.replace(/-/g, ''),
     }
 
-    memberJoin.mutate(signUpData, {
+    memberJoin.mutate(memberJoinData, {
       onSuccess: async (result) => {
         // 인증 플래그 설정
         setAuthFlag()

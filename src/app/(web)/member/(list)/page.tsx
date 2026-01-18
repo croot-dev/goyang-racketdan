@@ -3,8 +3,8 @@ import { Suspense } from 'react'
 import MemberList from './_components/MemberList'
 
 export const metadata = {
-  title: '회원 관리 - 고양 라켓단',
-  description: '고양 라켓단 회원 목록을 관리합니다.',
+  title: '회원 목록 - 고양 라켓단',
+  description: '고양 라켓단 회원 목록을 확인합니다.',
 }
 
 interface PageProps {
@@ -38,7 +38,7 @@ export default async function ManagementMemberPage({
     <Container maxW="container.xl" py={10}>
       <Stack gap={6}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Heading size="2xl">회원 관리</Heading>
+          <Heading size="2xl">회원 목록</Heading>
         </Box>
 
         <Suspense key={currentPage} fallback={<MemberListFallback />}>

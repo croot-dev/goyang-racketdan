@@ -462,3 +462,29 @@ export async function getEventParticipantLogs(
 
   return result
 }
+
+/**
+ * 회원이 참여한 이벤트 목록 조회 (JOIN 또는 WAIT 상태)
+ */
+export async function getMyEvents(
+  memberSeq: number,
+  limit: number = 5
+): Promise<EventWithHost[]> {
+  const result = (await sql`
+    SELECT
+      e.*,
+      m.name AS host_name,
+      m.nickname AS host_nickname,
+      ep.status AS my_status
+    FROM events e
+    JOIN event_participants ep ON e.id = ep.event_id
+    JOIN member m ON e.host_member_seq = m.seq
+    WHERE ep.member_seq = ${memberSeq}
+      AND ep.status IN (${EventParticipantStatus.JOIN}, ${EventParticipantStatus.WAIT})
+      AND e.start_datetime >= NOW()
+    ORDER BY e.start_datetime ASC
+    LIMIT ${limit}
+  `) as EventWithHost[]
+
+  return result
+}

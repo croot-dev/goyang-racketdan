@@ -7,6 +7,7 @@ import { useUserInfo } from '@/hooks/useAuth'
 import ProfileCard from './_components/ProfileCard'
 import RecentNoticesCard from './_components/RecentNoticesCard'
 import ReservationCard from './_components/ReservationCard'
+import MyEventsCard from './_components/MyEventsCard'
 
 export default function DashboardPage() {
   const router = useRouter()
@@ -51,6 +52,7 @@ export default function DashboardPage() {
 
           <Stack gap={4}>
             <ProfileCard user={user} />
+            <MyEventsCard />
             <RecentNoticesCard />
             <ReservationCard />
           </Stack>

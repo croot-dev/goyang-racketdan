@@ -36,6 +36,7 @@ import {
   updateComment,
   deleteComment,
   createParticipantLog,
+  getMyEvents,
 } from './event.query'
 import { ServiceError, ErrorCode } from '@/lib/error'
 
@@ -472,4 +473,14 @@ export async function deleteCommentService(
   }
 
   return await deleteComment(commentId)
+}
+
+/**
+ * 내가 참여한 이벤트 목록 조회
+ */
+export async function getMyEventsService(
+  memberSeq: number,
+  limit: number = 5
+) {
+  return await getMyEvents(memberSeq, limit)
 }

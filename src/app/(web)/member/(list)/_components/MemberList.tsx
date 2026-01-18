@@ -18,6 +18,28 @@ function getStatusBadge(status: string) {
   return <Badge colorPalette="gray">비활성</Badge>
 }
 
+function calculateAge(birthdate: string): number {
+  // 8자리 숫자(YYYYMMDD) 또는 YYYY-MM-DD 형식에서 나이 계산
+  const birthYear = parseInt(birthdate.slice(0, 4))
+  const birthMonth = parseInt(birthdate.slice(4, 6) || birthdate.slice(5, 7))
+  const birthDay = parseInt(birthdate.slice(6, 8) || birthdate.slice(8, 10))
+
+  const today = new Date()
+  let age = today.getFullYear() - birthYear
+
+  // 생일이 지나지 않았으면 1살 빼기
+  const todayMonth = today.getMonth() + 1
+  const todayDay = today.getDate()
+  if (
+    todayMonth < birthMonth ||
+    (todayMonth === birthMonth && todayDay < birthDay)
+  ) {
+    age--
+  }
+
+  return age + 1
+}
+
 export default async function MemberList({ currentPage }: MemberListProps) {
   const { members, total, totalPages } = await getMemberListService(
     currentPage,
@@ -67,10 +89,8 @@ export default async function MemberList({ currentPage }: MemberListProps) {
                   </Box>
                   <Box display="flex" flexDirection="column" gap={1}>
                     <Text fontSize="sm" color="gray.600">
-                      {member.name} ({getGenderLabel(member.gender)})
-                    </Text>
-                    <Text fontSize="sm" color="gray.600">
-                      {member.email}
+                      {member.name} ({getGenderLabel(member.gender)},{' '}
+                      {calculateAge(member.birthdate)}세)
                     </Text>
                     <Box
                       display="flex"
@@ -115,6 +135,9 @@ export default async function MemberList({ currentPage }: MemberListProps) {
                 성별
               </Table.ColumnHeader>
               <Table.ColumnHeader width="80px" textAlign="center">
+                나이
+              </Table.ColumnHeader>
+              <Table.ColumnHeader width="80px" textAlign="center">
                 NTRP
               </Table.ColumnHeader>
               <Table.ColumnHeader width="100px" textAlign="center">
@@ -128,7 +151,7 @@ export default async function MemberList({ currentPage }: MemberListProps) {
           <Table.Body>
             {members.length === 0 ? (
               <Table.Row>
-                <Table.Cell colSpan={8} textAlign="center" py={10}>
+                <Table.Cell colSpan={9} textAlign="center" py={10}>
                   회원이 없습니다.
                 </Table.Cell>
               </Table.Row>
@@ -154,6 +177,9 @@ export default async function MemberList({ currentPage }: MemberListProps) {
                     <Table.Cell>{member.email}</Table.Cell>
                     <Table.Cell textAlign="center">
                       {getGenderLabel(member.gender)}
+                    </Table.Cell>
+                    <Table.Cell textAlign="center">
+                      {calculateAge(member.birthdate)}세
                     </Table.Cell>
                     <Table.Cell textAlign="center">{member.ntrp}</Table.Cell>
                     <Table.Cell textAlign="center">

@@ -29,7 +29,7 @@ export default function RecentNoticesCard() {
             <Text color="gray.500">로딩 중...</Text>
           </Stack>
         ) : recentNotices.length > 0 ? (
-          <Stack gap={3}>
+          <Stack gap={0}>
             {recentNotices.map((notice) => (
               <Link key={notice.post_id} href={`/notice/${notice.post_id}`}>
                 <Box

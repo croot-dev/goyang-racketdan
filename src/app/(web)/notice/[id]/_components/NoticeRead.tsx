@@ -10,6 +10,7 @@ interface NoticeReadProps {
 export default async function NoticeRead({ postId }: NoticeReadProps) {
   const post = await getPostService(postId, 1)
 
+  console.log(post)
   if (!post) {
     return (
       <Box textAlign="center" py={10}>
@@ -32,7 +33,7 @@ export default async function NoticeRead({ postId }: NoticeReadProps) {
       {/* 게시글 정보 */}
       <Box>
         <Text fontSize="sm" color="gray.600" mb={2}>
-          작성자: {post.writer_id} | 작성일:{' '}
+          작성자: {post.writer_name} | 작성일:{' '}
           {new Date(post.created_at).toLocaleDateString('ko-KR')} | 조회수:{' '}
           {post.view_count}
         </Text>

@@ -1,6 +1,8 @@
 import { Box, Container, Heading, Stack, Skeleton } from '@chakra-ui/react'
 import { Suspense } from 'react'
 import NoticeRead from './_components/NoticeRead'
+import { getAuthSession } from '@/lib/auth.server'
+import AccessDeniedDialog from './_components/AccessDeniedDialog'
 
 export const metadata = {
   title: '공지사항 상세 - 고양 라켓단',
@@ -42,6 +44,11 @@ function NoticeReadFallback() {
 export default async function NoticeReadPage({ params }: PageProps) {
   const { id } = await params
   const postId = parseInt(id)
+
+  const session = await getAuthSession()
+  if (!session) {
+    return <AccessDeniedDialog />
+  }
 
   return (
     <Container maxW="container.lg" py={10}>

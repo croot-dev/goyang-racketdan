@@ -13,6 +13,7 @@ export const eventKeys = {
   all: ['events'] as const,
   list: () => [...eventKeys.all, 'list'] as const,
   detail: (id: number) => [...eventKeys.all, 'detail', id] as const,
+  my: () => [...eventKeys.all, 'my'] as const,
 }
 
 /**
@@ -172,6 +173,28 @@ export function useCancelEvent() {
     onSuccess: (_, eventId) => {
       queryClient.invalidateQueries({ queryKey: eventKeys.detail(eventId) })
       queryClient.invalidateQueries({ queryKey: eventKeys.list() })
+    },
+  })
+}
+
+/**
+ * 내가 참여한 이벤트와 my_status를 포함한 타입
+ */
+export interface MyEventWithStatus extends EventWithHost {
+  my_status: 'JOIN' | 'WAIT'
+}
+
+/**
+ * 내가 참여한 이벤트 목록 조회
+ */
+export function useMyEvents(limit: number = 5) {
+  return useQuery({
+    queryKey: [...eventKeys.my(), limit],
+    queryFn: async () => {
+      const result = await request<{ events: MyEventWithStatus[] }>(
+        `/api/event/my?limit=${limit}`
+      )
+      return result.events
     },
   })
 }

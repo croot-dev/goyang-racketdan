@@ -28,9 +28,10 @@ export default function Header() {
     ...(!!isLoggedIn
       ? [
           { label: '대시보드', href: '/dashboard' },
+          { label: '일정', href: '/schedule' },
           { label: '예약', href: '/reservation' },
           isAdmin
-            ? { label: '회원관리', href: '/member' }
+            ? { label: '회원목록', href: '/member' }
             : { label: '프로필', href: `/member/${user?.member_id}` },
         ]
       : []),

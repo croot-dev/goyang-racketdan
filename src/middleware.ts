@@ -4,15 +4,13 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export const config = {
-  matcher: ['/member', '/member/:path*'],
+  matcher: ['/member/:path*', '/blind/:path*'],
 }
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-
+  const session = await getAuthSession()
   if (pathname.startsWith('/member')) {
-    const session = await getAuthSession()
-
     if (!session) {
       return NextResponse.redirect(new URL('/auth/sign-in', request.url))
     }
@@ -25,6 +23,12 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(
         new URL(`/member/${session.memberId}`, request.url)
       )
+    }
+  }
+
+  if (pathname.startsWith('/blind')) {
+    if (!session) {
+      return NextResponse.redirect(new URL('/auth/sign-in', request.url))
     }
   }
 

@@ -1,19 +1,17 @@
 import { Box, Container, Heading, Stack, Skeleton } from '@chakra-ui/react'
 import { Suspense } from 'react'
-import NoticeRead from './_components/NoticeRead'
-import { getAuthSession } from '@/lib/auth.server'
-import AccessDenied from '@/components/common/AccessDenied'
+import BlindRead from './_components/BlindRead'
 
 export const metadata = {
-  title: '공지사항 상세 - 이름없는 테니스 모임',
-  description: '이름없는 테니스 모임 공지사항 상세내용을 조회합니다.',
+  title: '블라인드 상세 - 이름없는 테니스 모임',
+  description: '이름없는 테니스 모임 블라인드 상세내용을 조회합니다.',
 }
 
 interface PageProps {
   params: Promise<{ id: string }>
 }
 
-function NoticeReadFallback() {
+function BlindReadFallback() {
   return (
     <Stack gap={6}>
       <Box>
@@ -41,29 +39,17 @@ function NoticeReadFallback() {
   )
 }
 
-export default async function NoticeReadPage({ params }: PageProps) {
+export default async function BlindReadPage({ params }: PageProps) {
   const { id } = await params
   const postId = parseInt(id)
-
-  const session = await getAuthSession()
-  if (!session) {
-    return (
-      <AccessDenied
-        title="접근 권한이 없습니다"
-        message="회원만 조회할 수 있습니다."
-        showBackButton
-        backUrl="/notice"
-      />
-    )
-  }
 
   return (
     <Container maxW="container.lg" py={10}>
       <Stack gap={8}>
-        <Heading size="2xl">공지사항</Heading>
+        <Heading size="2xl">블라인드</Heading>
 
-        <Suspense fallback={<NoticeReadFallback />}>
-          <NoticeRead postId={postId} />
+        <Suspense fallback={<BlindReadFallback />}>
+          <BlindRead postId={postId} />
         </Suspense>
       </Stack>
     </Container>

@@ -1,15 +1,15 @@
 import { Field, Stack, Button, Input, Box, Text } from '@chakra-ui/react'
 import Link from 'next/link'
 import { getPostService, incrementViewCountService } from '@/domains/post'
-import NoticeActions from './NoticeActions'
+import BlindActions from './BlindActions'
 import { BBS_TYPE } from '@/constants'
 
-interface NoticeReadProps {
+interface BlindReadProps {
   postId: number
 }
 
-export default async function NoticeRead({ postId }: NoticeReadProps) {
-  const post = await getPostService(postId, BBS_TYPE.NOTICE)
+export default async function BlindRead({ postId }: BlindReadProps) {
+  const post = await getPostService(postId, BBS_TYPE.BLIND)
 
   if (!post) {
     return (
@@ -17,7 +17,7 @@ export default async function NoticeRead({ postId }: NoticeReadProps) {
         <Text fontSize="lg" color="gray.600">
           게시글을 찾을 수 없습니다.
         </Text>
-        <Link href="/notice">
+        <Link href="/blind">
           <Button mt={4} variant="outline">
             목록으로
           </Button>
@@ -33,7 +33,7 @@ export default async function NoticeRead({ postId }: NoticeReadProps) {
       {/* 게시글 정보 */}
       <Box>
         <Text fontSize="sm" color="gray.600" mb={2}>
-          작성자: {post.writer_name} | 작성일:{' '}
+          작성자: {post.writer_name || '익명'} | 작성일:{' '}
           {new Date(post.created_at).toLocaleDateString('ko-KR')} | 조회수:{' '}
           {post.view_count}
         </Text>
@@ -67,11 +67,11 @@ export default async function NoticeRead({ postId }: NoticeReadProps) {
 
       {/* 버튼 */}
       <Box display="flex" gap={3} justifyContent="space-between">
-        <Link href="/notice">
+        <Link href="/blind">
           <Button variant="outline">목록으로</Button>
         </Link>
 
-        <NoticeActions postId={post.post_id} writerId={post.writer_id} />
+        <BlindActions postId={post.post_id} writerId={post.writer_id} />
       </Box>
     </Stack>
   )

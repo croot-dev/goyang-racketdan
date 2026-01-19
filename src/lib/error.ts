@@ -83,6 +83,13 @@ const errorStatusMap: Record<ErrorCodeType, number> = {
   [ErrorCode.INTERNAL_ERROR]: 500,
 }
 
+export function getServiceErrorCode(error: Error): ErrorCodeType | null {
+  if (error.name.startsWith('ServiceError')) {
+    return (error.name || '').replace(/.*\[(.+)\].*/, '$1') as ErrorCodeType
+  }
+  return null
+}
+
 /**
  * 서비스 에러 클래스
  * Service 레이어에서 발생하는 비즈니스 로직 에러
@@ -93,7 +100,7 @@ export class ServiceError extends Error {
 
   constructor(code: ErrorCodeType, message: string) {
     super(message)
-    this.name = 'ServiceError'
+    this.name = `ServiceError [${code}]`
     this.code = code
     this.statusCode = errorStatusMap[code]
   }

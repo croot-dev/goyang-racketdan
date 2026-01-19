@@ -22,8 +22,6 @@ export default function ScheduleList({ events }: ScheduleListProps) {
     )
   }
 
-  console.log(events)
-
   return (
     <Box mt={8}>
       <Heading size="md" mb={4}>

@@ -49,3 +49,7 @@ export enum BbsType {
   COMMUNITY = 2,
   FAQ = 3,
 }
+
+export interface PostListFilter {
+  memberId?: string
+}

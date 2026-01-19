@@ -13,7 +13,7 @@ const QuillEditor = dynamic(() => import('./QuillEditor'), {
   loading: () => <Box minH="300px" bg="gray.100" borderRadius="md" />,
 })
 
-export default function NoticeForm() {
+export default function BlindForm() {
   const router = useRouter()
   const createPost = useCreatePost()
 
@@ -33,13 +33,13 @@ export default function NoticeForm() {
 
     createPost.mutate(
       {
-        bbs_type_id: BBS_TYPE.NOTICE + '',
+        bbs_type_id: BBS_TYPE.BLIND + '',
         title,
         content,
       },
       {
         onSuccess: (result) => {
-          router.push(`/notice/${result.post_id}`)
+          router.push(`/blind/${result.post_id}`)
           setIsSubmitting(false)
         },
         onError: (error) => {

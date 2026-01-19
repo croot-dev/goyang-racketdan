@@ -55,7 +55,6 @@ export default function EventCreatePopover({
     }
 
     try {
-      console.log(formData.start_datetime)
       await createEvent.mutateAsync({
         ...formData,
         start_datetime: new Date(

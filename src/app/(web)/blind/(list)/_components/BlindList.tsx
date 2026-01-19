@@ -1,18 +1,18 @@
 import { Box, Table, Stack, Text } from '@chakra-ui/react'
 import Link from 'next/link'
 import { getPostListService } from '@/domains/post'
-import { BBS_TYPE } from '@/constants'
+import { BBS_TYPE, MEMBER_ROLE } from '@/constants'
 
-interface NoticeListProps {
+interface BlindListProps {
   currentPage: number
 }
 
-export default async function NoticeList({ currentPage }: NoticeListProps) {
+export default async function BlindList({ currentPage }: BlindListProps) {
   const {
     list: posts,
     total,
     totalPages,
-  } = await getPostListService(BBS_TYPE.NOTICE, currentPage, 10)
+  } = await getPostListService(BBS_TYPE.BLIND, currentPage, 10)
 
   return (
     <>
@@ -33,7 +33,7 @@ export default async function NoticeList({ currentPage }: NoticeListProps) {
             {posts.map((post, index) => (
               <Link
                 key={post.post_id}
-                href={`/notice/${post.post_id}`}
+                href={`/blind/${post.post_id}`}
                 style={{ textDecoration: 'none' }}
               >
                 <Box
@@ -70,7 +70,7 @@ export default async function NoticeList({ currentPage }: NoticeListProps) {
                     alignItems="center"
                   >
                     <Text fontSize="sm" color="gray.600">
-                      {post.writer_name}
+                      {'익명'}
                     </Text>
                     <Box display="flex" gap={3} fontSize="xs" color="gray.500">
                       <Text>조회 {post.view_count}</Text>
@@ -121,7 +121,7 @@ export default async function NoticeList({ currentPage }: NoticeListProps) {
                   </Table.Cell>
                   <Table.Cell>
                     <Link
-                      href={`/notice/${post.post_id}`}
+                      href={`/blind/${post.post_id}`}
                       style={{ color: 'inherit', textDecoration: 'none' }}
                     >
                       <Box
@@ -135,7 +135,7 @@ export default async function NoticeList({ currentPage }: NoticeListProps) {
                       </Box>
                     </Link>
                   </Table.Cell>
-                  <Table.Cell textAlign="center">{post.writer_id}</Table.Cell>
+                  <Table.Cell textAlign="center">{'익명'}</Table.Cell>
                   <Table.Cell textAlign="center">{post.view_count}</Table.Cell>
                   <Table.Cell textAlign="center">
                     {new Date(post.created_at).toLocaleDateString('ko-KR')}
@@ -157,7 +157,7 @@ export default async function NoticeList({ currentPage }: NoticeListProps) {
           flexWrap="wrap"
         >
           {currentPage > 1 && (
-            <Link href={`/notice?page=${currentPage - 1}`}>
+            <Link href={`/blind?page=${currentPage - 1}`}>
               <Box
                 as="button"
                 px={{ base: 3, md: 4 }}
@@ -175,7 +175,7 @@ export default async function NoticeList({ currentPage }: NoticeListProps) {
 
           {Array.from({ length: totalPages }, (_, i) => i + 1).map(
             (pageNum) => (
-              <Link key={pageNum} href={`/notice?page=${pageNum}`}>
+              <Link key={pageNum} href={`/blind?page=${pageNum}`}>
                 <Box
                   as="button"
                   px={{ base: 3, md: 4 }}
@@ -200,7 +200,7 @@ export default async function NoticeList({ currentPage }: NoticeListProps) {
           )}
 
           {currentPage < totalPages && (
-            <Link href={`/notice?page=${currentPage + 1}`}>
+            <Link href={`/blind?page=${currentPage + 1}`}>
               <Box
                 as="button"
                 px={{ base: 3, md: 4 }}

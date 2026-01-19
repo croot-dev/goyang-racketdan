@@ -4,15 +4,6 @@
  */
 
 /**
- * JWT 토큰 페이로드
- */
-export interface TokenPayload {
-  memberId: string
-  email?: string
-  name?: string
-}
-
-/**
  * 로그인 요청 데이터
  */
 export interface LoginDto {

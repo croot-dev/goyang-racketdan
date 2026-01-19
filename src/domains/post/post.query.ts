@@ -5,7 +5,7 @@
 
 import 'server-only'
 import { sql } from '@/lib/db.server'
-import { PostListItem } from './post.model'
+import { PostListFilter, PostListItem } from './post.model'
 import { ResponseList, ResponsePaging } from '../common/response.query'
 
 /**
@@ -14,9 +14,12 @@ import { ResponseList, ResponsePaging } from '../common/response.query'
 export async function getPostList(
   bbs_type_id: number = 1,
   page: number = 1,
-  limit: number = 10
+  limit: number = 10,
+  filter?: PostListFilter // 필터 추가
 ): Promise<ResponseList<PostListItem>> {
-  const offset = (page - 1) * limit
+  const offset = (page - 1) * limit // 1. 조건절 동적 생성
+  const conditions = [sql`bbs_type_id = ${bbs_type_id}`]
+  const whereClause = conditions.reduce((acc, curr) => sql`${acc} AND ${curr}`)
 
   const [posts, countResult] = (await Promise.all([
     sql`
@@ -30,17 +33,17 @@ export async function getPostList(
         p.updated_at,
         m.nickname as writer_name
       FROM bbs_post p
-      JOIN member m
+      LEFT JOIN member m
         ON p.writer_id = m.member_id
-      WHERE bbs_type_id = ${bbs_type_id}
+      WHERE ${whereClause}
       ORDER BY created_at DESC
       LIMIT ${limit}
       OFFSET ${offset}
     `,
     sql`
       SELECT COUNT(*) as total
-      FROM bbs_post
-      WHERE bbs_type_id = ${bbs_type_id}
+      FROM bbs_post p
+      WHERE ${whereClause}
     `,
   ])) as [PostListItem[], ResponsePaging[]]
 
@@ -70,7 +73,7 @@ export async function getPost(
       p.updated_at,
       m.nickname as writer_name
     FROM bbs_post p
-      JOIN member m
+      LEFT JOIN member m
         ON p.writer_id = m.member_id
     WHERE post_id = ${post_id} 
       AND bbs_type_id = ${bbs_type_id}

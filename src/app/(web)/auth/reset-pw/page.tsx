@@ -37,7 +37,6 @@ export default function AuthResetPw() {
   }
 
   const onSubmit = handleSubmit((data) => {
-    console.log(data)
     return false
   })
 

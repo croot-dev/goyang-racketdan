@@ -6,7 +6,8 @@ import { Box, Container, Heading, Text, Stack, Spinner } from '@chakra-ui/react'
 import { useUserInfo } from '@/hooks/useAuth'
 import ProfileCard from './_components/ProfileCard'
 import RecentNoticesCard from './_components/RecentNoticesCard'
-import ReservationCard from './_components/ReservationCard'
+// import ReservationCard from './_components/ReservationCard'
+import BlindCard from './_components/BlindCard'
 import MyEventsCard from './_components/MyEventsCard'
 
 export default function DashboardPage() {
@@ -54,7 +55,8 @@ export default function DashboardPage() {
             <ProfileCard user={user} />
             <MyEventsCard />
             <RecentNoticesCard />
-            <ReservationCard />
+            <BlindCard />
+            {/* <ReservationCard /> */}
           </Stack>
         </Stack>
       </Container>

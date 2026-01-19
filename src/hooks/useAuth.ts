@@ -51,13 +51,15 @@ export function useUserInfo() {
   return useQuery({
     queryKey: authKeys.user(),
     enabled: typeof window !== 'undefined' && hasAuthFlag(),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 1,
     retry: false,
 
     queryFn: async () => {
+      console.log(hasAuthFlag())
       if (!hasAuthFlag()) return null
 
       try {
+        console.log('fetching user info...')
         return await request<MemberWithRole>('/api/auth/me')
       } catch (error) {
         // 인증 만료 케이스만 정책 처리

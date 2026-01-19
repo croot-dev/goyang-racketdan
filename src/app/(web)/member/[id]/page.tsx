@@ -52,7 +52,7 @@ export default async function MemberDetailPage({ params }: PageProps) {
           </Box>
         )}
 
-        <MemberTabs initialData={initialData} />
+        <MemberTabs initialData={initialData} isAdmin={session.roleCode === MEMBER_ROLE.ADMIN} />
       </Stack>
     </Container>
   )

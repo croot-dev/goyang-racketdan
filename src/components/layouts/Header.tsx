@@ -62,7 +62,7 @@ export default function Header() {
               color="teal.500"
               cursor="pointer"
             >
-              이름없는 테니스 모임
+              NTG
             </Box>
           </Link>
 

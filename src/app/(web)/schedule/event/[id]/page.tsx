@@ -1,6 +1,6 @@
 'use client'
 
-import { use } from 'react'
+import { use, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   Box,
@@ -21,9 +21,12 @@ import {
   useCancelEvent,
   useDeleteEvent,
 } from '@/hooks/useEvent'
+import { useUserInfo } from '@/hooks/useAuth'
 import { toaster } from '@/components/ui/toaster'
 import type { EventParticipantStatusType } from '@/domains/event/event.model'
 import Link from 'next/link'
+import { MEMBER_ROLE } from '@/constants'
+import EventEditDialog from './_components/EventEditDialog'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -33,11 +36,18 @@ export default function EventDetailPage({ params }: PageProps) {
   const { id } = use(params)
   const eventId = parseInt(id)
   const router = useRouter()
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 
   const { data, isLoading, error } = useEventDetail(eventId)
+  const { data: userInfo } = useUserInfo()
   const joinEvent = useJoinEvent()
   const cancelEvent = useCancelEvent()
   const deleteEvent = useDeleteEvent()
+
+  const isJoined = data?.participants.some(
+    (p) => p.member_seq === userInfo?.seq && p.status === 'JOIN'
+  )
+  const isAdmin = userInfo?.role_code === MEMBER_ROLE.ADMIN
 
   const handleJoin = async () => {
     try {
@@ -243,32 +253,54 @@ export default function EventDetailPage({ params }: PageProps) {
             목록으로
           </Button>
           <Flex gap={2}>
-            <Button
-              colorPalette="red"
-              variant="outline"
-              onClick={handleDelete}
-              loading={deleteEvent.isPending}
-            >
-              삭제
-            </Button>
-            <Button
-              colorPalette="gray"
-              variant="outline"
-              onClick={handleCancel}
-              loading={cancelEvent.isPending}
-            >
-              참여 취소
-            </Button>
-            <Button
-              colorPalette="blue"
-              onClick={handleJoin}
-              loading={joinEvent.isPending}
-            >
-              참여 신청
-            </Button>
+            {isAdmin && (
+              <>
+                <Button
+                  colorPalette="red"
+                  variant="outline"
+                  onClick={handleDelete}
+                  loading={deleteEvent.isPending}
+                >
+                  삭제
+                </Button>
+                <Button
+                  colorPalette="gray"
+                  variant="outline"
+                  onClick={() => setIsEditDialogOpen(true)}
+                >
+                  수정
+                </Button>
+              </>
+            )}
+            {isJoined ? (
+              <Button
+                colorPalette="gray"
+                variant="outline"
+                onClick={handleCancel}
+                loading={cancelEvent.isPending}
+              >
+                참여 취소
+              </Button>
+            ) : (
+              <Button
+                colorPalette="blue"
+                onClick={handleJoin}
+                loading={joinEvent.isPending}
+              >
+                참여 신청
+              </Button>
+            )}
           </Flex>
         </Flex>
       </Stack>
+
+      {isAdmin && (
+        <EventEditDialog
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          event={event}
+        />
+      )}
     </Container>
   )
 }

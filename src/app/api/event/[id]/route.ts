@@ -7,6 +7,7 @@ import {
   deleteEventService,
 } from '@/domains/event'
 import { getMemberById } from '@/domains/member'
+import { MEMBER_ROLE } from '@/constants'
 
 /**
  * 이벤트 상세 조회
@@ -78,6 +79,8 @@ export async function PUT(
         )
       }
 
+      const isAdmin = user.roleCode === MEMBER_ROLE.ADMIN
+
       const event = await updateEventService(
         {
           id: eventId,
@@ -89,7 +92,8 @@ export async function PUT(
           location_url,
           max_participants,
         },
-        member.seq
+        member.seq,
+        isAdmin
       )
 
       return NextResponse.json(event)

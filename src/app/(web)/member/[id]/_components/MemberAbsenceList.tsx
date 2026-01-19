@@ -19,10 +19,12 @@ import AddAbsenceDialog from './AddAbsenceDialog'
 
 interface MemberAbsenceListProps {
   memberSeq: number
+  isAdmin: boolean
 }
 
 export default function MemberAbsenceList({
   memberSeq,
+  isAdmin,
 }: MemberAbsenceListProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const { data, isLoading } = useEventAbsencesByMember(memberSeq, true)
@@ -91,10 +93,12 @@ export default function MemberAbsenceList({
             <Text fontSize="lg" fontWeight="bold">
               지각/불참 기록
             </Text>
-            <Button size="sm" onClick={() => setIsDialogOpen(true)}>
-              <LuPlus />
-              추가
-            </Button>
+            {isAdmin && (
+              <Button size="sm" onClick={() => setIsDialogOpen(true)}>
+                <LuPlus />
+                추가
+              </Button>
+            )}
           </HStack>
         </Card.Header>
         <Card.Body>
@@ -161,11 +165,13 @@ export default function MemberAbsenceList({
         </Card.Body>
       </Card.Root>
 
-      <AddAbsenceDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        memberSeq={memberSeq}
-      />
+      {isAdmin && (
+        <AddAbsenceDialog
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          memberSeq={memberSeq}
+        />
+      )}
     </Stack>
   )
 }

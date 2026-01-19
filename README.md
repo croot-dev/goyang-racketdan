@@ -1,8 +1,9 @@
 # 이름없는 테니스 모임 (Noname Tennis Group)
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/efee58a8-ed4f-40cd-b3d2-915fe62cb668/deploy-status)](https://app.netlify.com/projects/racketdan/deploys)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/efee58a8-ed4f-40cd-b3d2-915fe62cb668/deploy-status)](https://app.netlify.com/projects/
+noname-tennis/deploys)
 
-**서비스 URL**: https://racketdan.netlify.app/
+**서비스 URL**: https://ntg.netlify.app/
 
 ## 프로젝트 개요
 
@@ -324,6 +325,44 @@ return handleApiError(error, '기본 에러 메시지')
 6. Query: UPDATE SQL 실행
 7. DB: 데이터 수정
 8. 역순으로 결과 반환 → onSuccess에서 queryClient.setQueryData로 캐시 갱신
+```
+
+---
+
+## 사이트맵
+
+```
+/                           # 메인 페이지 (랜딩)
+│
+├── /auth                   # 인증
+│   └── /sign-in            # 로그인 (카카오 OAuth)
+│       └── /complete       # 로그인 완료 처리
+│
+├── /dashboard              # 대시보드 (로그인 후 메인)
+│                           # - 회원 정보 요약
+│                           # - 참여 예정 일정
+│                           # - 최근 공지사항
+│                           # - 코트 예약 바로가기
+│
+├── /notice                 # 공지사항
+│   ├── /                   # 목록
+│   ├── /write              # 작성 (관리자)
+│   └── /[id]               # 상세 / 수정
+│
+├── /schedule               # 일정 관리
+│   ├── /                   # 캘린더 (FullCalendar)
+│   └── /event/[id]         # 일정 상세
+│                           # - 참여자 목록
+│                           # - 참여 신청/취소
+│                           # - 수정/삭제 (관리자)
+│
+├── /member                 # 회원 관리
+│   ├── /                   # 회원 목록 (관리자)
+│   └── /[id]               # 회원 상세 (프로필)
+│                           # - 기본 정보 탭
+│                           # - 지각/불참 기록 탭
+│
+└── /reservation            # 코트 예약 (외부 링크)
 ```
 
 ---

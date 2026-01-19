@@ -464,6 +464,21 @@ export async function getEventParticipantLogs(
 }
 
 /**
+ * JOIN 상태 참여자 목록 조회 (늦게 참여한 순으로 정렬)
+ */
+export async function getJoinedParticipantsOrderByLatest(
+  eventId: number
+): Promise<EventParticipant[]> {
+  const result = (await sql`
+    SELECT * FROM event_participants
+    WHERE event_id = ${eventId} AND status = ${EventParticipantStatus.JOIN}
+    ORDER BY created_at DESC
+  `) as EventParticipant[]
+
+  return result
+}
+
+/**
  * 회원이 참여한 이벤트 목록 조회 (JOIN 또는 WAIT 상태)
  */
 export async function getMyEvents(

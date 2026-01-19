@@ -8,9 +8,10 @@ import type { MemberWithRole } from '@/domains/member/member.model'
 
 interface MemberTabsProps {
   initialData: MemberWithRole
+  isAdmin: boolean
 }
 
-export default function MemberTabs({ initialData }: MemberTabsProps) {
+export default function MemberTabs({ initialData, isAdmin }: MemberTabsProps) {
   return (
     <Tabs.Root defaultValue="profile" variant="line">
       <Tabs.List>
@@ -29,7 +30,7 @@ export default function MemberTabs({ initialData }: MemberTabsProps) {
       </Tabs.Content>
 
       <Tabs.Content value="absence">
-        <MemberAbsenceList memberSeq={initialData.seq} />
+        <MemberAbsenceList memberSeq={initialData.seq} isAdmin={isAdmin} />
       </Tabs.Content>
     </Tabs.Root>
   )

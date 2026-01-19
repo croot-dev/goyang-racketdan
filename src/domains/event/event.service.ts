@@ -37,6 +37,7 @@ import {
   deleteComment,
   createParticipantLog,
   getMyEvents,
+  getJoinedParticipantsOrderByLatest,
 } from './event.query'
 import { ServiceError, ErrorCode } from '@/lib/error'
 
@@ -104,7 +105,8 @@ export async function createEventService(data: CreateEventDto): Promise<Event> {
  */
 export async function updateEventService(
   data: UpdateEventDto,
-  requesterMemberSeq: number
+  requesterMemberSeq: number,
+  isAdmin: boolean = false
 ): Promise<Event> {
   const existingEvent = await getEventById(data.id)
 
@@ -115,20 +117,48 @@ export async function updateEventService(
     )
   }
 
-  // 주최자만 수정 가능
-  if (existingEvent.host_member_seq !== requesterMemberSeq) {
+  // 관리자 또는 주최자만 수정 가능
+  if (!isAdmin && existingEvent.host_member_seq !== requesterMemberSeq) {
     throw new ServiceError(
       ErrorCode.NOT_OWNER,
       '이벤트 주최자만 수정할 수 있습니다.'
     )
   }
 
-  // 현재 참여자 수보다 최대 인원을 줄일 수 없음
-  if (data.max_participants < existingEvent.current_participants) {
-    throw new ServiceError(
-      ErrorCode.INVALID_INPUT,
-      '현재 참여자 수보다 적게 설정할 수 없습니다.'
-    )
+  // 최대 인원이 현재 참여자 수보다 작아지면, 늦게 참여한 사람들을 대기로 변경
+  const currentJoinCount = await getJoinedParticipantCount(data.id)
+  if (data.max_participants < currentJoinCount) {
+    const excessCount = currentJoinCount - data.max_participants
+    const joinedParticipants = await getJoinedParticipantsOrderByLatest(data.id)
+
+    // 현재 최대 대기 순번 조회
+    let currentMaxWaitOrder = await getMaxWaitOrder(data.id)
+
+    // 늦게 참여한 순서대로 excessCount명을 대기로 변경
+    for (let i = 0; i < excessCount; i++) {
+      const participant = joinedParticipants[i]
+      currentMaxWaitOrder += 1
+
+      await updateParticipantStatus(
+        data.id,
+        participant.member_seq,
+        EventParticipantStatus.WAIT,
+        currentMaxWaitOrder
+      )
+
+      // 로그 기록
+      await createParticipantLog(
+        data.id,
+        participant.member_seq,
+        EventParticipantStatus.JOIN,
+        EventParticipantStatus.WAIT,
+        EventActionType.ADMIN_UPDATE,
+        requesterMemberSeq
+      )
+    }
+
+    // 현재 참여자 수 업데이트
+    await updateEventCurrentParticipants(data.id, data.max_participants)
   }
 
   return await updateEvent(data)

@@ -19,10 +19,18 @@ import { ServiceError, ErrorCode } from '@/lib/error'
 export async function registerService(
   data: Pick<
     Member,
-    'member_id' | 'email' | 'name' | 'nickname' | 'ntrp' | 'gender' | 'phone'
+    | 'member_id'
+    | 'email'
+    | 'name'
+    | 'birthdate'
+    | 'nickname'
+    | 'ntrp'
+    | 'gender'
+    | 'phone'
   >
 ): Promise<MemberWithRole> {
-  const { member_id, email, name, gender, nickname, ntrp, phone } = data
+  const { member_id, email, name, birthdate, gender, nickname, ntrp, phone } =
+    data
 
   // 필수 필드 검증
   if (!email || !name || !gender || !nickname || !ntrp) {

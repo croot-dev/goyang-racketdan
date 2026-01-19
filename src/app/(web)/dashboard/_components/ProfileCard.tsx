@@ -53,7 +53,10 @@ export default function ProfileCard({ user }: ProfileCardProps) {
           </Stack>
         </Card.Body>
         <Card.Footer>
-          <Button colorScheme="teal" onClick={() => router.push('/profile')}>
+          <Button
+            colorScheme="teal"
+            onClick={() => router.push(`/member/${user.member_id}`)}
+          >
             프로필 수정
           </Button>
           <Button variant="outline" onClick={() => setLogoutDialogOpen(true)}>

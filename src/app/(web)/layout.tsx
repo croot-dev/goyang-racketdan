@@ -16,9 +16,9 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: '고양 라켓단 - 테니스 초보자 모임',
+  title: '이름없는 테니스 모임 - 테니스 초보자 모임',
   description:
-    '테니스 초보자들의 즐거운 모임, 고양 라켓단입니다. 함께 배우고 성장하는 테니스 커뮤니티에 참여하세요!',
+    '테니스 초보자들의 즐거운 모임, 이름없는 테니스 모임입니다. 함께 배우고 성장하는 테니스 커뮤니티에 참여하세요!',
 }
 
 export default function RootLayout({

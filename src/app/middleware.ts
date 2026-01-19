@@ -10,7 +10,6 @@ export const config = {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  console.log(pathname)
   if (pathname.startsWith('/member')) {
     const session = await getAuthSession()
 
@@ -18,7 +17,11 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/auth/sign-in', request.url))
     }
 
-    if (session.roleCode !== MEMBER_ROLE.GUEST) {
+    // ADMIN이 아니고, 본인 프로필 경로가 아닌 경우에만 리다이렉트
+    if (
+      session.roleCode !== MEMBER_ROLE.ADMIN &&
+      !pathname.startsWith(`/member/${session.memberId}`)
+    ) {
       return NextResponse.redirect(
         new URL(`/member/${session.memberId}`, request.url)
       )

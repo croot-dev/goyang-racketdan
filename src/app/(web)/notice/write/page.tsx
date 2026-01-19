@@ -3,8 +3,8 @@ import { Suspense } from 'react'
 import NoticeForm from './_components/NoticeForm'
 
 export const metadata = {
-  title: '공지사항 작성 - 고양 라켓단',
-  description: '고양 라켓단 공지사항을 작성합니다.',
+  title: '공지사항 작성 - 이름없는 테니스 모임',
+  description: '이름없는 테니스 모임 공지사항을 작성합니다.',
 }
 
 function NoticeFormFallback() {

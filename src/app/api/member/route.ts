@@ -30,12 +30,14 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { member_id, email, name, gender, nickname, ntrp, phone } = body
+    const { member_id, email, name, birthdate, gender, nickname, ntrp, phone } =
+      body
 
     const user = await registerService({
       member_id,
       email,
       name,
+      birthdate,
       gender,
       nickname,
       ntrp,
@@ -65,6 +67,7 @@ export async function POST(req: NextRequest) {
           member_id: user.member_id,
           email: user.email,
           name: user.name,
+          birthdate: user.birthdate,
           nickname: user.nickname,
           ntrp: user.ntrp,
           gender: user.gender,

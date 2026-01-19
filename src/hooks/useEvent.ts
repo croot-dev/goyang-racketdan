@@ -36,7 +36,7 @@ export interface CalendarEvent {
 /**
  * EventWithHost를 CalendarEvent로 변환
  */
-function toCalendarEvent(event: EventWithHost): CalendarEvent {
+export function toCalendarEvent(event: EventWithHost): CalendarEvent {
   return {
     id: String(event.id),
     title: event.title,
@@ -53,7 +53,7 @@ function toCalendarEvent(event: EventWithHost): CalendarEvent {
 }
 
 /**
- * 이벤트 목록 조회
+ * 이벤트 목록 조회 (원본 데이터)
  */
 export function useEvents(page: number = 1, limit: number = 100) {
   return useQuery({
@@ -62,7 +62,7 @@ export function useEvents(page: number = 1, limit: number = 100) {
       const result = await request<EventListResult>(
         `/api/event?page=${page}&limit=${limit}`
       )
-      return result.events.map(toCalendarEvent)
+      return result.events
     },
   })
 }

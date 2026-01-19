@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Box, Table, Stack, Text, Badge } from '@chakra-ui/react'
 import { getMemberListService } from '@/domains/member'
 import { MEMBER_GENDER } from '@/constants'
+import dayjs from 'dayjs'
 
 interface MemberListProps {
   currentPage: number
@@ -19,25 +20,10 @@ function getStatusBadge(status: string) {
 }
 
 function calculateAge(birthdate: string): number {
-  // 8자리 숫자(YYYYMMDD) 또는 YYYY-MM-DD 형식에서 나이 계산
-  const birthYear = parseInt(birthdate.slice(0, 4))
-  const birthMonth = parseInt(birthdate.slice(4, 6) || birthdate.slice(5, 7))
-  const birthDay = parseInt(birthdate.slice(6, 8) || birthdate.slice(8, 10))
-
   const today = new Date()
-  let age = today.getFullYear() - birthYear
+  const birthObj = dayjs(birthdate, 'YYYYMMDD')
 
-  // 생일이 지나지 않았으면 1살 빼기
-  const todayMonth = today.getMonth() + 1
-  const todayDay = today.getDate()
-  if (
-    todayMonth < birthMonth ||
-    (todayMonth === birthMonth && todayDay < birthDay)
-  ) {
-    age--
-  }
-
-  return age + 1
+  return today.getFullYear() - birthObj.year()
 }
 
 export default async function MemberList({ currentPage }: MemberListProps) {

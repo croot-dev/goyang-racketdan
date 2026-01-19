@@ -5,8 +5,8 @@ import { getAuthSession } from '@/lib/auth.server'
 import AccessDeniedDialog from './_components/AccessDeniedDialog'
 
 export const metadata = {
-  title: '공지사항 상세 - 고양 라켓단',
-  description: '고양 라켓단 공지사항 상세내용을 조회합니다.',
+  title: '공지사항 상세 - 이름없는 테니스 모임',
+  description: '이름없는 테니스 모임 공지사항 상세내용을 조회합니다.',
 }
 
 interface PageProps {

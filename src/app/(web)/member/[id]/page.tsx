@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { Box, Container, Heading, Stack, Text } from '@chakra-ui/react'
-import MemberForm from './_components/MemberForm'
+import MemberTabs from './_components/MemberTabs'
 import AccessDeniedDialog from './_components/AccessDeniedDialog'
 import { getMemberByIdWithRole } from '@/domains/member'
 import { getAuthSession } from '@/lib/auth.server'
@@ -52,7 +52,7 @@ export default async function MemberDetailPage({ params }: PageProps) {
           </Box>
         )}
 
-        <MemberForm initialData={initialData} />
+        <MemberTabs initialData={initialData} />
       </Stack>
     </Container>
   )

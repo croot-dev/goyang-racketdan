@@ -62,7 +62,7 @@ export default function Header() {
               color="teal.500"
               cursor="pointer"
             >
-              고양 라켓단
+              이름없는 테니스 모임
             </Box>
           </Link>
 

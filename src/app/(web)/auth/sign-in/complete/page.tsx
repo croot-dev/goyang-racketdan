@@ -374,6 +374,18 @@ export default function AuthSignInComplete() {
                 </Field.Root>
               </Fieldset.Content>
 
+              <Text fontSize="xs" color="gray.500" textAlign="center" mt={4}>
+                회원가입 시{' '}
+                <a href="/terms/service" style={{ textDecoration: 'underline' }}>
+                  이용약관
+                </a>{' '}
+                및{' '}
+                <a href="/terms/privacy" style={{ textDecoration: 'underline' }}>
+                  개인정보처리방침
+                </a>
+                에 동의하게 됩니다.
+              </Text>
+
               <Button
                 type="submit"
                 colorScheme="teal"

@@ -4,6 +4,7 @@ import '@/styles/globals.css'
 import { Provider as ChakraProvider } from '@/components/ui/provider'
 import TanstackProvider from '@/components/tanstackProvider'
 import Header from '@/components/layouts/Header'
+import Footer from '@/components/layouts/Footer'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -35,6 +36,7 @@ export default function RootLayout({
           <TanstackProvider>
             <Header />
             {children}
+            <Footer />
           </TanstackProvider>
         </ChakraProvider>
       </body>

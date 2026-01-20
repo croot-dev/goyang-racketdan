@@ -249,3 +249,21 @@ export async function updateMember(data: UpdateMemberDto): Promise<Member> {
 
   return memberResult[0]
 }
+
+/**
+ * 회원 탈퇴 (소프트 삭제)
+ */
+export async function deleteMember(memberId: string): Promise<boolean> {
+  const result = await sql`
+    UPDATE member
+    SET
+        status = ${MEMBER_STATUS.WITHDRAWN},
+        deleted_at = NOW(),
+        updated_at = NOW()
+    WHERE member_id = ${memberId}
+      AND deleted_at IS NULL
+    RETURNING member_id
+  `
+
+  return Array.isArray(result) && result.length > 0
+}

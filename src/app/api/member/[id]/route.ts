@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getMemberByIdWithRole, modifyMemberService } from '@/domains/member'
+import {
+  getMemberByIdWithRole,
+  modifyMemberService,
+  withdrawMemberService,
+} from '@/domains/member'
 import { withAuth } from '@/lib/auth.server'
 import { handleApiError } from '@/lib/api.error'
 import { MEMBER_ROLE } from '@/constants'
@@ -55,6 +59,25 @@ export async function PUT(
     } catch (error) {
       console.error('회원정보 수정 에러:', error)
       return handleApiError(error, '회원정보 수정 처리 중 오류가 발생했습니다.')
+    }
+  })
+}
+
+// 회원 탈퇴 API
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  return withAuth(req, async (_authenticatedReq, user) => {
+    try {
+      const { id: memberId } = await params
+
+      await withdrawMemberService(memberId, user.memberId)
+
+      return NextResponse.json({ success: true, message: '회원 탈퇴가 완료되었습니다.' })
+    } catch (error) {
+      console.error('회원 탈퇴 에러:', error)
+      return handleApiError(error, '회원 탈퇴 처리 중 오류가 발생했습니다.')
     }
   })
 }

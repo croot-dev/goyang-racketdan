@@ -11,6 +11,7 @@ export type MemberGender = (typeof MEMBER_GENDER)[keyof typeof MEMBER_GENDER]
 export const MEMBER_STATUS = Object.freeze({
   ACTIVE: 'active',
   INACTIVE: 'inactive',
+  WITHDRAWN: 'withdrawn',
 } as const)
 export type MemberStatus = (typeof MEMBER_STATUS)[keyof typeof MEMBER_STATUS]
 

@@ -10,6 +10,7 @@ import {
   getMemberById,
   updateMember,
   getMemberList,
+  deleteMember,
 } from './member.query'
 import type { MemberGender } from '@/constants'
 import { ServiceError, ErrorCode } from '@/lib/error'
@@ -93,4 +94,33 @@ export async function modifyMemberService(
   })
 
   return updatedMember
+}
+
+/**
+ * 회원 탈퇴
+ */
+export async function withdrawMemberService(
+  memberId: string,
+  requesterId: string
+): Promise<boolean> {
+  if (!memberId) {
+    throw new ServiceError(ErrorCode.INVALID_INPUT, '알 수 없는 사용자입니다.')
+  }
+
+  if (!requesterId) {
+    throw new ServiceError(ErrorCode.UNAUTHORIZED, '사용자 인증이 필요합니다.')
+  }
+
+  // 본인만 탈퇴 가능
+  if (memberId !== requesterId) {
+    throw new ServiceError(ErrorCode.NOT_OWNER, '본인만 탈퇴할 수 있습니다.')
+  }
+
+  // 회원 존재 여부 확인
+  const existingMember = await getMemberById(memberId)
+  if (!existingMember) {
+    throw new ServiceError(ErrorCode.MEMBER_NOT_FOUND, '회원을 찾을 수 없습니다.')
+  }
+
+  return await deleteMember(memberId)
 }

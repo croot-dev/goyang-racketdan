@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   Stack,
   Card,
@@ -12,6 +12,7 @@ import {
   SegmentGroup,
 } from '@chakra-ui/react'
 import { toaster } from '@/components/ui/toaster'
+import WithdrawDialog from '@/components/common/WithdrawDialog'
 import { NTRP_LEVELS, MEMBER_GENDER } from '@/constants'
 import type { MemberWithRole } from '@/domains/member/member.model'
 import { useUpdateMember } from '@/hooks/useMember'
@@ -40,6 +41,7 @@ interface MemberFormProps {
 export default function MemberForm({ initialData }: MemberFormProps) {
   const updateMember = useUpdateMember()
   const [isEditing, setIsEditing] = useState(false)
+  const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false)
 
   const {
     register,
@@ -289,11 +291,26 @@ export default function MemberForm({ initialData }: MemberFormProps) {
             </Button>
           </>
         ) : (
-          <Button colorScheme="teal" onClick={() => setIsEditing(true)}>
-            수정
-          </Button>
+          <>
+            <Button colorScheme="teal" onClick={() => setIsEditing(true)}>
+              수정
+            </Button>
+            <Button
+              variant="outline"
+              colorPalette="red"
+              onClick={() => setWithdrawDialogOpen(true)}
+            >
+              회원 탈퇴
+            </Button>
+          </>
         )}
       </Card.Footer>
+
+      <WithdrawDialog
+        open={withdrawDialogOpen}
+        onOpenChange={setWithdrawDialogOpen}
+        memberId={initialData.member_id}
+      />
     </Card.Root>
   )
 }

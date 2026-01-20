@@ -7,7 +7,7 @@ import { AlertDialogProvider } from './alert-dialog'
 export function Provider(props: ColorModeProviderProps) {
   return (
     <ChakraProvider value={defaultSystem}>
-      <ColorModeProvider forcedTheme="light" {...props}>
+      <ColorModeProvider {...props} forcedTheme="light" enableSystem={false}>
         <AlertDialogProvider>{props.children}</AlertDialogProvider>
       </ColorModeProvider>
     </ChakraProvider>

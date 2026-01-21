@@ -156,39 +156,37 @@ src/
 ### Layered Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                      Client (Browser)                       │
-│     React Components + TanStack Query Hooks (useXxx)        │
-└─────────────────────────┬───────────────────────────────────┘
-                          │ request()
-                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│                  API Client (api.client.ts)                 │
-│       공통 요청 래퍼, 에러 처리, 자동 토큰 갱신               │
-└─────────────────────────┬───────────────────────────────────┘
-                          │ HTTP Request
-                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    API Layer (route.ts)                     │
-│         HTTP 처리, 인증 미들웨어, 에러→HTTP 상태 매핑         │
-└─────────────────────────┬───────────────────────────────────┘
-                          │ Function Call
-                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│                Service Layer (*.service.ts)                 │
-│          비즈니스 로직, 유효성 검증, 권한 검증                │
-└─────────────────────────┬───────────────────────────────────┘
-                          │ Function Call
-                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│                 Query Layer (*.query.ts)                    │
-│                  순수 SQL 쿼리 실행                          │
-└─────────────────────────┬───────────────────────────────────┘
-                          │ SQL
-                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   Database (PostgreSQL)                     │
-└─────────────────────────────────────────────────────────────┘
+* Client (Browser)
+  > react-query hooks
+|
+| request()
+▼
+* API Client (api.client.ts)
+  > 요청 Wrapper, 에러처리 토큰 갱신 등
+|
+| request()
+▼
+* API Layer (route.ts) :
+  > HTTP 처리, 인증 미들웨어, 에러→HTTP 상태 매핑
+|
+| HTTP Request
+▼
+* Service Layer (\*.service.ts)
+  > 비즈니스 로직, 권한 검증
+|
+| Function Call
+▼
+* *Repository Layer (\*.repository.ts)
+  > Entity 저장/조회 실행
+|
+| Function Call
+▼
+* Query Layer (\*.query.ts)
+  > 순수 SQL 쿼리 실행
+|
+| SQL
+▼
+Database (PostgreSQL)
 ```
 
 ### 레이어별 책임
@@ -377,11 +375,6 @@ npm run build    # 프로덕션 빌드
 npm run start    # 프로덕션 서버 실행
 npm run lint     # ESLint 검사
 ```
-
-### 코드 스타일
-
-- ESLint + Prettier 적용
-- `.prettierrc`, `.editorconfig` 설정 파일 참고
 
 ### 참고 자료
 

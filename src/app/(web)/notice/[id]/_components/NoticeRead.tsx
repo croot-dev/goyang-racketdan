@@ -1,6 +1,6 @@
 import { Field, Stack, Button, Input, Box, Text } from '@chakra-ui/react'
 import Link from 'next/link'
-import { getPostService, incrementViewCountService } from '@/domains/post'
+import { getPostById, addViewCount } from '@/domains/post'
 import NoticeActions from './NoticeActions'
 import { BBS_TYPE } from '@/constants'
 
@@ -9,7 +9,7 @@ interface NoticeReadProps {
 }
 
 export default async function NoticeRead({ postId }: NoticeReadProps) {
-  const post = await getPostService(postId, BBS_TYPE.NOTICE)
+  const post = await getPostById(postId, BBS_TYPE.NOTICE)
 
   if (!post) {
     return (
@@ -26,7 +26,7 @@ export default async function NoticeRead({ postId }: NoticeReadProps) {
     )
   }
 
-  incrementViewCountService(postId, 1)
+  addViewCount(postId, 1)
 
   return (
     <Stack gap={6}>

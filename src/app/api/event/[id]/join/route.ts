@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { withAuth } from '@/lib/auth.server'
 import { handleApiError } from '@/lib/api.error'
-import { joinEventService, cancelEventService } from '@/domains/event'
+import { joinEvent, cancelEvent } from '@/domains/event'
 import { getMemberById } from '@/domains/member'
 
 /**
@@ -33,7 +33,7 @@ export async function POST(
         )
       }
 
-      const participant = await joinEventService(
+      const participant = await joinEvent(
         eventId,
         member.seq
       )
@@ -75,7 +75,7 @@ export async function DELETE(
         )
       }
 
-      await cancelEventService(eventId, member.seq)
+      await cancelEvent(eventId, member.seq)
 
       return NextResponse.json({ success: true })
     } catch (error) {

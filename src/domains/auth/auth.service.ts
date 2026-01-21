@@ -1,22 +1,22 @@
 /**
  * 인증 서비스 레이어
- * 비즈니스 로직을 처리하고 데이터 액세스 계층(쿼리)을 호출
+ * 비즈니스 로직을 처리하고 Repository 레이어를 통해 DB에 접근
  */
 
 import 'server-only'
 import bcrypt from 'bcryptjs'
 import {
-  getMemberByEmail,
-  getMemberByNickname,
+  findMemberByEmail,
+  findMemberByNickname,
   createMember,
-} from '@/domains/member/member.query'
+} from './auth.repository'
 import { Member, MemberWithRole } from '../member'
 import { ServiceError, ErrorCode } from '@/lib/error'
 
 /**
- * 회원가입 서비스
+ * 회원가입
  */
-export async function registerService(
+export async function register(
   data: Pick<
     Member,
     | 'member_id'
@@ -50,7 +50,7 @@ export async function registerService(
   }
 
   // 이메일 중복 확인
-  const existingUserByEmail = await getMemberByEmail(email)
+  const existingUserByEmail = await findMemberByEmail(email)
   if (existingUserByEmail) {
     throw new ServiceError(
       ErrorCode.DUPLICATE_EMAIL,
@@ -59,7 +59,7 @@ export async function registerService(
   }
 
   // 별명 중복 확인
-  const existingUserByNickname = await getMemberByNickname(nickname)
+  const existingUserByNickname = await findMemberByNickname(nickname)
   if (existingUserByNickname) {
     throw new ServiceError(
       ErrorCode.DUPLICATE_NICKNAME,
@@ -81,16 +81,16 @@ export async function registerService(
     gender,
     ntrp,
     password_hash: passwordHash,
-    phone: phone || null,
+    phone,
   })
 
   return newMember
 }
 
 /**
- * 이메일로 회원 조회 서비스
+ * 이메일로 회원 조회
  */
-export async function findMemberByEmailService(
+export async function getMemberByEmail(
   email: string
 ): Promise<Pick<
   Member,
@@ -100,7 +100,7 @@ export async function findMemberByEmailService(
     return null
   }
 
-  const member = await getMemberByEmail(email)
+  const member = await findMemberByEmail(email)
   if (!member) {
     return null
   }

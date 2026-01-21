@@ -5,7 +5,7 @@
 
 import 'server-only'
 import { sql } from '@/lib/db.server'
-import { PostListFilter, PostListItem } from './post.model'
+import { PostListFilter, PostListItem, PostDto, CreatePostDto } from './post.model'
 import { ResponseList, ResponsePaging } from '../common/response.query'
 
 /**
@@ -83,19 +83,10 @@ export async function getPost(
 }
 
 /**
- *
+ * 게시글 생성
  */
-export async function createPost({
-  bbs_type_id,
-  title,
-  content,
-  writer_id,
-}: {
-  bbs_type_id: number
-  title: string
-  content: string
-  writer_id: string
-}) {
+export async function createPost(data: CreatePostDto) {
+  const { bbs_type_id, title, content, writer_id } = data
   // 데이터베이스에 게시글 저장
   const newPost = await sql`
     INSERT INTO bbs_post (
@@ -118,4 +109,57 @@ export async function createPost({
   `
 
   return newPost[0] as PostListItem
+}
+
+/**
+ * 게시글 수정
+ */
+export async function updatePost(
+  post_id: number,
+  bbs_type_id: number,
+  data: { title: string; content: string }
+): Promise<PostDto | null> {
+  const { title, content } = data
+
+  const updatedPost = (await sql`
+    UPDATE bbs_post
+    SET
+      title = ${title.trim()},
+      content = ${content.trim()},
+      updated_at = NOW()
+    WHERE post_id = ${post_id} AND bbs_type_id = ${bbs_type_id}
+    RETURNING post_id, bbs_type_id, title, content, writer_id, view_count, created_at, updated_at
+  `) as PostDto[]
+
+  return updatedPost[0] || null
+}
+
+/**
+ * 게시글 삭제
+ */
+export async function deletePost(
+  post_id: number,
+  bbs_type_id: number
+): Promise<boolean> {
+  const result = await sql`
+    DELETE FROM bbs_post
+    WHERE post_id = ${post_id} AND bbs_type_id = ${bbs_type_id}
+    RETURNING post_id
+  `
+
+  return result.length > 0
+}
+
+/**
+ * 조회수 증가
+ */
+export async function incrementViewCount(
+  post_id: number,
+  bbs_type_id: number
+): Promise<void> {
+  await sql`
+    UPDATE bbs_post
+    SET view_count = view_count + 1
+    WHERE post_id = ${post_id} AND bbs_type_id = ${bbs_type_id}
+  `
 }

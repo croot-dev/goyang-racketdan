@@ -1,18 +1,24 @@
 /**
  * 게시글 서비스 레이어
- * 비즈니스 로직을 처리하고 데이터 액세스 계층(쿼리)을 호출
+ * 비즈니스 로직을 처리하고 Repository 레이어를 통해 DB에 접근
  */
 
 import 'server-only'
-import { getPostList, getPost, createPost } from './post.query'
+import {
+  findPostList,
+  findPostById,
+  createPost,
+  updatePost,
+  deletePost,
+  incrementViewCount,
+} from './post.repository'
 import { CreatePostDto, PostDto } from './post.model'
-import { sql } from '@/lib/db.server'
 import { ServiceError, ErrorCode } from '@/lib/error'
 
 /**
  * 게시글 목록 조회
  */
-export async function getPostListService(
+export async function getPostList(
   bbs_type_id: number = 1,
   page: number = 1,
   limit: number = 10
@@ -21,24 +27,24 @@ export async function getPostListService(
   if (page < 1) page = 1
   if (limit < 1 || limit > 100) limit = 10
 
-  return await getPostList(bbs_type_id, page, limit)
+  return await findPostList(bbs_type_id, page, limit)
 }
 
 /**
  * 단일 게시글 조회
  */
-export async function getPostService(post_id: number, bbs_type_id: number = 1) {
+export async function getPostById(post_id: number, bbs_type_id: number = 1) {
   if (!post_id || post_id < 1) {
     return null
   }
 
-  return await getPost(post_id, bbs_type_id)
+  return await findPostById(post_id, bbs_type_id)
 }
 
 /**
  * 게시글 생성
  */
-export async function createPostService(data: CreatePostDto) {
+export async function writePost(data: CreatePostDto) {
   const { bbs_type_id, title, content, writer_id } = data
 
   // 유효성 검증
@@ -60,7 +66,7 @@ export async function createPostService(data: CreatePostDto) {
 /**
  * 게시글 수정
  */
-export async function updatePostService(
+export async function modifyPost(
   post_id: number,
   data: {
     title: string
@@ -68,7 +74,7 @@ export async function updatePostService(
     user_id: string
   },
   bbs_type_id: number = 1
-) {
+): Promise<PostDto | null> {
   const { title, content, user_id } = data
 
   // 유효성 검증
@@ -85,7 +91,7 @@ export async function updatePostService(
   }
 
   // 게시글 존재 여부 확인
-  const existingPost = await getPost(post_id, bbs_type_id)
+  const existingPost = await findPostById(post_id, bbs_type_id)
   if (!existingPost) {
     throw new ServiceError(
       ErrorCode.POST_NOT_FOUND,
@@ -101,24 +107,13 @@ export async function updatePostService(
     )
   }
 
-  // 데이터베이스 업데이트
-  const updatedPost = (await sql`
-    UPDATE bbs_post
-    SET
-      title = ${title.trim()},
-      content = ${content.trim()},
-      updated_at = NOW()
-    WHERE post_id = ${post_id} AND bbs_type_id = ${bbs_type_id}
-    RETURNING post_id, bbs_type_id, title, content, writer_id, view_count, created_at, updated_at
-  `) as PostDto[]
-
-  return updatedPost[0] || null
+  return await updatePost(post_id, bbs_type_id, { title: title.trim(), content: content.trim() })
 }
 
 /**
  * 게시글 삭제
  */
-export async function deletePostService(
+export async function removePost(
   post_id: number,
   user_id: string,
   bbs_type_id: number = 1
@@ -135,7 +130,7 @@ export async function deletePostService(
   }
 
   // 게시글 존재 여부 확인
-  const existingPost = await getPost(post_id, bbs_type_id)
+  const existingPost = await findPostById(post_id, bbs_type_id)
   if (!existingPost) {
     throw new ServiceError(
       ErrorCode.POST_NOT_FOUND,
@@ -151,26 +146,15 @@ export async function deletePostService(
     )
   }
 
-  // 데이터베이스에서 삭제
-  const result = await sql`
-    DELETE FROM bbs_post
-    WHERE post_id = ${post_id} AND bbs_type_id = ${bbs_type_id}
-    RETURNING post_id
-  `
-
-  return result.length > 0
+  return await deletePost(post_id, bbs_type_id)
 }
 
 /**
  * 조회수 증가
  */
-export async function incrementViewCountService(
+export async function addViewCount(
   post_id: number,
   bbs_type_id: number = 1
 ): Promise<void> {
-  await sql`
-    UPDATE bbs_post
-    SET view_count = view_count + 1
-    WHERE post_id = ${post_id} AND bbs_type_id = ${bbs_type_id}
-  `
+  await incrementViewCount(post_id, bbs_type_id)
 }

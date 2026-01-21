@@ -55,7 +55,7 @@ export function useUserInfo() {
     retry: false,
 
     queryFn: async () => {
-      console.log(hasAuthFlag())
+      console.log('Check auth flag...')
       if (!hasAuthFlag()) return null
 
       try {

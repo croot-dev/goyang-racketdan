@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAccessToken, createRefreshToken } from '@/lib/jwt.server'
 import { KakaoUserInfo } from '@/domains/auth'
-import { getMemberByIdWithRole } from '@/domains/member'
+import { getMemberById } from '@/domains/member'
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get('code')
@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
   // 기존 사용자 확인
   let existingUser = null
   if (member_id) {
-    const users = await getMemberByIdWithRole(member_id)
+    const users = await getMemberById(member_id)
     existingUser = users ?? null
   }
 

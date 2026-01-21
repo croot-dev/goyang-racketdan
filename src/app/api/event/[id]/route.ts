@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { withAuth } from '@/lib/auth.server'
 import { handleApiError } from '@/lib/api.error'
 import {
-  getEventDetailService,
-  updateEventService,
-  deleteEventService,
+  getEventDetail,
+  modifyEvent,
+  removeEvent,
 } from '@/domains/event'
 import { getMemberById } from '@/domains/member'
 import { MEMBER_ROLE } from '@/constants'
@@ -29,7 +29,7 @@ export async function GET(
         )
       }
 
-      const result = await getEventDetailService(eventId)
+      const result = await getEventDetail(eventId)
 
       return NextResponse.json(result)
     } catch (error) {
@@ -81,7 +81,7 @@ export async function PUT(
 
       const isAdmin = user.roleCode === MEMBER_ROLE.ADMIN
 
-      const event = await updateEventService(
+      const event = await modifyEvent(
         {
           id: eventId,
           title,
@@ -133,7 +133,7 @@ export async function DELETE(
         )
       }
 
-      await deleteEventService(eventId, member.seq)
+      await removeEvent(eventId, member.seq)
 
       return NextResponse.json({ success: true })
     } catch (error) {

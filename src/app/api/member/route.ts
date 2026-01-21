@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { withAuth } from '@/lib/auth.server'
 import { handleApiError } from '@/lib/api.error'
 import { getMemberList } from '@/domains/member'
-import { registerService } from '@/domains/auth'
+import { register } from '@/domains/auth'
 import { createAccessToken, createRefreshToken } from '@/lib/jwt.server'
 
 // 멤버 목록 조회 API
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     const { member_id, email, name, birthdate, gender, nickname, ntrp, phone } =
       body
 
-    const user = await registerService({
+    const user = await register({
       member_id,
       email,
       name,

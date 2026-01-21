@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { withAuth } from '@/lib/auth.server'
-import { getPostListService, createPostService } from '@/domains/post'
+import { getPostList, writePost } from '@/domains/post'
 import { handleApiError } from '@/lib/api.error'
 import { BBS_TYPE } from '@/constants'
 
@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '10')
 
-    const result = await getPostListService(bbs_type_id, page, limit)
+    const result = await getPostList(bbs_type_id, page, limit)
 
     return NextResponse.json(result)
   } catch (error) {
@@ -28,11 +28,12 @@ export async function POST(req: NextRequest) {
       const body = await authenticatedReq.json()
       const { bbs_type_id, title, content } = body
 
-      const result = await createPostService({
+      const result = await writePost({
         bbs_type_id: parseInt(bbs_type_id) || 1,
         title,
         content,
-        writer_id: Number(bbs_type_id) === BBS_TYPE.BLIND ? '' : user?.memberId,
+        writer_id:
+          Number(bbs_type_id) === BBS_TYPE.BLIND ? '0' : user?.memberId,
       })
 
       return NextResponse.json(result)

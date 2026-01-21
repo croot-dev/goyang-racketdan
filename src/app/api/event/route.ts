@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { withAuth } from '@/lib/auth.server'
 import { handleApiError } from '@/lib/api.error'
-import { getEventListService, createEventService } from '@/domains/event'
+import { getEventList, writeEvent } from '@/domains/event'
 import { getMemberById } from '@/domains/member'
 
 /**
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
       const page = parseInt(searchParams.get('page') || '1')
       const limit = parseInt(searchParams.get('limit') || '10')
 
-      const result = await getEventListService(page, limit)
+      const result = await getEventList(page, limit)
 
       return NextResponse.json({
         ...result,
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
         )
       }
 
-      const event = await createEventService({
+      const event = await writeEvent({
         title,
         description,
         start_datetime,

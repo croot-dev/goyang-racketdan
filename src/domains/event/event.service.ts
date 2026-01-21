@@ -1,6 +1,6 @@
 /**
  * Event 서비스 레이어
- * 비즈니스 로직을 처리하고 데이터 액세스 계층(쿼리)을 호출
+ * 비즈니스 로직을 처리하고 Repository 레이어를 통해 DB에 접근
  */
 
 import 'server-only'
@@ -17,28 +17,28 @@ import {
   EventActionType,
 } from './event.model'
 import {
-  getEventList,
-  getEventById,
+  findEventList,
+  findEventById,
   createEvent,
   updateEvent,
   deleteEvent,
-  getEventParticipants,
-  getParticipantByEventAndMember,
+  findEventParticipants,
+  findParticipantByEventAndMember,
   createParticipant,
   updateParticipantStatus,
-  getMaxWaitOrder,
-  getFirstWaiter,
+  findMaxWaitOrder,
+  findFirstWaiter,
   updateEventCurrentParticipants,
-  getJoinedParticipantCount,
-  getEventComments,
-  getCommentById,
+  findJoinedParticipantCount,
+  findEventComments,
+  findCommentById,
   createComment,
   updateComment,
   deleteComment,
   createParticipantLog,
-  getMyEvents,
-  getJoinedParticipantsOrderByLatest,
-} from './event.query'
+  findMyEvents,
+  findJoinedParticipantsOrderByLatest,
+} from './event.repository'
 import { ServiceError, ErrorCode } from '@/lib/error'
 
 // ============ Event Services ============
@@ -46,20 +46,20 @@ import { ServiceError, ErrorCode } from '@/lib/error'
 /**
  * 이벤트 목록 조회
  */
-export async function getEventListService(
+export async function getEventList(
   page: number = 1,
   limit: number = 10
 ): Promise<EventListResult> {
-  return await getEventList(page, limit)
+  return await findEventList(page, limit)
 }
 
 /**
  * 이벤트 상세 조회
  */
-export async function getEventDetailService(
+export async function getEventDetail(
   eventId: number
 ): Promise<EventDetailResult> {
-  const event = await getEventById(eventId)
+  const event = await findEventById(eventId)
 
   if (!event) {
     throw new ServiceError(
@@ -69,8 +69,8 @@ export async function getEventDetailService(
   }
 
   const [participants, comments] = await Promise.all([
-    getEventParticipants(eventId),
-    getEventComments(eventId),
+    findEventParticipants(eventId),
+    findEventComments(eventId),
   ])
 
   return { event, participants, comments }
@@ -79,7 +79,7 @@ export async function getEventDetailService(
 /**
  * 이벤트 생성
  */
-export async function createEventService(data: CreateEventDto): Promise<Event> {
+export async function writeEvent(data: CreateEventDto): Promise<Event> {
   const { title, max_participants, host_member_seq } = data
 
   if (!title || title.trim().length === 0) {
@@ -103,12 +103,12 @@ export async function createEventService(data: CreateEventDto): Promise<Event> {
 /**
  * 이벤트 수정
  */
-export async function updateEventService(
+export async function modifyEvent(
   data: UpdateEventDto,
   requesterMemberSeq: number,
   isAdmin: boolean = false
 ): Promise<Event> {
-  const existingEvent = await getEventById(data.id)
+  const existingEvent = await findEventById(data.id)
 
   if (!existingEvent) {
     throw new ServiceError(
@@ -126,13 +126,13 @@ export async function updateEventService(
   }
 
   // 최대 인원이 현재 참여자 수보다 작아지면, 늦게 참여한 사람들을 대기로 변경
-  const currentJoinCount = await getJoinedParticipantCount(data.id)
+  const currentJoinCount = await findJoinedParticipantCount(data.id)
   if (data.max_participants < currentJoinCount) {
     const excessCount = currentJoinCount - data.max_participants
-    const joinedParticipants = await getJoinedParticipantsOrderByLatest(data.id)
+    const joinedParticipants = await findJoinedParticipantsOrderByLatest(data.id)
 
     // 현재 최대 대기 순번 조회
-    let currentMaxWaitOrder = await getMaxWaitOrder(data.id)
+    let currentMaxWaitOrder = await findMaxWaitOrder(data.id)
 
     // 늦게 참여한 순서대로 excessCount명을 대기로 변경
     for (let i = 0; i < excessCount; i++) {
@@ -167,11 +167,11 @@ export async function updateEventService(
 /**
  * 이벤트 삭제
  */
-export async function deleteEventService(
+export async function removeEvent(
   eventId: number,
   requesterMemberSeq: number
 ): Promise<boolean> {
-  const existingEvent = await getEventById(eventId)
+  const existingEvent = await findEventById(eventId)
 
   if (!existingEvent) {
     throw new ServiceError(
@@ -196,11 +196,11 @@ export async function deleteEventService(
 /**
  * 이벤트 참여 신청
  */
-export async function joinEventService(
+export async function joinEvent(
   eventId: number,
   memberSeq: number
 ): Promise<EventParticipant> {
-  const event = await getEventById(eventId)
+  const event = await findEventById(eventId)
 
   if (!event) {
     throw new ServiceError(
@@ -210,7 +210,7 @@ export async function joinEventService(
   }
 
   // 이미 참여 중인지 확인
-  const existingParticipant = await getParticipantByEventAndMember(
+  const existingParticipant = await findParticipantByEventAndMember(
     eventId,
     memberSeq
   )
@@ -231,7 +231,7 @@ export async function joinEventService(
   }
 
   // 정원 확인
-  const currentCount = await getJoinedParticipantCount(eventId)
+  const currentCount = await findJoinedParticipantCount(eventId)
   let participant: EventParticipant
 
   if (currentCount < event.max_participants) {
@@ -255,7 +255,7 @@ export async function joinEventService(
     )
   } else {
     // 대기 등록
-    const maxWaitOrder = await getMaxWaitOrder(eventId)
+    const maxWaitOrder = await findMaxWaitOrder(eventId)
     participant = await createParticipant(
       eventId,
       memberSeq,
@@ -280,11 +280,11 @@ export async function joinEventService(
 /**
  * 이벤트 참여 취소
  */
-export async function cancelEventService(
+export async function cancelEvent(
   eventId: number,
   memberSeq: number
 ): Promise<void> {
-  const participant = await getParticipantByEventAndMember(eventId, memberSeq)
+  const participant = await findParticipantByEventAndMember(eventId, memberSeq)
 
   if (!participant) {
     throw new ServiceError(
@@ -315,9 +315,9 @@ export async function cancelEventService(
 
   // 참여 확정자가 취소한 경우, 대기자 자동 승격
   if (previousStatus === EventParticipantStatus.JOIN) {
-    const event = await getEventById(eventId)
+    const event = await findEventById(eventId)
     if (event) {
-      const currentCount = await getJoinedParticipantCount(eventId)
+      const currentCount = await findJoinedParticipantCount(eventId)
       await updateEventCurrentParticipants(eventId, currentCount)
 
       // 대기자 승격
@@ -330,13 +330,13 @@ export async function cancelEventService(
  * 대기자 1순위 자동 승격
  */
 async function promoteFirstWaiter(eventId: number): Promise<void> {
-  const event = await getEventById(eventId)
+  const event = await findEventById(eventId)
   if (!event) return
 
-  const currentCount = await getJoinedParticipantCount(eventId)
+  const currentCount = await findJoinedParticipantCount(eventId)
   if (currentCount >= event.max_participants) return
 
-  const firstWaiter = await getFirstWaiter(eventId)
+  const firstWaiter = await findFirstWaiter(eventId)
   if (!firstWaiter) return
 
   // 대기 → 참여로 변경
@@ -364,12 +364,12 @@ async function promoteFirstWaiter(eventId: number): Promise<void> {
 /**
  * 주최자가 참여자 취소 처리
  */
-export async function hostCancelParticipantService(
+export async function hostCancelParticipant(
   eventId: number,
   targetMemberSeq: number,
   hostMemberSeq: number
 ): Promise<void> {
-  const event = await getEventById(eventId)
+  const event = await findEventById(eventId)
 
   if (!event) {
     throw new ServiceError(
@@ -385,7 +385,7 @@ export async function hostCancelParticipantService(
     )
   }
 
-  const participant = await getParticipantByEventAndMember(
+  const participant = await findParticipantByEventAndMember(
     eventId,
     targetMemberSeq
   )
@@ -418,7 +418,7 @@ export async function hostCancelParticipantService(
 
   // 참여자 수 업데이트 및 대기자 승격
   if (previousStatus === EventParticipantStatus.JOIN) {
-    const currentCount = await getJoinedParticipantCount(eventId)
+    const currentCount = await findJoinedParticipantCount(eventId)
     await updateEventCurrentParticipants(eventId, currentCount)
     await promoteFirstWaiter(eventId)
   }
@@ -429,10 +429,10 @@ export async function hostCancelParticipantService(
 /**
  * 댓글 작성
  */
-export async function createCommentService(
+export async function writeComment(
   data: CreateEventCommentDto
 ): Promise<EventComment> {
-  const event = await getEventById(data.event_id)
+  const event = await findEventById(data.event_id)
 
   if (!event) {
     throw new ServiceError(
@@ -451,12 +451,12 @@ export async function createCommentService(
 /**
  * 댓글 수정
  */
-export async function updateCommentService(
+export async function modifyComment(
   commentId: number,
   content: string,
   requesterMemberSeq: number
 ): Promise<EventComment> {
-  const comment = await getCommentById(commentId)
+  const comment = await findCommentById(commentId)
 
   if (!comment) {
     throw new ServiceError(
@@ -482,11 +482,11 @@ export async function updateCommentService(
 /**
  * 댓글 삭제
  */
-export async function deleteCommentService(
+export async function removeComment(
   commentId: number,
   requesterMemberSeq: number
 ): Promise<boolean> {
-  const comment = await getCommentById(commentId)
+  const comment = await findCommentById(commentId)
 
   if (!comment) {
     throw new ServiceError(
@@ -508,9 +508,9 @@ export async function deleteCommentService(
 /**
  * 내가 참여한 이벤트 목록 조회
  */
-export async function getMyEventsService(
+export async function getMyEvents(
   memberSeq: number,
   limit: number = 5
 ) {
-  return await getMyEvents(memberSeq, limit)
+  return await findMyEvents(memberSeq, limit)
 }

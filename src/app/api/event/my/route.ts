@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { withAuth } from '@/lib/auth.server'
 import { handleApiError } from '@/lib/api.error'
-import { getMyEventsService } from '@/domains/event'
+import { getMyEvents } from '@/domains/event'
 import { getMemberById } from '@/domains/member'
 
 /**
@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
         )
       }
 
-      const events = await getMyEventsService(member.seq, limit)
+      const events = await getMyEvents(member.seq, limit)
 
       return NextResponse.json({ events })
     } catch (error) {

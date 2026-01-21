@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Box, Table, Stack, Text, Badge } from '@chakra-ui/react'
-import { getMemberListService } from '@/domains/member'
+import { getMemberList } from '@/domains/member'
 import { MEMBER_GENDER } from '@/constants'
 import dayjs from 'dayjs'
 
@@ -27,7 +27,7 @@ function calculateAge(birthdate: string): number {
 }
 
 export default async function MemberList({ currentPage }: MemberListProps) {
-  const { members, total, totalPages } = await getMemberListService(
+  const { members, total, totalPages } = await getMemberList(
     currentPage,
     10
   )

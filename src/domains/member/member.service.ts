@@ -1,17 +1,18 @@
 /**
  * 멤버 서비스 레이어
- * 비즈니스 로직을 처리하고 데이터 액세스 계층(쿼리)을 호출
+ * 비즈니스 로직을 처리하고 Repository 레이어를 통해 DB에 접근
  */
 
 import 'server-only'
-import { Member, MemberListResult } from './member.model'
+import { Member, MemberWithRole, MemberListResult } from './member.model'
 import {
-  getMemberByNickname,
-  getMemberById,
+  findMemberByNickname,
+  findMemberById,
+  findMemberByIdWithRole,
+  findMemberList,
   updateMember,
-  getMemberList,
   deleteMember,
-} from './member.query'
+} from './member.repository'
 import type { MemberGender } from '@/constants'
 import { ServiceError, ErrorCode } from '@/lib/error'
 
@@ -27,23 +28,28 @@ interface ModifyMemberData {
 }
 
 /**
- * 회원 목록 조회
- * @param data
- * @returns
+ * 회원 상세 조회 (역할 포함)
  */
-export async function getMemberListService(
+export async function getMemberById(
+  id: string
+): Promise<MemberWithRole | null> {
+  return await findMemberByIdWithRole(id)
+}
+
+/**
+ * 회원 목록 조회
+ */
+export async function getMemberList(
   page: number = 1,
   limit: number = 10
 ): Promise<MemberListResult> {
-  return await getMemberList(page, limit)
+  return await findMemberList(page, limit)
 }
 
 /**
  * 회원 정보 수정
  */
-export async function modifyMemberService(
-  data: ModifyMemberData
-): Promise<Member> {
+export async function modifyMember(data: ModifyMemberData): Promise<Member> {
   const {
     member_id,
     requester_id,
@@ -65,7 +71,7 @@ export async function modifyMemberService(
   }
 
   // 대상 회원 존재 여부 확인
-  const existingMember = await getMemberById(member_id)
+  const existingMember = await findMemberById(member_id)
   if (!existingMember) {
     throw new ServiceError(
       ErrorCode.MEMBER_NOT_FOUND,
@@ -74,7 +80,7 @@ export async function modifyMemberService(
   }
 
   // 별명 중복 확인 (본인 제외)
-  const memberByNickname = await getMemberByNickname(nickname)
+  const memberByNickname = await findMemberByNickname(nickname)
   if (memberByNickname && memberByNickname.member_id !== member_id) {
     throw new ServiceError(
       ErrorCode.DUPLICATE_NICKNAME,
@@ -99,7 +105,7 @@ export async function modifyMemberService(
 /**
  * 회원 탈퇴
  */
-export async function withdrawMemberService(
+export async function withdrawMember(
   memberId: string,
   requesterId: string
 ): Promise<boolean> {
@@ -117,9 +123,12 @@ export async function withdrawMemberService(
   }
 
   // 회원 존재 여부 확인
-  const existingMember = await getMemberById(memberId)
+  const existingMember = await findMemberById(memberId)
   if (!existingMember) {
-    throw new ServiceError(ErrorCode.MEMBER_NOT_FOUND, '회원을 찾을 수 없습니다.')
+    throw new ServiceError(
+      ErrorCode.MEMBER_NOT_FOUND,
+      '회원을 찾을 수 없습니다.'
+    )
   }
 
   return await deleteMember(memberId)

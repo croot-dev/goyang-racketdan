@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { withAuth } from '@/lib/auth.server'
-import { getMemberByIdWithRole } from '@/domains/member'
+import { getMemberById } from '@/domains/member'
 import {
   createAccessToken,
   createRefreshToken,
@@ -15,7 +15,7 @@ import {
  */
 export async function GET(req: NextRequest) {
   return withAuth(req, async (authenticatedReq, user) => {
-    const memberWithRole = await getMemberByIdWithRole(user.memberId)
+    const memberWithRole = await getMemberById(user.memberId)
 
     if (!memberWithRole) {
       return NextResponse.json(

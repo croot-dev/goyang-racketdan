@@ -1,15 +1,16 @@
 import { Field, Stack, Button, Input, Box, Text } from '@chakra-ui/react'
 import Link from 'next/link'
-import { getPostService, incrementViewCountService } from '@/domains/post'
+import { getPostById, addViewCount } from '@/domains/post'
 import BlindActions from './BlindActions'
 import { BBS_TYPE } from '@/constants'
+import dayjs from 'dayjs'
 
 interface BlindReadProps {
   postId: number
 }
 
 export default async function BlindRead({ postId }: BlindReadProps) {
-  const post = await getPostService(postId, BBS_TYPE.BLIND)
+  const post = await getPostById(postId, BBS_TYPE.BLIND)
 
   if (!post) {
     return (
@@ -26,7 +27,7 @@ export default async function BlindRead({ postId }: BlindReadProps) {
     )
   }
 
-  incrementViewCountService(postId, 1)
+  addViewCount(postId, 1)
 
   return (
     <Stack gap={6}>
@@ -34,7 +35,7 @@ export default async function BlindRead({ postId }: BlindReadProps) {
       <Box>
         <Text fontSize="sm" color="gray.600" mb={2}>
           작성자: {post.writer_name || '익명'} | 작성일:{' '}
-          {new Date(post.created_at).toLocaleDateString('ko-KR')} | 조회수:{' '}
+          {dayjs(post.created_at).format('YYYY. MM. DD HH:mm:ss')} | 조회수:{' '}
           {post.view_count}
         </Text>
       </Box>

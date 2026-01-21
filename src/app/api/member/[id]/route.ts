@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import {
-  getMemberByIdWithRole,
-  modifyMemberService,
-  withdrawMemberService,
+  getMemberById,
+  modifyMember,
+  withdrawMember,
 } from '@/domains/member'
 import { withAuth } from '@/lib/auth.server'
 import { handleApiError } from '@/lib/api.error'
@@ -17,7 +17,7 @@ export async function GET(
   return withAuth(req, async () => {
     try {
       const { id } = await params
-      const result = await getMemberByIdWithRole(id)
+      const result = await getMemberById(id)
 
       return NextResponse.json(result)
     } catch (error) {
@@ -44,7 +44,7 @@ export async function PUT(
         )
       }
 
-      const updatedUser = await modifyMemberService({
+      const updatedUser = await modifyMember({
         member_id,
         requester_id: user.memberId,
         name,
@@ -72,7 +72,7 @@ export async function DELETE(
     try {
       const { id: memberId } = await params
 
-      await withdrawMemberService(memberId, user.memberId)
+      await withdrawMember(memberId, user.memberId)
 
       return NextResponse.json({ success: true, message: '회원 탈퇴가 완료되었습니다.' })
     } catch (error) {

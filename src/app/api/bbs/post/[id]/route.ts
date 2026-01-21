@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { withAuth } from '@/lib/auth.server'
 import {
-  getPostService,
-  updatePostService,
-  deletePostService,
-  incrementViewCountService,
+  getPostById,
+  modifyPost,
+  removePost,
+  addViewCount,
 } from '@/domains/post'
 import { handleApiError } from '@/lib/api.error'
 import { ServiceError, ErrorCode } from '@/lib/error'
@@ -20,7 +20,7 @@ export async function GET(
     const bbs_type_id = parseInt(searchParams.get('type') || '1')
     const post_id = parseInt(id)
 
-    const post = await getPostService(post_id, bbs_type_id)
+    const post = await getPostById(post_id, bbs_type_id)
 
     if (!post) {
       throw new ServiceError(
@@ -29,7 +29,7 @@ export async function GET(
       )
     }
 
-    incrementViewCountService(post_id, bbs_type_id)
+    addViewCount(post_id, bbs_type_id)
 
     return NextResponse.json(post)
   } catch (error) {
@@ -51,7 +51,7 @@ export async function PUT(
       const post_id = parseInt(id)
       const type_id = parseInt(bbs_type_id || '1')
 
-      const updatedPost = await updatePostService(
+      const updatedPost = await modifyPost(
         post_id,
         { title, content, user_id: user.memberId },
         type_id
@@ -77,7 +77,7 @@ export async function DELETE(
       const bbs_type_id = parseInt(searchParams.get('type') || '1')
       const post_id = parseInt(id)
 
-      await deletePostService(post_id, user.memberId, bbs_type_id)
+      await removePost(post_id, user.memberId, bbs_type_id)
 
       return NextResponse.json(true)
     } catch (error) {

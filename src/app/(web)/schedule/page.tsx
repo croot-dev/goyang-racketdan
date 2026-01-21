@@ -1,5 +1,5 @@
 import { Box } from '@chakra-ui/react'
-import { getEventListService } from '@/domains/event'
+import { getEventList } from '@/domains/event'
 import type { EventWithHost } from '@/domains/event/event.model'
 import type { CalendarEvent } from '@/hooks/useEvent'
 import ScheduleCalendar from './_components/ScheduleCalendar'
@@ -22,7 +22,7 @@ function toCalendarEvent(event: EventWithHost): CalendarEvent {
 }
 
 export default async function SchedulePage() {
-  const result = await getEventListService(1, 100)
+  const result = await getEventList(1, 100)
   const events = result.events.map(toCalendarEvent)
 
   return (

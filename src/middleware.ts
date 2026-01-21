@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export const config = {
-  matcher: ['/member/:path*', '/blind/:path*'],
+  matcher: ['/member/:path*', '/blind/:path*', '/schedule/:path*'],
 }
 
 export async function middleware(request: NextRequest) {
@@ -27,6 +27,12 @@ export async function middleware(request: NextRequest) {
   }
 
   if (pathname.startsWith('/blind')) {
+    if (!session) {
+      return NextResponse.redirect(new URL('/auth/sign-in', request.url))
+    }
+  }
+
+  if (pathname.startsWith('/schedule')) {
     if (!session) {
       return NextResponse.redirect(new URL('/auth/sign-in', request.url))
     }

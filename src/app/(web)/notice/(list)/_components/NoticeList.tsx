@@ -1,6 +1,6 @@
 import { Box, Table, Stack, Text } from '@chakra-ui/react'
 import Link from 'next/link'
-import { getPostListService } from '@/domains/post'
+import { getPostList } from '@/domains/post'
 import { BBS_TYPE } from '@/constants'
 
 interface NoticeListProps {
@@ -12,7 +12,7 @@ export default async function NoticeList({ currentPage }: NoticeListProps) {
     list: posts,
     total,
     totalPages,
-  } = await getPostListService(BBS_TYPE.NOTICE, currentPage, 10)
+  } = await getPostList(BBS_TYPE.NOTICE, currentPage, 10)
 
   return (
     <>

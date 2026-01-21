@@ -1,6 +1,6 @@
 import { Box, Table, Stack, Text } from '@chakra-ui/react'
 import Link from 'next/link'
-import { getPostListService } from '@/domains/post'
+import { getPostList } from '@/domains/post'
 import { BBS_TYPE, MEMBER_ROLE } from '@/constants'
 
 interface BlindListProps {
@@ -12,7 +12,7 @@ export default async function BlindList({ currentPage }: BlindListProps) {
     list: posts,
     total,
     totalPages,
-  } = await getPostListService(BBS_TYPE.BLIND, currentPage, 10)
+  } = await getPostList(BBS_TYPE.BLIND, currentPage, 10)
 
   return (
     <>

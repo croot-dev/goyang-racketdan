@@ -28,7 +28,7 @@ interface FormValues {
   gender: 'M' | 'F'
   nickname: string
   ntrp: string
-  phone: string
+  phone?: string
 }
 
 const GENDER_OPTIONS = [
@@ -104,14 +104,14 @@ export default function AuthSignInComplete() {
 
   const onSubmit = handleSubmit(async (formData) => {
     const memberJoinData = {
-      member_id: kakaoUserInfo.id,
-      email: kakaoUserInfo.email,
+      member_id: kakaoUserInfo.id!,
+      email: kakaoUserInfo.email!,
       name: formData.name,
       birthdate: formData.birthdate.replace(/-/g, ''),
       gender: formData.gender,
       nickname: formData.nickname,
       ntrp: formData.ntrp,
-      phone: formData.phone.replace(/-/g, ''),
+      ...(formData.phone && {phone: formData.phone.replace(/-/g, '')})
     }
 
     memberJoin.mutate(memberJoinData, {

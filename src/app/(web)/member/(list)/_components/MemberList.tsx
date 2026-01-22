@@ -1,8 +1,8 @@
-import Link from 'next/link'
 import { Box, Table, Stack, Text, Badge } from '@chakra-ui/react'
 import { getMemberList } from '@/domains/member'
 import { MEMBER_GENDER } from '@/constants'
 import dayjs from 'dayjs'
+import { MemberTableRow, MemberCard } from './MemberListClient'
 
 interface MemberListProps {
   currentPage: number
@@ -49,54 +49,14 @@ export default async function MemberList({ currentPage }: MemberListProps) {
         ) : (
           <Stack gap={3}>
             {members.map((member, index) => (
-              <Link key={member.member_id} href={`/member/${member.member_id}`}>
-                <Box
-                  p={4}
-                  border="1px solid"
-                  borderColor="gray.200"
-                  borderRadius="md"
-                  bg="white"
-                  cursor="pointer"
-                  _hover={{ borderColor: 'teal.300', bg: 'gray.50' }}
-                  transition="all 0.2s"
-                >
-                  <Box
-                    display="flex"
-                    justifyContent="space-between"
-                    alignItems="flex-start"
-                    mb={2}
-                  >
-                    <Text fontWeight="bold" fontSize="md" color="gray.900">
-                      {member.nickname}
-                    </Text>
-                    <Text fontSize="xs" color="gray.500" whiteSpace="nowrap">
-                      #{total - (currentPage - 1) * 10 - index}
-                    </Text>
-                  </Box>
-                  <Box display="flex" flexDirection="column" gap={1}>
-                    <Text fontSize="sm" color="gray.600">
-                      {member.name} ({getGenderLabel(member.gender)},{' '}
-                      {calculateAge(member.birthdate)}세)
-                    </Text>
-                    <Box
-                      display="flex"
-                      justifyContent="space-between"
-                      alignItems="center"
-                      mt={2}
-                    >
-                      <Box display="flex" gap={2} alignItems="center">
-                        <Badge colorPalette="teal">NTRP {member.ntrp}</Badge>
-                        {getStatusBadge(member.status)}
-                      </Box>
-                      <Text fontSize="xs" color="gray.500">
-                        {new Date(member.created_at).toLocaleDateString(
-                          'ko-KR'
-                        )}
-                      </Text>
-                    </Box>
-                  </Box>
-                </Box>
-              </Link>
+              <MemberCard
+                key={member.member_id}
+                member={member}
+                displayNumber={total - (currentPage - 1) * 10 - index}
+                genderLabel={getGenderLabel(member.gender)}
+                age={calculateAge(member.birthdate)}
+                statusBadge={getStatusBadge(member.status)}
+              />
             ))}
           </Stack>
         )}
@@ -143,39 +103,14 @@ export default async function MemberList({ currentPage }: MemberListProps) {
               </Table.Row>
             ) : (
               members.map((member, index) => (
-                <Link
+                <MemberTableRow
                   key={member.member_id}
-                  href={`/member/${member.member_id}`}
-                  style={{ display: 'contents' }}
-                >
-                  <Table.Row
-                    cursor="pointer"
-                    _hover={{ bg: 'gray.50' }}
-                    transition="all 0.2s"
-                  >
-                    <Table.Cell textAlign="center">
-                      {total - (currentPage - 1) * 10 - index}
-                    </Table.Cell>
-                    <Table.Cell textAlign="center">
-                      {member.nickname}
-                    </Table.Cell>
-                    <Table.Cell textAlign="center">{member.name}</Table.Cell>
-                    <Table.Cell>{member.email}</Table.Cell>
-                    <Table.Cell textAlign="center">
-                      {getGenderLabel(member.gender)}
-                    </Table.Cell>
-                    <Table.Cell textAlign="center">
-                      {calculateAge(member.birthdate)}세
-                    </Table.Cell>
-                    <Table.Cell textAlign="center">{member.ntrp}</Table.Cell>
-                    <Table.Cell textAlign="center">
-                      {getStatusBadge(member.status)}
-                    </Table.Cell>
-                    <Table.Cell textAlign="center">
-                      {new Date(member.created_at).toLocaleDateString('ko-KR')}
-                    </Table.Cell>
-                  </Table.Row>
-                </Link>
+                  member={member}
+                  displayNumber={total - (currentPage - 1) * 10 - index}
+                  genderLabel={getGenderLabel(member.gender)}
+                  age={calculateAge(member.birthdate)}
+                  statusBadge={getStatusBadge(member.status)}
+                />
               ))
             )}
           </Table.Body>

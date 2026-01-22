@@ -2,28 +2,12 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { hasAuthFlag, clearAuthFlag } from '@/lib/auth.client'
-import { ApiError, request } from '@/lib/api.client'
-import { Member, MemberWithRole } from '@/domains/member'
+import { ApiError, request, refreshToken } from '@/lib/api.client'
+import { CreateMemberDto, Member, MemberWithRole } from '@/domains/member'
 
 export const authKeys = {
   all: ['auth'] as const,
   user: () => [...authKeys.all, 'user'] as const,
-}
-/**
- * 토큰 갱신 시도
- */
-export async function refreshToken(): Promise<boolean> {
-  try {
-    const response = await fetch('/api/auth/refresh', {
-      method: 'POST',
-      credentials: 'include', // HttpOnly 쿠키(refreshToken) 포함
-    })
-
-    return response.ok
-  } catch (error) {
-    console.error('Token refresh failed:', error)
-    return false
-  }
 }
 
 /**
@@ -33,7 +17,7 @@ export function useMemberJoin() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (data) =>
+    mutationFn: (data: CreateMemberDto) =>
       request<Member>('/api/member', {
         method: 'POST',
         body: data,
@@ -55,11 +39,9 @@ export function useUserInfo() {
     retry: false,
 
     queryFn: async () => {
-      console.log('Check auth flag...')
       if (!hasAuthFlag()) return null
 
       try {
-        console.log('fetching user info...')
         return await request<MemberWithRole>('/api/auth/me')
       } catch (error) {
         // 인증 만료 케이스만 정책 처리

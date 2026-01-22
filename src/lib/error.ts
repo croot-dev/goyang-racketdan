@@ -24,9 +24,10 @@ export const ErrorCode = {
   PARTICIPANT_NOT_FOUND: 'PARTICIPANT_NOT_FOUND',
   COMMENT_NOT_FOUND: 'COMMENT_NOT_FOUND',
 
-  // 이벤트 참여 관련 (409)
+  // 이벤트 관련 (409)
   ALREADY_JOINED: 'ALREADY_JOINED',
   ALREADY_WAITING: 'ALREADY_WAITING',
+  ALREADY_STARTED: 'ALREADY_STARTED',
 
   // 충돌 관련 (409)
   DUPLICATE: 'DUPLICATE',
@@ -65,9 +66,10 @@ const errorStatusMap: Record<ErrorCodeType, number> = {
   [ErrorCode.PARTICIPANT_NOT_FOUND]: 404,
   [ErrorCode.COMMENT_NOT_FOUND]: 404,
 
-  // 이벤트 참여 관련 (409)
+  // 이벤트 관련 (409)
   [ErrorCode.ALREADY_JOINED]: 409,
   [ErrorCode.ALREADY_WAITING]: 409,
+  [ErrorCode.ALREADY_STARTED]: 409,
 
   // 409
   [ErrorCode.DUPLICATE]: 409,

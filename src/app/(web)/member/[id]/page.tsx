@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { Box, Container, Heading, Stack, Text } from '@chakra-ui/react'
 import MemberTabs from './_components/MemberTabs'
-import { getMemberByIdWithRole } from '@/domains/member'
+import { getMemberById } from '@/domains/member'
 import { getAuthSession } from '@/lib/auth.server'
 import { MEMBER_ROLE } from '@/constants'
 import AccessDenied from '@/components/common/AccessDenied'
@@ -30,7 +30,7 @@ export default async function MemberDetailPage({ params }: PageProps) {
     )
   }
 
-  const initialData = await getMemberByIdWithRole(memberId)
+  const initialData = await getMemberById(memberId)
   if (!initialData) {
     redirect('/member')
   }

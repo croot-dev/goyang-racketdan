@@ -29,7 +29,7 @@ export async function register(
     | 'phone'
   >
 ): Promise<MemberWithRole> {
-  const { member_id, email, name, birthdate, gender, nickname, ntrp, phone } =
+  const { member_id, email, name, birthdate, gender, nickname, ntrp, phone = '' } =
     data
 
   // 필수 필드 검증

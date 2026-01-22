@@ -3,6 +3,7 @@ import { withAuth } from '@/lib/auth.server'
 import { handleApiError } from '@/lib/api.error'
 import { getEventList, writeEvent } from '@/domains/event'
 import { getMemberById } from '@/domains/member'
+import { parsePaginationParams } from '@/lib/query.utils'
 
 /**
  * 이벤트 목록 조회
@@ -12,8 +13,10 @@ export async function GET(req: NextRequest) {
   return withAuth(req, async (authenticatedReq) => {
     try {
       const { searchParams } = new URL(authenticatedReq.url)
-      const page = parseInt(searchParams.get('page') || '1')
-      const limit = parseInt(searchParams.get('limit') || '10')
+      const { page, limit } = parsePaginationParams(
+        searchParams.get('page'),
+        searchParams.get('limit')
+      )
 
       const result = await getEventList(page, limit)
 

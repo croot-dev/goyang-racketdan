@@ -41,6 +41,13 @@ import {
 } from './event.repository'
 import { ServiceError, ErrorCode } from '@/lib/error'
 
+/**
+ * 이벤트 시작 시간이 지났는지 확인
+ */
+function isEventStarted(event: Event): boolean {
+  return new Date(event.start_datetime) <= new Date()
+}
+
 // ============ Event Services ============
 
 /**
@@ -122,6 +129,14 @@ export async function modifyEvent(
     throw new ServiceError(
       ErrorCode.NOT_OWNER,
       '이벤트 주최자만 수정할 수 있습니다.'
+    )
+  }
+
+  // 이벤트 시작 시간이 지났으면 수정 불가
+  if (isEventStarted(existingEvent)) {
+    throw new ServiceError(
+      ErrorCode.ALREADY_STARTED,
+      '이벤트 시작 시간이 지나 수정할 수 없습니다.'
     )
   }
 

@@ -1,5 +1,28 @@
-import { refreshToken } from '@/hooks/useAuth'
 import { clearAuthFlag } from './auth.client'
+
+/**
+ * 토큰 갱신 Promise를 저장하여 동시 요청 시 경합 상태 방지
+ */
+let refreshPromise: Promise<boolean> | null = null
+
+/**
+ * 토큰 갱신 요청 (singleton 패턴)
+ * 동시에 여러 요청이 401을 받아도 한 번만 갱신 시도
+ */
+export function refreshToken(): Promise<boolean> {
+  if (!refreshPromise) {
+    refreshPromise = fetch('/api/auth/refresh', {
+      method: 'POST',
+      credentials: 'include',
+    })
+      .then((res) => res.ok)
+      .catch(() => false)
+      .finally(() => {
+        refreshPromise = null
+      })
+  }
+  return refreshPromise
+}
 
 /**
  * 인증된 fetch 요청

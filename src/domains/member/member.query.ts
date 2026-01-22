@@ -67,7 +67,7 @@ export async function getMemberList(
     `,
     sql`
       SELECT COUNT(*) as total
-      FROM bbs_post
+      FROM member
       WHERE 1=1
     `,
   ])) as [Member[], { total: number }[]]

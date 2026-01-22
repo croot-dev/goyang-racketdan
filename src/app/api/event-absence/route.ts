@@ -6,6 +6,7 @@ import {
   createEventAbsenceService,
 } from '@/domains/event_absence'
 import { getMemberById } from '@/domains/member'
+import { parsePaginationParams } from '@/lib/query.utils'
 
 /**
  * 불참 기록 목록 조회
@@ -15,8 +16,10 @@ export async function GET(req: NextRequest) {
   return withAuth(req, async (authenticatedReq) => {
     try {
       const { searchParams } = new URL(authenticatedReq.url)
-      const page = parseInt(searchParams.get('page') || '1')
-      const limit = parseInt(searchParams.get('limit') || '10')
+      const { page, limit } = parsePaginationParams(
+        searchParams.get('page'),
+        searchParams.get('limit')
+      )
 
       const result = await getEventAbsenceListService(page, limit)
 

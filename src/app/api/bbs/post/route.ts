@@ -3,14 +3,17 @@ import { withAuth } from '@/lib/auth.server'
 import { getPostList, writePost } from '@/domains/post'
 import { handleApiError } from '@/lib/api.error'
 import { BBS_TYPE } from '@/constants'
+import { parsePaginationParams, parseIntSafe } from '@/lib/query.utils'
 
 // 게시글 목록 조회 API (인증 불필요)
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
-    const bbs_type_id = parseInt(searchParams.get('type') || '1')
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '10')
+    const bbs_type_id = parseIntSafe(searchParams.get('type'), 1, 1)
+    const { page, limit } = parsePaginationParams(
+      searchParams.get('page'),
+      searchParams.get('limit')
+    )
 
     const result = await getPostList(bbs_type_id, page, limit)
 

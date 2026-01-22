@@ -2,7 +2,7 @@
 // JWT 토큰은 HttpOnly 쿠키로 관리 (SameSite: lax로 CSRF 보호)
 
 import { Member } from '@/domains/member'
-import { refreshToken } from '@/hooks/useAuth'
+import { refreshToken } from '@/lib/api.client'
 import 'client-only'
 
 const AUTH_FLAG_KEY = 'has-auth-session'

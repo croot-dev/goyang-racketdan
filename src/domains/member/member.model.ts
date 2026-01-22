@@ -31,15 +31,13 @@ export interface MemberWithRole extends Member {
  * 회원 생성 DTO
  */
 export interface CreateMemberDto {
-  member_id: string
   email: string
   name: string
   birthdate: string
   nickname: string
   gender: MemberGender
   ntrp: string
-  password_hash: string
-  phone: string | null
+  phone?: string
 }
 
 /**

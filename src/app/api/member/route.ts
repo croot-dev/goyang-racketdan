@@ -4,16 +4,19 @@ import { handleApiError } from '@/lib/api.error'
 import { getMemberList } from '@/domains/member'
 import { register } from '@/domains/auth'
 import { createAccessToken, createRefreshToken } from '@/lib/jwt.server'
+import { parsePaginationParams } from '@/lib/query.utils'
 
 // 멤버 목록 조회 API
 export async function GET(req: NextRequest) {
   return withAuth(req, async (authenticatedReq) => {
     try {
       const { searchParams } = new URL(authenticatedReq.url)
-      const page = parseInt(searchParams.get('page') || '1')
-      const limit = parseInt(searchParams.get('limit') || '10')
+      const { page, limit } = parsePaginationParams(
+        searchParams.get('page'),
+        searchParams.get('limit')
+      )
 
-      const result = getMemberList(page, limit)
+      const result = await getMemberList(page, limit)
 
       return NextResponse.json({
         ...result,
@@ -41,7 +44,7 @@ export async function POST(req: NextRequest) {
       gender,
       nickname,
       ntrp,
-      phone,
+      ...(phone && {phone}),
     })
 
     // JWT 토큰 생성

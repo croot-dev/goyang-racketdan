@@ -18,6 +18,7 @@ import type { MemberWithRole } from '@/domains/member/member.model'
 import { useUpdateMember } from '@/hooks/useMember'
 import { Controller, useForm } from 'react-hook-form'
 import { useHookFormMask } from 'use-mask-input'
+import { revalidateMemberProfile } from '../actions'
 
 interface FormValues {
   member_id: string
@@ -91,7 +92,7 @@ export default function MemberForm({ initialData }: MemberFormProps) {
     }
 
     updateMember.mutate(mutateData, {
-      onSuccess: (result) => {
+      onSuccess: async () => {
         toaster.create({
           title: '성공',
           description: '프로필이 업데이트되었습니다.',
@@ -99,7 +100,8 @@ export default function MemberForm({ initialData }: MemberFormProps) {
         })
 
         setIsEditing(false)
-        location.reload()
+        // 서버 컴포넌트 캐시 무효화
+        await revalidateMemberProfile(mutateData.member_id)
       },
       onError: (error) => {
         console.log(error)
@@ -249,7 +251,7 @@ export default function MemberForm({ initialData }: MemberFormProps) {
           </Field.Root>
 
           <Field.Root>
-            <Field.Label>전화번호</Field.Label>
+            <Field.Label>전화번호 (Optional)</Field.Label>
             <Input
               placeholder="010-0000-0000"
               maxLength={13}
@@ -294,13 +296,6 @@ export default function MemberForm({ initialData }: MemberFormProps) {
           <>
             <Button colorScheme="teal" onClick={() => setIsEditing(true)}>
               수정
-            </Button>
-            <Button
-              variant="outline"
-              colorPalette="red"
-              onClick={() => setWithdrawDialogOpen(true)}
-            >
-              회원 탈퇴
             </Button>
           </>
         )}

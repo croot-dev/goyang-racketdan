@@ -61,8 +61,8 @@ export async function verifyToken(token: string): Promise<TokenPayload | null> {
     }
 
     return null
-  } catch (error) {
-    console.error('Token verification failed:', error)
+  } catch {
+    // 토큰 만료는 정상적인 흐름이므로 로깅하지 않음
     return null
   }
 }
@@ -90,17 +90,53 @@ export function getAccessTokenFromRequest(request: Request): string | null {
 }
 
 /**
+ * Request에서 Refresh Token 가져오기
+ */
+function getRefreshTokenFromRequest(request: Request): string | null {
+  const cookieHeader = request.headers.get('cookie')
+  if (cookieHeader) {
+    const match = cookieHeader.match(/refreshToken=([^;]+)/)
+    if (match) {
+      return match[1]
+    }
+  }
+  return null
+}
+
+/**
  * Request에서 인증된 사용자 정보 가져오기
+ * accessToken 만료 시 refreshToken으로 자동 갱신
+ * 갱신된 토큰은 refreshedAccessToken에 저장됨
  */
 export async function getAuthUser(
   request: Request
-): Promise<TokenPayload | null> {
-  const token = getAccessTokenFromRequest(request)
-  if (!token) {
-    return null
+): Promise<{ payload: TokenPayload; refreshedAccessToken?: string } | null> {
+  const accessToken = getAccessTokenFromRequest(request)
+
+  // accessToken이 있으면 먼저 검증
+  if (accessToken) {
+    const payload = await verifyToken(accessToken)
+    if (payload) {
+      return { payload }
+    }
   }
 
-  return await verifyToken(token)
+  // accessToken이 없거나 만료된 경우, refreshToken으로 갱신 시도
+  const refreshToken = getRefreshTokenFromRequest(request)
+  if (refreshToken) {
+    const refreshPayload = await verifyToken(refreshToken)
+    if (refreshPayload) {
+      const newAccessToken = await refreshAccessToken(refreshToken)
+      if (newAccessToken) {
+        return {
+          payload: refreshPayload,
+          refreshedAccessToken: newAccessToken,
+        }
+      }
+    }
+  }
+
+  return null
 }
 
 /**

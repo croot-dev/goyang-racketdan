@@ -48,6 +48,7 @@ export default function EventDetailPage({ params }: PageProps) {
     (p) => p.member_seq === userInfo?.seq && p.status === 'JOIN'
   )
   const isAdmin = userInfo?.role_code === MEMBER_ROLE.ADMIN
+  const isEventStarted = data ? new Date(data.event.start_datetime) <= new Date() : false
 
   const handleJoin = async () => {
     try {
@@ -253,7 +254,7 @@ export default function EventDetailPage({ params }: PageProps) {
             목록으로
           </Button>
           <Flex gap={2}>
-            {isAdmin && (
+            {isAdmin && !isEventStarted && (
               <>
                 <Button
                   colorPalette="red"
@@ -272,23 +273,25 @@ export default function EventDetailPage({ params }: PageProps) {
                 </Button>
               </>
             )}
-            {isJoined ? (
-              <Button
-                colorPalette="gray"
-                variant="outline"
-                onClick={handleCancel}
-                loading={cancelEvent.isPending}
-              >
-                참여 취소
-              </Button>
-            ) : (
-              <Button
-                colorPalette="blue"
-                onClick={handleJoin}
-                loading={joinEvent.isPending}
-              >
-                참여 신청
-              </Button>
+            {!isEventStarted && (
+              isJoined ? (
+                <Button
+                  colorPalette="gray"
+                  variant="outline"
+                  onClick={handleCancel}
+                  loading={cancelEvent.isPending}
+                >
+                  참여 취소
+                </Button>
+              ) : (
+                <Button
+                  colorPalette="blue"
+                  onClick={handleJoin}
+                  loading={joinEvent.isPending}
+                >
+                  참여 신청
+                </Button>
+              )
             )}
           </Flex>
         </Flex>

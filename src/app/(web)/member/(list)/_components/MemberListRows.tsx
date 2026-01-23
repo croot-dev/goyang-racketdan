@@ -14,12 +14,45 @@ interface Member {
   created_at: string
 }
 
-interface MemberTableRowProps {
+interface MemberRowProps {
   member: Member
   displayNumber: number
   genderLabel: string
   age: number
   statusBadge: ReactNode
+  allowDetail: boolean
+}
+
+export function MemberTableHeaderRow() {
+  return (
+    <Table.Row>
+      <Table.ColumnHeader width="80px" textAlign="center">
+        번호
+      </Table.ColumnHeader>
+      <Table.ColumnHeader width="120px" textAlign="center">
+        닉네임
+      </Table.ColumnHeader>
+      <Table.ColumnHeader width="100px" textAlign="center">
+        이름
+      </Table.ColumnHeader>
+      <Table.ColumnHeader>이메일</Table.ColumnHeader>
+      <Table.ColumnHeader width="80px" textAlign="center">
+        성별
+      </Table.ColumnHeader>
+      <Table.ColumnHeader width="80px" textAlign="center">
+        나이
+      </Table.ColumnHeader>
+      <Table.ColumnHeader width="80px" textAlign="center">
+        NTRP
+      </Table.ColumnHeader>
+      <Table.ColumnHeader width="100px" textAlign="center">
+        상태
+      </Table.ColumnHeader>
+      <Table.ColumnHeader width="120px" textAlign="center">
+        가입일
+      </Table.ColumnHeader>
+    </Table.Row>
+  )
 }
 
 export function MemberTableRow({
@@ -28,22 +61,28 @@ export function MemberTableRow({
   genderLabel,
   age,
   statusBadge,
-}: MemberTableRowProps) {
+  allowDetail,
+}: MemberRowProps) {
   const router = useRouter()
+  const onClickHandler = () => {
+    if (allowDetail) {
+      router.push(`/member/${member.member_id}`)
+    }
+  }
 
   return (
     <Table.Row
       cursor="pointer"
       _hover={{ bg: 'gray.50' }}
       transition="all 0.2s"
-      onClick={() => router.push(`/member/${member.member_id}`)}
+      onClick={onClickHandler}
     >
       <Table.Cell textAlign="center">{displayNumber}</Table.Cell>
       <Table.Cell textAlign="center">{member.nickname}</Table.Cell>
       <Table.Cell textAlign="center">{member.name}</Table.Cell>
       <Table.Cell>{member.email}</Table.Cell>
       <Table.Cell textAlign="center">{genderLabel}</Table.Cell>
-      <Table.Cell textAlign="center">{age}세</Table.Cell>
+      <Table.Cell textAlign="center">{age}</Table.Cell>
       <Table.Cell textAlign="center">{member.ntrp}</Table.Cell>
       <Table.Cell textAlign="center">{statusBadge}</Table.Cell>
       <Table.Cell textAlign="center">
@@ -53,22 +92,20 @@ export function MemberTableRow({
   )
 }
 
-interface MemberCardProps {
-  member: Member
-  displayNumber: number
-  genderLabel: string
-  age: number
-  statusBadge: ReactNode
-}
-
 export function MemberCard({
   member,
   displayNumber,
   genderLabel,
   age,
   statusBadge,
-}: MemberCardProps) {
+  allowDetail,
+}: MemberRowProps) {
   const router = useRouter()
+  const onClickHandler = () => {
+    if (allowDetail) {
+      router.push(`/member/${member.member_id}`)
+    }
+  }
 
   return (
     <Box
@@ -80,7 +117,7 @@ export function MemberCard({
       cursor="pointer"
       _hover={{ borderColor: 'teal.300', bg: 'gray.50' }}
       transition="all 0.2s"
-      onClick={() => router.push(`/member/${member.member_id}`)}
+      onClick={onClickHandler}
     >
       <Box
         display="flex"
@@ -97,7 +134,7 @@ export function MemberCard({
       </Box>
       <Box display="flex" flexDirection="column" gap={1}>
         <Text fontSize="sm" color="gray.600">
-          {member.name} ({genderLabel}, {age}세)
+          {member.name} ({genderLabel}, {age})
         </Text>
         <Box
           display="flex"

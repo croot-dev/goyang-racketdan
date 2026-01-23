@@ -1,8 +1,13 @@
 import { Box, Table, Stack, Text, Badge } from '@chakra-ui/react'
 import { getMemberList } from '@/domains/member'
-import { MEMBER_GENDER } from '@/constants'
+import { MEMBER_GENDER, MEMBER_ROLE } from '@/constants'
 import dayjs from 'dayjs'
-import { MemberTableRow, MemberCard } from './MemberListClient'
+import {
+  MemberTableRow,
+  MemberCard,
+  MemberTableHeaderRow,
+} from './MemberListRows'
+import { getAuthSession } from '@/lib/auth.server'
 
 interface MemberListProps {
   currentPage: number
@@ -27,10 +32,9 @@ function calculateAge(birthdate: string): number {
 }
 
 export default async function MemberList({ currentPage }: MemberListProps) {
-  const { members, total, totalPages } = await getMemberList(
-    currentPage,
-    10
-  )
+  const session = await getAuthSession()
+  const { members, total, totalPages } = await getMemberList(currentPage, 10)
+  const allowDetail = session?.roleCode === MEMBER_ROLE.ADMIN
 
   return (
     <>
@@ -56,6 +60,7 @@ export default async function MemberList({ currentPage }: MemberListProps) {
                 genderLabel={getGenderLabel(member.gender)}
                 age={calculateAge(member.birthdate)}
                 statusBadge={getStatusBadge(member.status)}
+                allowDetail={allowDetail}
               />
             ))}
           </Stack>
@@ -66,33 +71,7 @@ export default async function MemberList({ currentPage }: MemberListProps) {
       <Box display={{ base: 'none', md: 'block' }}>
         <Table.Root variant="outline" size="lg">
           <Table.Header>
-            <Table.Row>
-              <Table.ColumnHeader width="80px" textAlign="center">
-                번호
-              </Table.ColumnHeader>
-              <Table.ColumnHeader width="120px" textAlign="center">
-                닉네임
-              </Table.ColumnHeader>
-              <Table.ColumnHeader width="100px" textAlign="center">
-                이름
-              </Table.ColumnHeader>
-              <Table.ColumnHeader>이메일</Table.ColumnHeader>
-              <Table.ColumnHeader width="80px" textAlign="center">
-                성별
-              </Table.ColumnHeader>
-              <Table.ColumnHeader width="80px" textAlign="center">
-                나이
-              </Table.ColumnHeader>
-              <Table.ColumnHeader width="80px" textAlign="center">
-                NTRP
-              </Table.ColumnHeader>
-              <Table.ColumnHeader width="100px" textAlign="center">
-                상태
-              </Table.ColumnHeader>
-              <Table.ColumnHeader width="120px" textAlign="center">
-                가입일
-              </Table.ColumnHeader>
-            </Table.Row>
+            <MemberTableHeaderRow />
           </Table.Header>
           <Table.Body>
             {members.length === 0 ? (
@@ -110,6 +89,7 @@ export default async function MemberList({ currentPage }: MemberListProps) {
                   genderLabel={getGenderLabel(member.gender)}
                   age={calculateAge(member.birthdate)}
                   statusBadge={getStatusBadge(member.status)}
+                  allowDetail={allowDetail}
                 />
               ))
             )}
@@ -166,7 +146,7 @@ export default async function MemberList({ currentPage }: MemberListProps) {
                   {pageNum}
                 </Box>
               </a>
-            )
+            ),
           )}
 
           {currentPage < totalPages && (

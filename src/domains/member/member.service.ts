@@ -31,7 +31,7 @@ interface ModifyMemberData {
  * 회원 상세 조회 (역할 포함)
  */
 export async function getMemberById(
-  id: string
+  id: string,
 ): Promise<MemberWithRole | null> {
   return await findMemberByIdWithRole(id)
 }
@@ -41,7 +41,7 @@ export async function getMemberById(
  */
 export async function getMemberList(
   page: number = 1,
-  limit: number = 10
+  limit: number = 10,
 ): Promise<MemberListResult> {
   return await findMemberList(page, limit)
 }
@@ -75,7 +75,7 @@ export async function modifyMember(data: ModifyMemberData): Promise<Member> {
   if (!existingMember) {
     throw new ServiceError(
       ErrorCode.MEMBER_NOT_FOUND,
-      '회원을 찾을 수 없습니다.'
+      '회원을 찾을 수 없습니다.',
     )
   }
 
@@ -84,7 +84,7 @@ export async function modifyMember(data: ModifyMemberData): Promise<Member> {
   if (memberByNickname && memberByNickname.member_id !== member_id) {
     throw new ServiceError(
       ErrorCode.DUPLICATE_NICKNAME,
-      '이미 사용 중인 별명입니다.'
+      '이미 사용 중인 별명입니다.',
     )
   }
 
@@ -107,7 +107,7 @@ export async function modifyMember(data: ModifyMemberData): Promise<Member> {
  */
 export async function withdrawMember(
   memberId: string,
-  requesterId: string
+  requesterId: string,
 ): Promise<boolean> {
   if (!memberId) {
     throw new ServiceError(ErrorCode.INVALID_INPUT, '알 수 없는 사용자입니다.')
@@ -127,7 +127,7 @@ export async function withdrawMember(
   if (!existingMember) {
     throw new ServiceError(
       ErrorCode.MEMBER_NOT_FOUND,
-      '회원을 찾을 수 없습니다.'
+      '회원을 찾을 수 없습니다.',
     )
   }
 

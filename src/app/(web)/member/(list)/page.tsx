@@ -16,7 +16,7 @@ function MemberListFallback() {
     <>
       <Box>
         <Stack gap={3}>
-          {Array.from({ length: 10 }).map((_, index) => (
+          {Array.from({ length: 3 }).map((_, index) => (
             <Skeleton key={index} height="60px" />
           ))}
         </Stack>

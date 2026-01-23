@@ -27,6 +27,7 @@ import type { EventParticipantStatusType } from '@/domains/event/event.model'
 import Link from 'next/link'
 import { MEMBER_ROLE } from '@/constants'
 import EventEditDialog from './_components/EventEditDialog'
+import ParticipantItem from './_components/ParticipantItem'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -45,10 +46,12 @@ export default function EventDetailPage({ params }: PageProps) {
   const deleteEvent = useDeleteEvent()
 
   const isJoined = data?.participants.some(
-    (p) => p.member_seq === userInfo?.seq && p.status === 'JOIN'
+    (p) => p.member_seq === userInfo?.seq && p.status === 'JOIN',
   )
   const isAdmin = userInfo?.role_code === MEMBER_ROLE.ADMIN
-  const isEventStarted = data ? new Date(data.event.start_datetime) <= new Date() : false
+  const isEventStarted = data
+    ? new Date(data.event.start_datetime) <= new Date()
+    : false
 
   const handleJoin = async () => {
     try {
@@ -201,7 +204,10 @@ export default function EventDetailPage({ params }: PageProps) {
                   <Card.Root key={participant.id} size="sm">
                     <Card.Body py={3}>
                       <Flex justify="space-between" align="center">
-                        <Text>{participant.member_nickname}</Text>
+                        <ParticipantItem
+                          nickname={participant.nickname}
+                          gender={participant.gender}
+                        />
                         <Flex align="center" gap={2}>
                           {participant.status === 'WAIT' && (
                             <Text fontSize="sm" color="gray.500">
@@ -273,8 +279,8 @@ export default function EventDetailPage({ params }: PageProps) {
                 </Button>
               </>
             )}
-            {!isEventStarted && (
-              isJoined ? (
+            {!isEventStarted &&
+              (isJoined ? (
                 <Button
                   colorPalette="gray"
                   variant="outline"
@@ -291,8 +297,7 @@ export default function EventDetailPage({ params }: PageProps) {
                 >
                   참여 신청
                 </Button>
-              )
-            )}
+              ))}
           </Flex>
         </Flex>
       </Stack>

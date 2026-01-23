@@ -32,7 +32,6 @@ import {
   Event,
   EventWithHost,
   EventParticipant,
-  EventParticipantWithMember,
   EventComment,
   EventCommentWithMember,
   EventParticipantLog,
@@ -51,7 +50,7 @@ import {
  */
 export async function findEventList(
   page: number = 1,
-  limit: number = 10
+  limit: number = 10,
 ): Promise<EventListResult> {
   return getEventListQuery(page, limit)
 }
@@ -90,8 +89,8 @@ export async function deleteEvent(id: number): Promise<boolean> {
  * 이벤트 참여자 목록 조회
  */
 export async function findEventParticipants(
-  eventId: number
-): Promise<EventParticipantWithMember[]> {
+  eventId: number,
+): Promise<EventParticipant[]> {
   return getEventParticipantsQuery(eventId)
 }
 
@@ -100,7 +99,7 @@ export async function findEventParticipants(
  */
 export async function findParticipantByEventAndMember(
   eventId: number,
-  memberSeq: number
+  memberSeq: number,
 ): Promise<EventParticipant | null> {
   return getParticipantByEventAndMemberQuery(eventId, memberSeq)
 }
@@ -112,7 +111,7 @@ export async function createParticipant(
   eventId: number,
   memberSeq: number,
   status: EventParticipantStatusType,
-  waitOrder: number | null
+  waitOrder: number | null,
 ): Promise<EventParticipant> {
   return createParticipantQuery(eventId, memberSeq, status, waitOrder)
 }
@@ -124,7 +123,7 @@ export async function updateParticipantStatus(
   eventId: number,
   memberSeq: number,
   status: EventParticipantStatusType,
-  waitOrder: number | null
+  waitOrder: number | null,
 ): Promise<EventParticipant> {
   return updateParticipantStatusQuery(eventId, memberSeq, status, waitOrder)
 }
@@ -140,7 +139,7 @@ export async function findMaxWaitOrder(eventId: number): Promise<number> {
  * 대기자 중 1순위 조회
  */
 export async function findFirstWaiter(
-  eventId: number
+  eventId: number,
 ): Promise<EventParticipant | null> {
   return getFirstWaiterQuery(eventId)
 }
@@ -150,7 +149,7 @@ export async function findFirstWaiter(
  */
 export async function updateEventCurrentParticipants(
   eventId: number,
-  count: number
+  count: number,
 ): Promise<void> {
   return updateEventCurrentParticipantsQuery(eventId, count)
 }
@@ -159,7 +158,7 @@ export async function updateEventCurrentParticipants(
  * 이벤트의 JOIN 상태 참여자 수 조회
  */
 export async function findJoinedParticipantCount(
-  eventId: number
+  eventId: number,
 ): Promise<number> {
   return getJoinedParticipantCountQuery(eventId)
 }
@@ -168,7 +167,7 @@ export async function findJoinedParticipantCount(
  * JOIN 상태 참여자 목록 조회 (늦게 참여한 순으로 정렬)
  */
 export async function findJoinedParticipantsOrderByLatest(
-  eventId: number
+  eventId: number,
 ): Promise<EventParticipant[]> {
   return getJoinedParticipantsOrderByLatestQuery(eventId)
 }
@@ -179,7 +178,7 @@ export async function findJoinedParticipantsOrderByLatest(
  * 이벤트 댓글 목록 조회
  */
 export async function findEventComments(
-  eventId: number
+  eventId: number,
 ): Promise<EventCommentWithMember[]> {
   return getEventCommentsQuery(eventId)
 }
@@ -187,7 +186,9 @@ export async function findEventComments(
 /**
  * 댓글 단건 조회
  */
-export async function findCommentById(id: number): Promise<EventComment | null> {
+export async function findCommentById(
+  id: number,
+): Promise<EventComment | null> {
   return getCommentByIdQuery(id)
 }
 
@@ -195,7 +196,7 @@ export async function findCommentById(id: number): Promise<EventComment | null> 
  * 댓글 생성
  */
 export async function createComment(
-  data: CreateEventCommentDto
+  data: CreateEventCommentDto,
 ): Promise<EventComment> {
   return createCommentQuery(data)
 }
@@ -205,7 +206,7 @@ export async function createComment(
  */
 export async function updateComment(
   id: number,
-  content: string
+  content: string,
 ): Promise<EventComment> {
   return updateCommentQuery(id, content)
 }
@@ -228,7 +229,7 @@ export async function createParticipantLog(
   fromStatus: EventParticipantStatusType | null,
   toStatus: EventParticipantStatusType,
   actionType: EventActionTypeType,
-  actorMemberSeq: number | null
+  actorMemberSeq: number | null,
 ): Promise<EventParticipantLog> {
   return createParticipantLogQuery(
     eventId,
@@ -236,7 +237,7 @@ export async function createParticipantLog(
     fromStatus,
     toStatus,
     actionType,
-    actorMemberSeq
+    actorMemberSeq,
   )
 }
 
@@ -244,7 +245,7 @@ export async function createParticipantLog(
  * 이벤트의 참여 변경 로그 조회
  */
 export async function findEventParticipantLogs(
-  eventId: number
+  eventId: number,
 ): Promise<EventParticipantLog[]> {
   return getEventParticipantLogsQuery(eventId)
 }
@@ -254,7 +255,7 @@ export async function findEventParticipantLogs(
  */
 export async function findMyEvents(
   memberSeq: number,
-  limit: number = 5
+  limit: number = 5,
 ): Promise<EventWithHost[]> {
   return getMyEventsQuery(memberSeq, limit)
 }

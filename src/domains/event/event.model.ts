@@ -3,6 +3,8 @@
  * 이벤트(모임) 관련 테이블 스키마 정의
  */
 
+import { MemberGender } from '@/constants'
+
 /**
  * 이벤트 참여 상태
  */
@@ -62,18 +64,14 @@ export interface EventParticipant {
   id: number
   event_id: number
   member_seq: number
+  name: string
+  nickname: string
+  gender: MemberGender
+  birthdate: string
   status: EventParticipantStatusType
   wait_order: number | null
   created_at: string
   updated_at: string
-}
-
-/**
- * 참여자 + 회원 정보
- */
-export interface EventParticipantWithMember extends EventParticipant {
-  member_name: string
-  member_nickname: string
 }
 
 /**
@@ -171,6 +169,6 @@ export interface EventListResult {
  */
 export interface EventDetailResult {
   event: EventWithHost
-  participants: EventParticipantWithMember[]
+  participants: EventParticipant[]
   comments: EventCommentWithMember[]
 }

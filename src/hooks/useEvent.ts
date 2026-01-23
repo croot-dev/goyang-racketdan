@@ -157,6 +157,7 @@ export function useJoinEvent() {
     onSuccess: (_, eventId) => {
       queryClient.invalidateQueries({ queryKey: eventKeys.detail(eventId) })
       queryClient.invalidateQueries({ queryKey: eventKeys.list() })
+      queryClient.invalidateQueries({ queryKey: eventKeys.my() })
     },
   })
 }
@@ -173,6 +174,7 @@ export function useCancelEvent() {
     onSuccess: (_, eventId) => {
       queryClient.invalidateQueries({ queryKey: eventKeys.detail(eventId) })
       queryClient.invalidateQueries({ queryKey: eventKeys.list() })
+      queryClient.invalidateQueries({ queryKey: eventKeys.my() })
     },
   })
 }

@@ -9,7 +9,6 @@ import {
   Event,
   EventWithHost,
   EventParticipant,
-  EventParticipantWithMember,
   EventComment,
   EventCommentWithMember,
   EventParticipantLog,
@@ -29,7 +28,7 @@ import {
  */
 export async function getEventList(
   page: number = 1,
-  limit: number = 10
+  limit: number = 10,
 ): Promise<EventListResult> {
   const offset = (page - 1) * limit
 
@@ -171,16 +170,19 @@ export async function deleteEvent(id: number): Promise<boolean> {
  * 이벤트 참여자 목록 조회
  */
 export async function getEventParticipants(
-  eventId: number
-): Promise<EventParticipantWithMember[]> {
+  eventId: number,
+): Promise<EventParticipant[]> {
   const result = (await sql`
     SELECT
       ep.*,
-      m.name AS member_name,
-      m.nickname AS member_nickname
+      m.name,
+      m.nickname,
+      m.birthdate,
+      m.gender
     FROM event_participants ep
     JOIN member m ON ep.member_seq = m.seq
     WHERE ep.event_id = ${eventId}
+      AND ep.status IN (${EventParticipantStatus.JOIN}, ${EventParticipantStatus.WAIT})
     ORDER BY
       CASE ep.status
         WHEN 'JOIN' THEN 1
@@ -189,7 +191,7 @@ export async function getEventParticipants(
       END,
       ep.wait_order NULLS LAST,
       ep.created_at ASC
-  `) as EventParticipantWithMember[]
+  `) as EventParticipant[]
 
   return result
 }
@@ -199,7 +201,7 @@ export async function getEventParticipants(
  */
 export async function getParticipantByEventAndMember(
   eventId: number,
-  memberSeq: number
+  memberSeq: number,
 ): Promise<EventParticipant | null> {
   const result = (await sql`
     SELECT * FROM event_participants
@@ -216,7 +218,7 @@ export async function createParticipant(
   eventId: number,
   memberSeq: number,
   status: EventParticipantStatusType,
-  waitOrder: number | null
+  waitOrder: number | null,
 ): Promise<EventParticipant> {
   const result = (await sql`
     INSERT INTO event_participants (
@@ -248,7 +250,7 @@ export async function updateParticipantStatus(
   eventId: number,
   memberSeq: number,
   status: EventParticipantStatusType,
-  waitOrder: number | null
+  waitOrder: number | null,
 ): Promise<EventParticipant> {
   const result = (await sql`
     UPDATE event_participants
@@ -280,7 +282,7 @@ export async function getMaxWaitOrder(eventId: number): Promise<number> {
  * 대기자 중 1순위 조회
  */
 export async function getFirstWaiter(
-  eventId: number
+  eventId: number,
 ): Promise<EventParticipant | null> {
   const result = (await sql`
     SELECT * FROM event_participants
@@ -297,7 +299,7 @@ export async function getFirstWaiter(
  */
 export async function updateEventCurrentParticipants(
   eventId: number,
-  count: number
+  count: number,
 ): Promise<void> {
   await sql`
     UPDATE events
@@ -310,7 +312,7 @@ export async function updateEventCurrentParticipants(
  * 이벤트의 JOIN 상태 참여자 수 조회
  */
 export async function getJoinedParticipantCount(
-  eventId: number
+  eventId: number,
 ): Promise<number> {
   const result = (await sql`
     SELECT COUNT(*) AS count
@@ -327,7 +329,7 @@ export async function getJoinedParticipantCount(
  * 이벤트 댓글 목록 조회
  */
 export async function getEventComments(
-  eventId: number
+  eventId: number,
 ): Promise<EventCommentWithMember[]> {
   const result = (await sql`
     SELECT
@@ -358,7 +360,7 @@ export async function getCommentById(id: number): Promise<EventComment | null> {
  * 댓글 생성
  */
 export async function createComment(
-  data: CreateEventCommentDto
+  data: CreateEventCommentDto,
 ): Promise<EventComment> {
   const { event_id, member_seq, content } = data
 
@@ -388,7 +390,7 @@ export async function createComment(
  */
 export async function updateComment(
   id: number,
-  content: string
+  content: string,
 ): Promise<EventComment> {
   const result = (await sql`
     UPDATE event_comments
@@ -421,7 +423,7 @@ export async function createParticipantLog(
   fromStatus: EventParticipantStatusType | null,
   toStatus: EventParticipantStatusType,
   actionType: EventActionTypeType,
-  actorMemberSeq: number | null
+  actorMemberSeq: number | null,
 ): Promise<EventParticipantLog> {
   const result = (await sql`
     INSERT INTO event_participant_logs (
@@ -452,7 +454,7 @@ export async function createParticipantLog(
  * 이벤트의 참여 변경 로그 조회
  */
 export async function getEventParticipantLogs(
-  eventId: number
+  eventId: number,
 ): Promise<EventParticipantLog[]> {
   const result = (await sql`
     SELECT * FROM event_participant_logs
@@ -467,7 +469,7 @@ export async function getEventParticipantLogs(
  * JOIN 상태 참여자 목록 조회 (늦게 참여한 순으로 정렬)
  */
 export async function getJoinedParticipantsOrderByLatest(
-  eventId: number
+  eventId: number,
 ): Promise<EventParticipant[]> {
   const result = (await sql`
     SELECT * FROM event_participants
@@ -483,7 +485,7 @@ export async function getJoinedParticipantsOrderByLatest(
  */
 export async function getMyEvents(
   memberSeq: number,
-  limit: number = 5
+  limit: number = 5,
 ): Promise<EventWithHost[]> {
   const result = (await sql`
     SELECT

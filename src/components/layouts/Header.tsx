@@ -12,14 +12,17 @@ import {
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { FaBars, FaTimes } from 'react-icons/fa'
-import { useUserInfo } from '@/hooks/useAuth'
 import LogoutDialog from '@/components/common/LogoutDialog'
 import { MEMBER_ROLE } from '@/constants'
+import { MemberWithRole } from '@/domains/member'
 
-export default function Header() {
+interface PageProps {
+  data: MemberWithRole | null
+}
+
+export default function Header({ data: user }: PageProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false)
-  const { data: user } = useUserInfo()
   const isLoggedIn = useMemo(() => !!user, [user])
   const isAdmin = useMemo(() => user?.role_code === MEMBER_ROLE.ADMIN, [user])
 
@@ -29,7 +32,7 @@ export default function Header() {
       ? [
           { label: '대시보드', href: '/dashboard' },
           { label: '일정', href: '/schedule' },
-          // { label: '예약', href: '/reservation' },
+          { label: '코트예약', href: '/reservation' },
           { label: '회원목록', href: '/member' },
         ]
       : []),

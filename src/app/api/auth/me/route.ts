@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { withAuth } from '@/lib/auth.server'
 import { getMemberById } from '@/domains/member'
-import {
-  createAccessToken,
-  createRefreshToken,
-  setAuthCookies,
-} from '@/lib/jwt.server'
+import { createAccessToken } from '@/lib/jwt.server'
 
 /**
  * 현재 로그인한 사용자 정보 조회 API
@@ -38,9 +34,19 @@ export async function GET(req: NextRequest) {
         email: memberWithRole.email,
       }
 
+      // accessToken만 갱신 (refreshToken은 유효기간이 길어 갱신 불필요)
       const accessToken = await createAccessToken(newPayload)
-      const refreshToken = await createRefreshToken(newPayload)
-      await setAuthCookies(accessToken, refreshToken)
+
+      // accessToken만 쿠키에 설정
+      const response = NextResponse.json(memberWithRole)
+      response.cookies.set('accessToken', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 15, // 15분
+        path: '/',
+      })
+      return response
     }
 
     return NextResponse.json(memberWithRole)

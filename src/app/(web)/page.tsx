@@ -71,13 +71,13 @@ export default function Home() {
                   <Box color="teal.500" fontSize="3xl">
                     <FaCalendarAlt />
                   </Box>
-                  <Heading size="lg">코트 예약</Heading>
+                  <Heading size="lg">일정 관리</Heading>
                   <Text color="gray.600">
-                    편리하게 테니스 코트를 예약하고 관리하세요
+                    편리하게 테니스 일정을 확인하고 참석하세요
                   </Text>
                   <Link href="/schedule">
                     <Button colorScheme="teal" variant="outline" width="full">
-                      예약하기
+                      일정보기
                     </Button>
                   </Link>
                 </Stack>

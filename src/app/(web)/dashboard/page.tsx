@@ -33,11 +33,11 @@ export default async function DashboardPage() {
           </Box>
 
           <Stack gap={4}>
-            <ProfileCard user={user} />
-            <MyEventsCard />
             <RecentNoticesCard />
+            <MyEventsCard />
             <BlindCard />
             {/* <ReservationCard /> */}
+            <ProfileCard user={user} />
           </Stack>
         </Stack>
       </Container>

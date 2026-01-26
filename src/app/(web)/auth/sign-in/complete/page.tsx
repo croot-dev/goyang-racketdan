@@ -44,9 +44,7 @@ export default function AuthSignInComplete() {
   const [redirectUri, setRedirectUri] = useState('')
 
   useEffect(() => {
-    setRedirectUri(
-      `${window.location.origin}${process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI}`
-    )
+    setRedirectUri(`${window.location.origin}${process.env.KAKAO_REDIRECT_URI}`)
   }, [])
 
   const [showForm, setShowForm] = useState(false)
@@ -111,7 +109,7 @@ export default function AuthSignInComplete() {
       gender: formData.gender,
       nickname: formData.nickname,
       ntrp: formData.ntrp,
-      ...(formData.phone && {phone: formData.phone.replace(/-/g, '')})
+      ...(formData.phone && { phone: formData.phone.replace(/-/g, '') }),
     }
 
     memberJoin.mutate(memberJoinData, {
@@ -249,7 +247,7 @@ export default function AuthSignInComplete() {
                           if (limited.length >= 5) {
                             formatted = `${limited.slice(0, 4)}-${limited.slice(
                               4,
-                              6
+                              6,
                             )}`
                             if (limited.length >= 7) {
                               formatted += `-${limited.slice(6, 8)}`
@@ -364,7 +362,7 @@ export default function AuthSignInComplete() {
                           return `${digits.slice(0, 3)}-${digits.slice(3)}`
                         return `${digits.slice(0, 3)}-${digits.slice(
                           3,
-                          7
+                          7,
                         )}-${digits.slice(7)}`
                       },
                     })}
@@ -376,11 +374,17 @@ export default function AuthSignInComplete() {
 
               <Text fontSize="xs" color="gray.500" textAlign="center" mt={4}>
                 회원가입 시{' '}
-                <a href="/terms/service" style={{ textDecoration: 'underline' }}>
+                <a
+                  href="/terms/service"
+                  style={{ textDecoration: 'underline' }}
+                >
                   이용약관
                 </a>{' '}
                 및{' '}
-                <a href="/terms/privacy" style={{ textDecoration: 'underline' }}>
+                <a
+                  href="/terms/privacy"
+                  style={{ textDecoration: 'underline' }}
+                >
                   개인정보처리방침
                 </a>
                 에 동의하게 됩니다.

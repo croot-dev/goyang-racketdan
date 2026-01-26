@@ -6,13 +6,12 @@ import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 
 export default function AuthSignIn() {
-  const REST_API_KEY = process.env.NEXT_PUBLIC_KAKAO_RESTAPI_KEY
+  const REST_API_KEY = process.env.KAKAO_RESTAPI_KEY
   const [redirectUri, setRedirectUri] = useState('')
 
+  console.log(process.env)
   useEffect(() => {
-    setRedirectUri(
-      `${window.location.origin}${process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI}`
-    )
+    setRedirectUri(`${window.location.origin}${process.env.KAKAO_REDIRECT_URI}`)
   }, [])
 
   const { data: kakaoAuthUrl, refetch } = useQuery<string>({

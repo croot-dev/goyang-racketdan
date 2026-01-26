@@ -19,8 +19,8 @@ export async function GET(req: NextRequest) {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
       grant_type: 'authorization_code',
-      client_id: process.env.NEXT_PUBLIC_KAKAO_RESTAPI_KEY!,
-      client_secret: process.env.NEXT_PUBLIC_KAKAO_CLIENT_SECRET!, // secret 안 쓰면 제거
+      client_id: process.env.KAKAO_RESTAPI_KEY!,
+      client_secret: process.env.KAKAO_CLIENT_SECRET!, // secret 안 쓰면 제거
       redirect_uri: redirectUri, // ✅ 쿼리에서 받은 값 사용
       code,
     }),

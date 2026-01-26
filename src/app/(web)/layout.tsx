@@ -5,6 +5,8 @@ import { Provider as ChakraProvider } from '@/components/ui/provider'
 import TanstackProvider from '@/components/tanstackProvider'
 import Header from '@/components/layouts/Header'
 import Footer from '@/components/layouts/Footer'
+import { getAuthSession } from '@/lib/auth.server'
+import { getMemberById } from '@/domains/member'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -22,11 +24,14 @@ export const metadata: Metadata = {
     '테니스 초보자들의 즐거운 모임, 이름없는 테니스 모임입니다. 함께 배우고 성장하는 테니스 커뮤니티에 참여하세요!',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const session = await getAuthSession()
+  const user = session?.memberId ? await getMemberById(session?.memberId) : null
+
   return (
     <html lang="ko" suppressHydrationWarning>
       <body
@@ -34,7 +39,7 @@ export default function RootLayout({
       >
         <ChakraProvider>
           <TanstackProvider>
-            <Header />
+            <Header data={user} />
             {children}
             <Footer />
           </TanstackProvider>

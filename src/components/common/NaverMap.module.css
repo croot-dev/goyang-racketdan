@@ -1,0 +1,118 @@
+.infoWindow {
+  padding: 12px;
+  min-width: 220px;
+  max-width: 80vw;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.infoWindowHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.infoWindowTitle {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.infoWindowBadge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.infoWindowBadgeIndoor {
+  background-color: #fefcbf;
+  color: #ed8936;
+}
+
+.infoWindowBadgeOutdoor {
+  background-color: #e6fffa;
+  color: #38a169;
+}
+
+.infoWindowSideBox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.infoWindowIconButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.infoWindowIconButton:hover {
+  color: #666;
+}
+
+.infoWindowAddressRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 10px 0;
+}
+
+.infoWindowAddress {
+  margin: 0;
+  font-size: 12px;
+  color: #666;
+}
+
+.infoWindowCopyButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  line-height: 1em;
+}
+
+.infoWindowCopyButton:hover {
+  color: #666;
+}
+
+.infoWindowButtons {
+  display: flex;
+  gap: 6px;
+}
+
+.infoWindowButton {
+  flex: 1;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  color: white;
+}
+
+.infoWindowButtonNaver {
+  background-color: #03c75a;
+}
+
+.infoWindowButtonNaver:hover {
+  background-color: #02b350;
+}
+
+.infoWindowButtonReservation {
+  background-color: #319795;
+}
+
+.infoWindowButtonReservation:hover {
+  background-color: #2c8583;
+}

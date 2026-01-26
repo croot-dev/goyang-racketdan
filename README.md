@@ -39,22 +39,7 @@ noname-tennis/deploys)
 
 ### 환경 변수
 
-프로젝트 루트에 `.env` 파일을 생성하고 다음 환경 변수를 설정하세요.
-
-```env
-# 데이터베이스
-DATABASE_URL=
-
-# 카카오 OAuth
-NEXT_PUBLIC_KAKAO_CLIENT_SECRET=
-NEXT_PUBLIC_KAKAO_REDIRECT_URI=
-NEXT_PUBLIC_KAKAO_RESTAPI_KEY=
-
-# JWT
-JWT_SECRET=your-secret-key-change-this-in-production-use-long-random-string
-```
-
-> `.env.sample` 파일을 참고하여 설정하세요.
+프로젝트 루트에 `.env` 파일을 생성하고 `.env.sample` 파일을 참고하여 설정하세요.
 
 ---
 

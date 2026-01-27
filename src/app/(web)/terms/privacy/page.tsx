@@ -1,4 +1,5 @@
-import { Box, Container, Heading, Stack, Text } from '@chakra-ui/react'
+import { Box, Container, Heading, Stack } from '@chakra-ui/react'
+import styles from '../terms.module.css'
 
 export const metadata = {
   title: '개인정보처리방침 - 이름없는 테니스 모임',
@@ -12,7 +13,7 @@ export default function PrivacyPolicyPage() {
         <Heading size="2xl">개인정보처리방침</Heading>
 
         <Stack gap={6}>
-          <Box className="terms-content">
+          <Box className={styles.termsContent}>
             <p>
               <strong>이름없는 테니스 모임</strong>(이하 “NTG”)는
               개인정보보호법에 따라 이용자의 개인정보를 보호하고 권익을 보호하기

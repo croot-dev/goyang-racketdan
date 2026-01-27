@@ -1,4 +1,5 @@
 import { Box, Container, Heading, Stack } from '@chakra-ui/react'
+import styles from '../terms.module.css'
 
 export const metadata = {
   title: '이용약관 - 이름없는 테니스 모임',
@@ -12,7 +13,7 @@ export default function ServiceTermsPage() {
         <Heading size="2xl">이용약관</Heading>
 
         <Stack gap={6}>
-          <Box className="terms-content">
+          <Box className={styles.termsContent}>
             <p>
               본 약관은 <strong>이름없는 테니스 모임</strong>(이하
               &ldquo;NTG&rdquo;)이 제공하는 테니스 모임 관리 서비스의 이용과

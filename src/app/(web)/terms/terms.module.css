@@ -1,0 +1,10 @@
+.termsContent p,
+.termsContent ul {
+  margin-bottom: 1em;
+  line-height: 1.6;
+}
+
+.termsContent ul {
+  list-style: disc;
+  margin-left: 1.5em;
+}

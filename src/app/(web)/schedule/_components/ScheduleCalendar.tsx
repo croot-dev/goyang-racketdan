@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
@@ -9,13 +9,16 @@ import { useRouter } from 'next/navigation'
 import { Box } from '@chakra-ui/react'
 import EventCreatePopover from './EventCreatePopover'
 import type { CalendarEvent } from '@/hooks/useEvent'
+import '@/styles/fullcalendar.css'
 
 interface ScheduleCalendarProps {
   initialEvents: CalendarEvent[]
+  onMonthChange?: (year: number, month: number) => void
 }
 
 export default function ScheduleCalendar({
   initialEvents,
+  onMonthChange,
 }: ScheduleCalendarProps) {
   const router = useRouter()
 
@@ -44,6 +47,14 @@ export default function ScheduleCalendar({
     router.push(`/schedule/event/${arg.event.id}`)
   }
 
+  const handleDatesSet = useCallback(
+    (arg: { view: { currentStart: Date } }) => {
+      const date = arg.view.currentStart
+      onMonthChange?.(date.getFullYear(), date.getMonth() + 1)
+    },
+    [onMonthChange],
+  )
+
   return (
     <Box>
       <FullCalendar
@@ -52,6 +63,7 @@ export default function ScheduleCalendar({
         events={initialEvents}
         dateClick={handleDateClick}
         eventClick={handleEventClick}
+        datesSet={handleDatesSet}
         headerToolbar={{
           left: 'prev,next today',
           center: 'title',

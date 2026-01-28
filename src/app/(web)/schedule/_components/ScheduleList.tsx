@@ -36,7 +36,7 @@ export default function ScheduleList({ events }: ScheduleListProps) {
             onClick={() => router.push(`/schedule/event/${event.id}`)}
             _hover={{ shadow: 'md' }}
           >
-            <Card.Body>
+            <Card.Body css={{ '--card-padding': 'var(--chakra-spacing-3)' }}>
               <Flex justify="space-between" align="start">
                 <Box>
                   <Heading size="sm">{event.title}</Heading>

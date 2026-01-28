@@ -52,15 +52,28 @@ export function toCalendarEvent(event: EventWithHost): CalendarEvent {
   }
 }
 
+export interface EventListFilter {
+  year?: number
+  month?: number
+}
+
 /**
  * 이벤트 목록 조회 (원본 데이터)
  */
-export function useEvents(page: number = 1, limit: number = 100) {
+export function useEvents(page: number = 1, limit: number = 100, filter?: EventListFilter) {
   return useQuery({
-    queryKey: [...eventKeys.list(), page, limit],
+    queryKey: [...eventKeys.list(), page, limit, filter],
     queryFn: async () => {
+      const params = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+      })
+      if (filter?.year && filter?.month) {
+        params.set('year', String(filter.year))
+        params.set('month', String(filter.month))
+      }
       const result = await request<EventListResult>(
-        `/api/event?page=${page}&limit=${limit}`
+        `/api/event?${params.toString()}`
       )
       return result.events
     },

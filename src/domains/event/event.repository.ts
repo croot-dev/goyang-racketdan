@@ -5,6 +5,7 @@
 
 import 'server-only'
 import {
+  type EventListFilter,
   getEventList as getEventListQuery,
   getEventById as getEventByIdQuery,
   createEvent as createEventQuery,
@@ -51,8 +52,9 @@ import {
 export async function findEventList(
   page: number = 1,
   limit: number = 10,
+  filter?: EventListFilter,
 ): Promise<EventListResult> {
-  return getEventListQuery(page, limit)
+  return getEventListQuery(page, limit, filter)
 }
 
 /**

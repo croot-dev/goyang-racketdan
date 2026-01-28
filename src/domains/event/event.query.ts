@@ -23,14 +23,55 @@ import {
 
 // ============ Event CRUD ============
 
+export interface EventListFilter {
+  year?: number
+  month?: number
+}
+
 /**
  * 이벤트 목록 조회 (페이징)
+ * filter.year, filter.month가 주어지면 해당 월에 걸치는 이벤트만 조회
  */
 export async function getEventList(
   page: number = 1,
   limit: number = 10,
+  filter?: EventListFilter,
 ): Promise<EventListResult> {
   const offset = (page - 1) * limit
+
+  if (filter?.year && filter?.month) {
+    const startOfMonth = `${filter.year}-${String(filter.month).padStart(2, '0')}-01`
+    const nextMonth = filter.month === 12 ? 1 : filter.month + 1
+    const nextYear = filter.month === 12 ? filter.year + 1 : filter.year
+    const startOfNextMonth = `${nextYear}-${String(nextMonth).padStart(2, '0')}-01`
+
+    const [events, countResult] = (await Promise.all([
+      sql`
+        SELECT
+          e.*,
+          m.name AS host_name,
+          m.nickname AS host_nickname
+        FROM events e
+        JOIN member m ON e.host_member_seq = m.seq
+        WHERE e.start_datetime < ${startOfNextMonth}
+          AND e.end_datetime >= ${startOfMonth}
+        ORDER BY e.start_datetime DESC, e.end_datetime DESC
+        LIMIT ${limit}
+        OFFSET ${offset}
+      `,
+      sql`
+        SELECT COUNT(*) as total FROM events
+        WHERE start_datetime < ${startOfNextMonth}
+          AND end_datetime >= ${startOfMonth}
+      `,
+    ])) as [EventWithHost[], { total: number }[]]
+
+    return {
+      events,
+      total: Number(countResult[0].total),
+      totalPages: Math.ceil(Number(countResult[0].total) / limit),
+    }
+  }
 
   const [events, countResult] = (await Promise.all([
     sql`

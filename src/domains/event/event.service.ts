@@ -39,6 +39,7 @@ import {
   findMyEvents,
   findJoinedParticipantsOrderByLatest,
 } from './event.repository'
+import type { EventListFilter } from './event.query'
 import { ServiceError, ErrorCode } from '@/lib/error'
 
 /**
@@ -55,9 +56,10 @@ function isEventStarted(event: Event): boolean {
  */
 export async function getEventList(
   page: number = 1,
-  limit: number = 10
+  limit: number = 10,
+  filter?: EventListFilter,
 ): Promise<EventListResult> {
-  return await findEventList(page, limit)
+  return await findEventList(page, limit, filter)
 }
 
 /**

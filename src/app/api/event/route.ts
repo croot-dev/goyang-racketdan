@@ -3,11 +3,11 @@ import { withAuth } from '@/lib/auth.server'
 import { handleApiError } from '@/lib/api.error'
 import { getEventList, writeEvent } from '@/domains/event'
 import { getMemberById } from '@/domains/member'
-import { parsePaginationParams } from '@/lib/query.utils'
+import { parsePaginationParams, parseIntSafe } from '@/lib/query.utils'
 
 /**
  * 이벤트 목록 조회
- * GET /api/event?page=1&limit=10
+ * GET /api/event?page=1&limit=10&year=2026&month=1
  */
 export async function GET(req: NextRequest) {
   return withAuth(req, async (authenticatedReq) => {
@@ -18,7 +18,16 @@ export async function GET(req: NextRequest) {
         searchParams.get('limit')
       )
 
-      const result = await getEventList(page, limit)
+      const yearStr = searchParams.get('year')
+      const monthStr = searchParams.get('month')
+      const filter = yearStr && monthStr
+        ? {
+            year: parseIntSafe(yearStr, 0, 2000, 2100),
+            month: parseIntSafe(monthStr, 0, 1, 12),
+          }
+        : undefined
+
+      const result = await getEventList(page, limit, filter)
 
       return NextResponse.json({
         ...result,

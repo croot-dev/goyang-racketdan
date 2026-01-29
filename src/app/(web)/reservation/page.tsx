@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import {
   Box,
   Container,
@@ -9,10 +9,14 @@ import {
   Stack,
   Card,
   Link,
+  Spinner,
+  Flex,
 } from '@chakra-ui/react'
 import { LuCalendarCheck2, LuMapPin } from 'react-icons/lu'
 import NaverMap from '@/components/common/NaverMap'
 import Script from 'next/script'
+import { useCourts } from '@/hooks/useCourt'
+import type { TennisCourt } from '@/domains/court/court.model'
 
 const CourtLocationType = Object.freeze({
   INDOOR: 'indoor',
@@ -30,60 +34,22 @@ export interface Court {
   naverPid?: string
 }
 
-const courts = [
-  {
-    name: '성사시립테니스장',
-    locationType: CourtLocationType.OUTDOOR,
-    url: 'https://www.gytennis.or.kr/',
-  },
-  {
-    name: '금문테니스장 화전점',
-    locationType: CourtLocationType.OUTDOOR,
-    naverPid: '1283432341',
-  },
-  {
-    name: '테니스빌리지 식사풍동점',
-    locationType: CourtLocationType.INDOOR,
-    naverPid: '1036711328',
-  },
-  {
-    name: '테니스써밋 일산점',
-    locationType: CourtLocationType.INDOOR,
-    naverPid: '1804315636',
-  },
-  {
-    name: '에어코트 테니스장',
-    locationType: CourtLocationType.OUTDOOR,
-    naverPid: '1799873595',
-  },
-  {
-    name: '고양루프탑테니스',
-    locationType: CourtLocationType.OUTDOOR,
-    naverPid: '1060866445',
-  },
-  {
-    name: '그린테니스클럽',
-    locationType: CourtLocationType.OUTDOOR,
-    naverPid: '12018376',
-    url: 'tel:02-359-3858',
-  },
-  {
-    name: '테니스빌리지 백석장항점',
-    locationType: CourtLocationType.INDOOR,
-    naverPid: '2043996936',
-  },
-  {
-    name: '은평구민체육센터테니스장',
-    locationType: CourtLocationType.INDOOR,
-    naverPid: '18694064',
-    url: 'https://www.efmc.or.kr/fmcs/32?facilities_type=C&rent_type=1001&center=EFMC01&part=15&place=3',
-  },
-].map<Court>((v, i) => ({
-  ...v,
-  id: i,
-  ...(!v.url &&
-    v.naverPid && { url: `https://map.naver.com/p/entry/place/${v.naverPid}` }),
-}))
+function toCourtView(court: TennisCourt): Court {
+  const naverPid = court.naver_place_id || undefined
+  const url =
+    court.rsv_url ||
+    (naverPid ? `https://map.naver.com/p/entry/place/${naverPid}` : undefined)
+
+  return {
+    id: court.court_id,
+    name: court.name,
+    locationType: court.is_indoor
+      ? CourtLocationType.INDOOR
+      : CourtLocationType.OUTDOOR,
+    url,
+    naverPid,
+  }
+}
 
 const CourtLocationTypeLabels: Record<CourtLocationType, string> = {
   indoor: '실내 코트',
@@ -144,7 +110,13 @@ function CourtCard({
 }
 
 export default function ReservationPage() {
-  const [selectedCourt, setselectedCourt] = useState<Court | null>(null)
+  const [selectedCourt, setSelectedCourt] = useState<Court | null>(null)
+  const { data, isLoading } = useCourts(1, 100)
+
+  const courts = useMemo(() => {
+    if (!data?.courts) return []
+    return data.courts.map(toCourtView)
+  }, [data?.courts])
 
   const indoorCourts = courts.filter((court) => court.locationType === 'indoor')
   const outdoorCourts = courts.filter(
@@ -153,22 +125,14 @@ export default function ReservationPage() {
 
   const handleSelect = (court: Court) => {
     if (selectedCourt?.id === court.id) {
-      setselectedCourt(null)
+      setSelectedCourt(null)
     } else {
-      setselectedCourt(court)
+      setSelectedCourt(court)
     }
   }
 
   return (
     <>
-      <Script
-        src={`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${process.env.NCP_CLIENT_ID}`}
-        strategy="beforeInteractive"
-      />
-      <Script
-        src={`https://oapi.map.naver.com/openapi/v3/maps-geocoder.js`}
-        strategy="beforeInteractive"
-      />
       <Container maxW="container.md" py={8}>
         <Stack gap={6}>
           <Box textAlign="center">
@@ -182,40 +146,54 @@ export default function ReservationPage() {
             <NaverMap courts={courts} selectedCourt={selectedCourt} />
           </Box>
 
-          {indoorCourts.length > 0 && (
-            <Stack gap={3}>
-              <Heading size="md" color="gray.700">
-                {CourtLocationTypeLabels.indoor}
-              </Heading>
-              <Stack gap={2}>
-                {indoorCourts.map((court) => (
-                  <CourtCard
-                    key={court.id}
-                    info={court}
-                    isSelected={selectedCourt?.id === court.id}
-                    onSelect={() => handleSelect(court)}
-                  />
-                ))}
-              </Stack>
-            </Stack>
-          )}
+          {isLoading ? (
+            <Flex justify="center" py={10}>
+              <Spinner size="xl" />
+            </Flex>
+          ) : (
+            <>
+              {indoorCourts.length > 0 && (
+                <Stack gap={3}>
+                  <Heading size="md" color="gray.700">
+                    {CourtLocationTypeLabels.indoor}
+                  </Heading>
+                  <Stack gap={2}>
+                    {indoorCourts.map((court) => (
+                      <CourtCard
+                        key={court.id}
+                        info={court}
+                        isSelected={selectedCourt?.id === court.id}
+                        onSelect={() => handleSelect(court)}
+                      />
+                    ))}
+                  </Stack>
+                </Stack>
+              )}
 
-          {outdoorCourts.length > 0 && (
-            <Stack gap={3}>
-              <Heading size="md" color="gray.700">
-                {CourtLocationTypeLabels.outdoor}
-              </Heading>
-              <Stack gap={2}>
-                {outdoorCourts.map((court) => (
-                  <CourtCard
-                    key={court.id}
-                    info={court}
-                    isSelected={selectedCourt?.id === court.id}
-                    onSelect={() => handleSelect(court)}
-                  />
-                ))}
-              </Stack>
-            </Stack>
+              {outdoorCourts.length > 0 && (
+                <Stack gap={3}>
+                  <Heading size="md" color="gray.700">
+                    {CourtLocationTypeLabels.outdoor}
+                  </Heading>
+                  <Stack gap={2}>
+                    {outdoorCourts.map((court) => (
+                      <CourtCard
+                        key={court.id}
+                        info={court}
+                        isSelected={selectedCourt?.id === court.id}
+                        onSelect={() => handleSelect(court)}
+                      />
+                    ))}
+                  </Stack>
+                </Stack>
+              )}
+
+              {courts.length === 0 && (
+                <Box textAlign="center" py={10}>
+                  <Text color="gray.500">등록된 코트가 없습니다.</Text>
+                </Box>
+              )}
+            </>
           )}
         </Stack>
       </Container>

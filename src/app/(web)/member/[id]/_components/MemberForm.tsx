@@ -68,7 +68,6 @@ export default function MemberForm({ initialData }: MemberFormProps) {
       [
         !formData.name,
         !formData.birthdate,
-        !formData.nickname,
         !formData.ntrp,
         !formData.phone,
       ].some((v) => v)
@@ -85,7 +84,7 @@ export default function MemberForm({ initialData }: MemberFormProps) {
       member_id: formData.member_id,
       name: formData.name,
       birthdate: formData.birthdate.replace(/-/g, ''),
-      nickname: formData.nickname,
+      nickname: formData.name,
       ntrp: formData.ntrp,
       phone: formData.phone.replace(/-/g, ''),
       gender: formData.gender,
@@ -182,27 +181,6 @@ export default function MemberForm({ initialData }: MemberFormProps) {
 
             <Field.HelperText>숫자 8자리 입력 (예: 19900101)</Field.HelperText>
             <Field.ErrorText>{errors.birthdate?.message}</Field.ErrorText>
-          </Field.Root>
-
-          {/* 별명 */}
-          <Field.Root invalid={!!errors.nickname} required>
-            <Field.Label>별명</Field.Label>
-            <Input
-              {...register('nickname', {
-                required: '별명을 입력해주세요',
-                minLength: {
-                  value: 2,
-                  message: '별명은 최소 2자 이상이어야 합니다',
-                },
-                maxLength: {
-                  value: 10,
-                  message: '별명은 최대 10자까지 가능합니다',
-                },
-                disabled: !isEditing,
-              })}
-              placeholder="별명을 입력해주세요"
-            />
-            <Field.ErrorText>{errors.nickname?.message}</Field.ErrorText>
           </Field.Root>
 
           {/* 성별 */}

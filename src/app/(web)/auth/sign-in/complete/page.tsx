@@ -107,7 +107,7 @@ export default function AuthSignInComplete() {
       name: formData.name,
       birthdate: formData.birthdate.replace(/-/g, ''),
       gender: formData.gender,
-      nickname: formData.nickname,
+      nickname: formData.name,
       ntrp: formData.ntrp,
       ...(formData.phone && { phone: formData.phone.replace(/-/g, '') }),
     }
@@ -265,29 +265,6 @@ export default function AuthSignInComplete() {
                     숫자 8자리 입력 (예: 19900101)
                   </Field.HelperText>
                   <Field.ErrorText>{errors.birthdate?.message}</Field.ErrorText>
-                </Field.Root>
-
-                {/* 별명 */}
-                <Field.Root invalid={!!errors.nickname} required>
-                  <Field.Label>별명</Field.Label>
-                  <Input
-                    {...register('nickname', {
-                      required: '별명을 입력해주세요',
-                      minLength: {
-                        value: 2,
-                        message: '별명은 최소 2자 이상이어야 합니다',
-                      },
-                      maxLength: {
-                        value: 10,
-                        message: '별명은 최대 10자까지 가능합니다',
-                      },
-                    })}
-                    placeholder="별명을 입력해주세요"
-                  />
-                  <Field.HelperText>
-                    모임에서 사용할 별명입니다 (2-10자)
-                  </Field.HelperText>
-                  <Field.ErrorText>{errors.nickname?.message}</Field.ErrorText>
                 </Field.Root>
 
                 {/* 성별 */}

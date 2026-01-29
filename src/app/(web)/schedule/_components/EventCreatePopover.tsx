@@ -7,14 +7,16 @@ import {
   Field,
   Flex,
   Input,
+  NativeSelect,
   Popover,
   Portal,
   Stack,
-  Textarea,
 } from '@chakra-ui/react'
 import { useCreateEvent, type CreateEventInput } from '@/hooks/useEvent'
+import { useCourts } from '@/hooks/useCourt'
 import { toaster } from '@/components/ui/toaster'
-import { withMask } from 'use-mask-input'
+
+const OTHER_COURT_VALUE = '__other__'
 
 interface EventCreatePopoverProps {
   isOpen: boolean
@@ -30,6 +32,7 @@ export default function EventCreatePopover({
   anchorPosition,
 }: EventCreatePopoverProps) {
   const createEvent = useCreateEvent()
+  const { data: courtsData } = useCourts(1, 100)
 
   const [formData, setFormData] = useState<CreateEventInput>({
     title: '',
@@ -41,11 +44,63 @@ export default function EventCreatePopover({
     max_participants: 8,
   })
 
+  const [selectedCourtId, setSelectedCourtId] = useState<string>('')
+  const [customLocationName, setCustomLocationName] = useState('')
+  const [customLocationUrl, setCustomLocationUrl] = useState('')
+
+  const courts = courtsData?.courts || []
+
   const handleInputChange = (
     field: keyof CreateEventInput,
-    value: string | number
+    value: string | number,
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleCourtChange = (courtId: string) => {
+    setSelectedCourtId(courtId)
+
+    if (courtId === OTHER_COURT_VALUE) {
+      setFormData((prev) => ({
+        ...prev,
+        location_name: '',
+        location_url: '',
+      }))
+    } else if (courtId) {
+      const court = courts.find((c) => String(c.court_id) === courtId)
+      if (court) {
+        const locationUrl =
+          court.rsv_url ||
+          (court.naver_place_id
+            ? `https://map.naver.com/p/entry/place/${court.naver_place_id}`
+            : '')
+        setFormData((prev) => ({
+          ...prev,
+          location_name: court.name,
+          location_url: locationUrl,
+        }))
+      }
+      setCustomLocationName('')
+      setCustomLocationUrl('')
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        location_name: '',
+        location_url: '',
+      }))
+      setCustomLocationName('')
+      setCustomLocationUrl('')
+    }
+  }
+
+  const handleCustomLocationChange = (field: 'name' | 'url', value: string) => {
+    if (field === 'name') {
+      setCustomLocationName(value)
+      setFormData((prev) => ({ ...prev, location_name: value }))
+    } else {
+      setCustomLocationUrl(value)
+      setFormData((prev) => ({ ...prev, location_url: value }))
+    }
   }
 
   const handleSubmit = async () => {
@@ -58,10 +113,10 @@ export default function EventCreatePopover({
       await createEvent.mutateAsync({
         ...formData,
         start_datetime: new Date(
-          `${selectedDate}T${formData.start_datetime}:00+09:00`
+          `${selectedDate}T${formData.start_datetime}:00+09:00`,
         ).toISOString(),
         end_datetime: new Date(
-          `${selectedDate}T${formData.end_datetime}:00+09:00`
+          `${selectedDate}T${formData.end_datetime}:00+09:00`,
         ).toISOString(),
       })
       toaster.success({ title: '일정이 등록되었습니다.' })
@@ -82,12 +137,17 @@ export default function EventCreatePopover({
       location_url: '',
       max_participants: 8,
     })
+    setSelectedCourtId('')
+    setCustomLocationName('')
+    setCustomLocationUrl('')
   }
 
   const handleClose = () => {
     onClose()
     resetForm()
   }
+
+  const isOtherSelected = selectedCourtId === OTHER_COURT_VALUE
 
   return (
     <Popover.Root open={isOpen} onOpenChange={(e) => !e.open && handleClose()}>
@@ -121,18 +181,6 @@ export default function EventCreatePopover({
                   />
                 </Field.Root>
 
-                {/* <Field.Root>
-                  <Field.Label>설명</Field.Label>
-                  <Textarea
-                    placeholder="일정 설명"
-                    value={formData.description || ''}
-                    onChange={(e) =>
-                      handleInputChange('description', e.target.value)
-                    }
-                    rows={2}
-                  />
-                </Field.Root> */}
-
                 <Flex gap={3}>
                   <Field.Root flex={1}>
                     <Field.Label>시작 시간</Field.Label>
@@ -158,21 +206,48 @@ export default function EventCreatePopover({
 
                 <Field.Root>
                   <Field.Label>장소</Field.Label>
-                  <Input
-                    placeholder="장소명"
-                    value={formData.location_name || ''}
-                    onChange={(e) =>
-                      handleInputChange('location_name', e.target.value)
-                    }
-                  />
-                  <Input
-                    placeholder="장소 URL"
-                    value={formData.location_url || ''}
-                    onChange={(e) =>
-                      handleInputChange('location_url', e.target.value)
-                    }
-                  />
+                  <NativeSelect.Root>
+                    <NativeSelect.Field
+                      value={selectedCourtId}
+                      onChange={(e) => handleCourtChange(e.target.value)}
+                    >
+                      <option value="" disabled>
+                        == 장소 선택 ==
+                      </option>
+                      {courts.map((court) => (
+                        <option key={court.court_id} value={court.court_id}>
+                          {court.name}
+                        </option>
+                      ))}
+                      <option value={OTHER_COURT_VALUE}>
+                        기타 (직접 입력)
+                      </option>
+                    </NativeSelect.Field>
+                    <NativeSelect.Indicator />
+                  </NativeSelect.Root>
                 </Field.Root>
+
+                {isOtherSelected && (
+                  <Field.Root>
+                    <Field.Label>장소 직접 입력</Field.Label>
+                    <Stack gap={2} width="full">
+                      <Input
+                        placeholder="장소명"
+                        value={customLocationName}
+                        onChange={(e) =>
+                          handleCustomLocationChange('name', e.target.value)
+                        }
+                      />
+                      <Input
+                        placeholder="장소 URL (선택)"
+                        value={customLocationUrl}
+                        onChange={(e) =>
+                          handleCustomLocationChange('url', e.target.value)
+                        }
+                      />
+                    </Stack>
+                  </Field.Root>
+                )}
 
                 <Field.Root>
                   <Field.Label>최대 인원</Field.Label>
@@ -183,7 +258,7 @@ export default function EventCreatePopover({
                     onChange={(e) =>
                       handleInputChange(
                         'max_participants',
-                        parseInt(e.target.value) || 1
+                        parseInt(e.target.value) || 1,
                       )
                     }
                   />

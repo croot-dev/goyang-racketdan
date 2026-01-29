@@ -5,6 +5,7 @@ import { Box } from '@chakra-ui/react'
 import { useAlertDialog } from '@/components/ui/alert-dialog'
 import { Court } from '@/app/(web)/reservation/page'
 import styles from './NaverMap.module.css'
+import Script from 'next/script'
 
 interface NaverMapProps {
   courts: Court[]
@@ -56,7 +57,7 @@ function createInfoWindowContent(courtInfo: ExtendedCourt): string {
       navigator.share(${shareData}).catch(() => {});
     } else {
       navigator.clipboard.writeText('${naverMapUrl}').then(() => alert('링크가 복사되었습니다.')).catch(() => {});
-    }ㅋ
+    }
     `
 
   // 닫기 아이콘 SVG (Lucide share icon)
@@ -205,7 +206,15 @@ export default function NaverMap({
   const { alert } = useAlertDialog()
 
   // 모든 코트 로드 및 지도 초기화
-  const initMap = useCallback(async () => {
+  const initMap = async () => {
+    // 인증 실패 핸들러 등록
+    window.navermap_authFailure = () => {
+      alert({
+        title: '지도 인증 실패',
+        message: '네이버 지도 인증에 실패했습니다. API 키를 확인해주세요.',
+      })
+    }
+
     if (!mapRef.current || !window.naver || courts.length === 0) return
 
     // 모든 코트의 위치 검색
@@ -262,7 +271,7 @@ export default function NaverMap({
         markerData.infoWindow.close()
       }
     }
-  }, [courts])
+  }
 
   // 선택된 코트로 포커스
   useEffect(() => {
@@ -296,37 +305,22 @@ export default function NaverMap({
   }, [selectedCourt])
 
   useEffect(() => {
-    // 인증 실패 핸들러 등록
-    window.navermap_authFailure = () => {
-      alert({
-        title: '지도 인증 실패',
-        message: '네이버 지도 인증에 실패했습니다. API 키를 확인해주세요.',
-      })
-    }
-
-    // 네이버 지도 스크립트가 이미 로드되어 있는지 확인
-    if (window.naver && window.naver.maps) {
-      initMap()
-    } else {
-      // 스크립트 로드 대기
-      const checkNaver = setInterval(() => {
-        if (window.naver && window.naver.maps) {
-          clearInterval(checkNaver)
-          initMap()
-        }
-      }, 100)
-
-      return () => clearInterval(checkNaver)
-    }
-  }, [alert, initMap])
+    initMap()
+  }, [courts])
 
   return (
-    <Box
-      ref={mapRef}
-      width="100%"
-      height={height}
-      borderRadius="md"
-      overflow="hidden"
-    />
+    <>
+      <Script
+        src={`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${process.env.NCP_CLIENT_ID}`}
+        onLoad={initMap}
+      />
+      <Box
+        ref={mapRef}
+        width="100%"
+        height={height}
+        borderRadius="md"
+        overflow="hidden"
+      />
+    </>
   )
 }

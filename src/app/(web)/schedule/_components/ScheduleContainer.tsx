@@ -38,7 +38,7 @@ export default function ScheduleContainer({
         />
       </Box>
       <Box flex={1}>
-        <ScheduleList events={events} />
+        <ScheduleList events={events} currentMonth={currentMonth} />
       </Box>
     </Flex>
   )

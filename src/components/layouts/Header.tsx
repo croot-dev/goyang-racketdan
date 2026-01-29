@@ -63,7 +63,7 @@ export default function Header({ data: user }: PageProps) {
               color="teal.500"
               cursor="pointer"
             >
-              NONAME
+              이테모
             </Box>
           </Link>
 
